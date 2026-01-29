@@ -522,14 +522,31 @@ export function generateFallbackResponse(
  * Process and send AI response with images
  */
 export async function processAIResponse(
-    response: { text: string; imageAction?: { type: 'single' | 'confirm'; products: Array<{ name: string; price: number; imageUrl: string; description?: string }> } },
+    response: { text: string; imageAction?: { type: 'single' | 'confirm' | 'attachment'; products?: Array<{ name: string; price: number; imageUrl: string; description?: string }>; imageUrls?: string[] } },
     senderId: string,
     pageAccessToken: string
 ): Promise<void> {
     const { imageAction } = response;
 
-    if (imageAction && imageAction.products.length > 0) {
-        try {
+    if (!imageAction) return;
+
+    try {
+        // Handle new attachment type for property images
+        if (imageAction.type === 'attachment' && imageAction.imageUrls && imageAction.imageUrls.length > 0) {
+            // Send property images
+            for (const imageUrl of imageAction.imageUrls.slice(0, 5)) {
+                await sendImage({
+                    recipientId: senderId,
+                    imageUrl,
+                    pageAccessToken,
+                });
+            }
+            logger.success(`Sent ${imageAction.imageUrls.length} property image(s)`);
+            return;
+        }
+
+        // Handle traditional product images
+        if (imageAction.products && imageAction.products.length > 0) {
             if (imageAction.products.length === 1 && imageAction.type === 'single') {
                 await sendImage({
                     recipientId: senderId,
@@ -545,10 +562,10 @@ export async function processAIResponse(
                 });
             }
             logger.success(`Sent ${imageAction.products.length} product image(s) in ${imageAction.type} mode`);
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            logger.error('Failed to send product images:', { message: errorMessage });
         }
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        logger.error('Failed to send images:', { message: errorMessage });
     }
 }
 

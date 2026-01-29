@@ -124,10 +124,12 @@ export interface ChatMessage {
     content: string;
 }
 
-// Image action for product display
+// Image action for product/property display
 export interface ImageAction {
-    type: 'single' | 'confirm';
-    products: ProductImageData[];
+    type: 'single' | 'confirm' | 'attachment';
+    products?: ProductImageData[];
+    productIds?: string[];
+    imageUrls?: string[];
 }
 
 export interface ProductImageData {

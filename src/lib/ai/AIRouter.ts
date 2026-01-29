@@ -191,7 +191,7 @@ export async function routeToAI(
                     shopId: context.shopId,
                     customerId: context.customerId,
                     customerName: context.customerName,
-                    products: context.products,
+                    properties: context.products, // Properties use same context as products
                     notifySettings: context.notifySettings,
                 };
 

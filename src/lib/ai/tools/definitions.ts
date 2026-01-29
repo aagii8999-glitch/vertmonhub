@@ -1,6 +1,6 @@
 /**
- * AI Tool Definitions
- * Defines all available AI function calling tools for OpenAI
+ * AI Tool Definitions for Vertmon Hub
+ * Real Estate Platform AI Function Calling Tools
  */
 
 import OpenAI from 'openai';
@@ -9,55 +9,202 @@ import OpenAI from 'openai';
  * All available AI tools for function calling
  */
 export const AI_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
+    // ============================================
+    // REAL ESTATE TOOLS
+    // ============================================
     {
         type: 'function',
         function: {
-            name: 'create_order',
-            description: 'Create a new order when customer explicitly says they want to buy something. Do not use for general inquiries.',
+            name: 'search_properties',
+            description: 'Хэрэглэгчийн хүсэлтээр үл хөдлөх хөрөнгө хайх. Үнэ, хэмжээ, өрөөний тоо, байршил зэргээр шүүж болно.',
             parameters: {
                 type: 'object',
                 properties: {
-                    product_name: {
+                    type: {
                         type: 'string',
-                        description: 'Name of the product to order (fuzzy match)'
+                        enum: ['apartment', 'house', 'office', 'land', 'commercial'],
+                        description: 'Үл хөдлөхийн төрөл'
                     },
-                    quantity: {
+                    min_price: {
                         type: 'number',
-                        description: 'Quantity to order',
-                        default: 1
+                        description: 'Хамгийн бага үнэ (MNT)'
                     },
-                    color: {
-                        type: 'string',
-                        description: 'Selected color variant (optional)'
+                    max_price: {
+                        type: 'number',
+                        description: 'Хамгийн их үнэ (MNT)'
                     },
-                    size: {
+                    rooms: {
+                        type: 'number',
+                        description: 'Өрөөний тоо'
+                    },
+                    district: {
                         type: 'string',
-                        description: 'Selected size variant (optional)'
+                        description: 'Дүүрэг/Байршил (ЧД, БЗД, СХД, ХУД гэх мэт)'
+                    },
+                    min_size: {
+                        type: 'number',
+                        description: 'Хамгийн бага талбай (м²)'
+                    },
+                    max_size: {
+                        type: 'number',
+                        description: 'Хамгийн их талбай (м²)'
+                    },
+                    limit: {
+                        type: 'number',
+                        description: 'Хэдэн үр дүн харуулах (default: 5)'
                     }
                 },
-                required: ['product_name', 'quantity']
+                required: []
             }
         }
     },
     {
         type: 'function',
         function: {
+            name: 'show_property_images',
+            description: 'Тодорхой үл хөдлөхийн зураг харуулах. Хэрэглэгч зураг үзэхийг хүссэн үед.',
+            parameters: {
+                type: 'object',
+                properties: {
+                    property_id: {
+                        type: 'string',
+                        description: 'Үл хөдлөхийн ID'
+                    },
+                    property_name: {
+                        type: 'string',
+                        description: 'Үл хөдлөхийн нэр (ID байхгүй бол)'
+                    }
+                },
+                required: []
+            }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'calculate_loan',
+            description: 'Ипотекийн зээлийн сарын төлбөр тооцоолох. Хэрэглэгч зээлийн тооцоо асуухад ашиглана.',
+            parameters: {
+                type: 'object',
+                properties: {
+                    amount: {
+                        type: 'number',
+                        description: 'Зээлийн дүн (MNT)'
+                    },
+                    rate: {
+                        type: 'number',
+                        description: 'Жилийн хүү (%, жишээ: 12.5)'
+                    },
+                    years: {
+                        type: 'number',
+                        description: 'Зээлийн хугацаа (жил)'
+                    },
+                    down_payment: {
+                        type: 'number',
+                        description: 'Урьдчилгаа төлбөр (MNT, optional)'
+                    }
+                },
+                required: ['amount', 'years']
+            }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'schedule_viewing',
+            description: 'Үл хөдлөх үзэх уулзалт товлох. Хэрэглэгч үзлэг хийхийг хүссэн үед.',
+            parameters: {
+                type: 'object',
+                properties: {
+                    property_id: {
+                        type: 'string',
+                        description: 'Үл хөдлөхийн ID'
+                    },
+                    property_name: {
+                        type: 'string',
+                        description: 'Үл хөдлөхийн нэр (ID байхгүй бол)'
+                    },
+                    preferred_date: {
+                        type: 'string',
+                        description: 'Хүссэн огноо (YYYY-MM-DD эсвэл "маргааш", "ирэх долоо хоногт")'
+                    },
+                    preferred_time: {
+                        type: 'string',
+                        description: 'Хүссэн цаг (10:00, өглөө, үдээс хойш гэх мэт)'
+                    },
+                    customer_phone: {
+                        type: 'string',
+                        description: 'Хэрэглэгчийн утас'
+                    }
+                },
+                required: ['property_name']
+            }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'create_lead',
+            description: 'Шинэ lead/сонирхогч үүсгэх. Хэрэглэгч үл хөдлөхийн талаар сонирхол илэрхийлэхэд автоматаар үүсгэнэ.',
+            parameters: {
+                type: 'object',
+                properties: {
+                    property_id: {
+                        type: 'string',
+                        description: 'Сонирхсон үл хөдлөхийн ID'
+                    },
+                    budget_min: {
+                        type: 'number',
+                        description: 'Төсвийн доод хязгаар'
+                    },
+                    budget_max: {
+                        type: 'number',
+                        description: 'Төсвийн дээд хязгаар'
+                    },
+                    preferred_type: {
+                        type: 'string',
+                        enum: ['apartment', 'house', 'office', 'land', 'commercial'],
+                        description: 'Хүссэн төрөл'
+                    },
+                    preferred_district: {
+                        type: 'string',
+                        description: 'Хүссэн байршил'
+                    },
+                    preferred_rooms: {
+                        type: 'number',
+                        description: 'Хүссэн өрөөний тоо'
+                    },
+                    notes: {
+                        type: 'string',
+                        description: 'Нэмэлт тэмдэглэл'
+                    }
+                },
+                required: []
+            }
+        }
+    },
+    // ============================================
+    // GENERAL TOOLS (Keep from original)
+    // ============================================
+    {
+        type: 'function',
+        function: {
             name: 'collect_contact_info',
-            description: 'Save customer contact information when they provide phone number or delivery address for an order. Use this when customer shares their phone or address.',
+            description: 'Хэрэглэгчийн холбоо барих мэдээлэл хадгалах. Утас, имэйл, хаяг өгөхөд ашиглана.',
             parameters: {
                 type: 'object',
                 properties: {
                     phone: {
                         type: 'string',
-                        description: 'Customer phone number (8 digits for Mongolia)'
+                        description: 'Утасны дугаар (8 оронтой)'
                     },
-                    address: {
+                    email: {
                         type: 'string',
-                        description: 'Delivery address'
+                        description: 'Имэйл хаяг'
                     },
                     name: {
                         type: 'string',
-                        description: 'Customer name if provided'
+                        description: 'Хэрэглэгчийн нэр'
                     }
                 },
                 required: []
@@ -68,13 +215,13 @@ export const AI_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
         type: 'function',
         function: {
             name: 'request_human_support',
-            description: 'Call this when customer explicitly asks to speak to a human, operator, administrative staff, or when you cannot help them.',
+            description: 'Хүнтэй холбогдохыг хүссэн үед. Оператор, менежер, хүн гэх мэт.',
             parameters: {
                 type: 'object',
                 properties: {
                     reason: {
                         type: 'string',
-                        description: 'Reason for requesting human support'
+                        description: 'Шалтгаан'
                     }
                 },
                 required: ['reason']
@@ -84,132 +231,14 @@ export const AI_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
     {
         type: 'function',
         function: {
-            name: 'cancel_order',
-            description: 'Cancel an order when customer explicitly says they want to cancel their order. This will restore the reserved stock.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    reason: {
-                        type: 'string',
-                        description: 'Reason for cancellation'
-                    }
-                },
-                required: []
-            }
-        }
-    },
-    {
-        type: 'function',
-        function: {
-            name: 'show_product_image',
-            description: 'Show product image(s) ONLY when customer asks about a SPECIFIC product by name or description (e.g. "харуулаач", "зураг", "юу шиг харагддаг вэ?"). DO NOT use for generic questions like "ямар бараа байна?" - just answer with text. Use "confirm" mode when 2-5 similar products match to ask which one they want.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    product_names: {
-                        type: 'array',
-                        items: { type: 'string' },
-                        description: 'Names of SPECIFIC products to show (1-5 max). Use EXACT names from product list.'
-                    },
-                    mode: {
-                        type: 'string',
-                        enum: ['single', 'confirm'],
-                        description: '"single" for 1 product, "confirm" to ask customer to choose between 2-5 similar products'
-                    }
-                },
-                required: ['product_names', 'mode']
-            }
-        }
-    },
-    // Cart Tools
-    {
-        type: 'function',
-        function: {
-            name: 'add_to_cart',
-            description: 'Add a product to shopping cart. Use this FIRST when customer wants to buy something. Ask to confirm checkout after.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    product_name: {
-                        type: 'string',
-                        description: 'Name of the product to add (fuzzy match)'
-                    },
-                    quantity: {
-                        type: 'number',
-                        description: 'Quantity to add',
-                        default: 1
-                    },
-                    color: {
-                        type: 'string',
-                        description: 'Color variant (optional)'
-                    },
-                    size: {
-                        type: 'string',
-                        description: 'Size variant (optional)'
-                    }
-                },
-                required: ['product_name']
-            }
-        }
-    },
-    {
-        type: 'function',
-        function: {
-            name: 'view_cart',
-            description: 'Show current shopping cart contents and total. Use when customer asks about their cart or wants to see what they have added.',
-            parameters: {
-                type: 'object',
-                properties: {},
-                required: []
-            }
-        }
-    },
-    {
-        type: 'function',
-        function: {
-            name: 'remove_from_cart',
-            description: 'Remove an item from cart. Use when customer wants to remove something from their cart.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    product_name: {
-                        type: 'string',
-                        description: 'Name of the product to remove'
-                    }
-                },
-                required: ['product_name']
-            }
-        }
-    },
-    {
-        type: 'function',
-        function: {
-            name: 'checkout',
-            description: 'Finalize cart and create order. Use when customer confirms they want to complete their purchase and checkout.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    notes: {
-                        type: 'string',
-                        description: 'Any special notes for the order'
-                    }
-                },
-                required: []
-            }
-        }
-    },
-    // Memory Tool
-    {
-        type: 'function',
-        function: {
             name: 'remember_preference',
-            description: 'Хэрэглэгчийн сонголтыг санах. Размер, өнгө, стиль гэх мэт хэлэхэд ашиглана.',
+            description: 'Хэрэглэгчийн сонголтыг санах. Төсөв, байршил, өрөөний тоо гэх мэт.',
             parameters: {
                 type: 'object',
                 properties: {
                     key: {
                         type: 'string',
-                        description: 'Сонголтын төрөл (size, color, style, budget)'
+                        description: 'Сонголтын төрөл (budget, location, rooms, type)'
                     },
                     value: {
                         type: 'string',
@@ -219,40 +248,57 @@ export const AI_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
                 required: ['key', 'value']
             }
         }
-    },
-    // Payment Tool
-    {
-        type: 'function',
-        function: {
-            name: 'check_payment_status',
-            description: 'Check payment status manually. Use when customer says they paid ("Tulluu", "Shiljuullee") but AI didn\'t confirm yet.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    order_id: {
-                        type: 'string',
-                        description: 'Order ID to check (optional, if known)'
-                    }
-                },
-                required: []
-            }
-        }
     }
 ];
 
-/**
- * Tool argument types
- */
-export interface CreateOrderArgs {
-    product_name: string;
-    quantity: number;
-    color?: string;
-    size?: string;
+// ============================================
+// TOOL ARGUMENT INTERFACES
+// ============================================
+
+export interface SearchPropertiesArgs {
+    type?: 'apartment' | 'house' | 'office' | 'land' | 'commercial';
+    min_price?: number;
+    max_price?: number;
+    rooms?: number;
+    district?: string;
+    min_size?: number;
+    max_size?: number;
+    limit?: number;
+}
+
+export interface ShowPropertyImagesArgs {
+    property_id?: string;
+    property_name?: string;
+}
+
+export interface CalculateLoanArgs {
+    amount: number;
+    rate?: number;
+    years: number;
+    down_payment?: number;
+}
+
+export interface ScheduleViewingArgs {
+    property_id?: string;
+    property_name?: string;
+    preferred_date?: string;
+    preferred_time?: string;
+    customer_phone?: string;
+}
+
+export interface CreateLeadArgs {
+    property_id?: string;
+    budget_min?: number;
+    budget_max?: number;
+    preferred_type?: 'apartment' | 'house' | 'office' | 'land' | 'commercial';
+    preferred_district?: string;
+    preferred_rooms?: number;
+    notes?: string;
 }
 
 export interface CollectContactArgs {
     phone?: string;
-    address?: string;
+    email?: string;
     name?: string;
 }
 
@@ -260,67 +306,33 @@ export interface RequestHumanSupportArgs {
     reason: string;
 }
 
-export interface CancelOrderArgs {
-    reason?: string;
-}
-
-export interface ShowProductImageArgs {
-    product_names: string[];
-    mode: 'single' | 'confirm';
-}
-
-export interface AddToCartArgs {
-    product_name: string;
-    quantity?: number;
-    color?: string;
-    size?: string;
-}
-
-export interface RemoveFromCartArgs {
-    product_name: string;
-}
-
-export interface CheckoutArgs {
-    notes?: string;
-}
-
 export interface RememberPreferenceArgs {
     key: string;
     value: string;
-}
-
-export interface CheckPaymentArgs {
-    order_id?: string;
 }
 
 /**
  * Union type for all tool arguments
  */
 export type ToolArgs =
-    | CreateOrderArgs
+    | SearchPropertiesArgs
+    | ShowPropertyImagesArgs
+    | CalculateLoanArgs
+    | ScheduleViewingArgs
+    | CreateLeadArgs
     | CollectContactArgs
     | RequestHumanSupportArgs
-    | CancelOrderArgs
-    | ShowProductImageArgs
-    | AddToCartArgs
-    | RemoveFromCartArgs
-    | CheckoutArgs
-    | RememberPreferenceArgs
-    | CheckPaymentArgs;
+    | RememberPreferenceArgs;
 
 /**
  * Tool names type
  */
 export type ToolName =
-    | 'create_order'
+    | 'search_properties'
+    | 'show_property_images'
+    | 'calculate_loan'
+    | 'schedule_viewing'
+    | 'create_lead'
     | 'collect_contact_info'
     | 'request_human_support'
-    | 'cancel_order'
-    | 'show_product_image'
-    | 'add_to_cart'
-    | 'view_cart'
-    | 'remove_from_cart'
-    | 'checkout'
-    | 'remember_preference'
-    | 'check_payment_status';
-
+    | 'remember_preference';

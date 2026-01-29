@@ -1,5 +1,5 @@
 /**
- * SmartHub AI Plan Configuration - GPT-5 Family
+ * Vertmon Hub AI Plan Configuration - GPT-5 Family
  * 
  * Strategy: Exclusive use of GPT-5 models across all tiers
  * - Trial: GPT-5 Mini (14 days)
@@ -37,8 +37,9 @@ export interface PlanAIConfig {
         salesIntelligence: boolean;
 
         // Modules
-        cartSystem: 'none' | 'basic' | 'full';
-        paymentIntegration: boolean;
+        leadManagement: boolean;
+        viewingScheduler: boolean;
+        loanCalculator: boolean;
         crmAnalytics: 'none' | 'basic' | 'advanced' | 'full';
 
         // Tools
@@ -47,14 +48,14 @@ export interface PlanAIConfig {
         bulkMarketing: boolean;
         excelExport: boolean;
         customBranding: boolean;
-        commentReply: boolean;
+        hubspotIntegration: boolean;
         prioritySupport: boolean;
     };
     enabledTools: ToolName[];
 }
 
 /**
- * Plan configurations
+ * Plan configurations - Real Estate focused
  */
 export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
     trial: {
@@ -73,8 +74,9 @@ export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
             salesIntelligence: true,
 
             // Modules
-            cartSystem: 'full',
-            paymentIntegration: true,
+            leadManagement: true,
+            viewingScheduler: true,
+            loanCalculator: true,
             crmAnalytics: 'advanced',
 
             // Tools
@@ -83,16 +85,15 @@ export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
             bulkMarketing: false,
             excelExport: true,
             customBranding: false,
-            commentReply: true,
+            hubspotIntegration: false,
             prioritySupport: false,
         },
         enabledTools: [
-            'add_to_cart',
-            'view_cart',
-            'remove_from_cart',
-            'checkout',
-            'create_order',
-            'show_product_image',
+            'search_properties',
+            'show_property_images',
+            'calculate_loan',
+            'schedule_viewing',
+            'create_lead',
             'collect_contact_info',
             'request_human_support',
             'remember_preference',
@@ -114,8 +115,9 @@ export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
             salesIntelligence: false,
 
             // Modules
-            cartSystem: 'basic',
-            paymentIntegration: false,
+            leadManagement: true,
+            viewingScheduler: false,
+            loanCalculator: true,
             crmAnalytics: 'basic',
 
             // Tools
@@ -124,13 +126,13 @@ export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
             bulkMarketing: false,
             excelExport: false,
             customBranding: false,
-            commentReply: false,
+            hubspotIntegration: false,
             prioritySupport: false,
         },
         enabledTools: [
-            'add_to_cart',
-            'view_cart',
-            'show_product_image',
+            'search_properties',
+            'show_property_images',
+            'calculate_loan',
             'collect_contact_info',
         ],
     },
@@ -150,27 +152,26 @@ export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
             salesIntelligence: true,
 
             // Modules
-            cartSystem: 'full',
-            paymentIntegration: true,
+            leadManagement: true,
+            viewingScheduler: true,
+            loanCalculator: true,
             crmAnalytics: 'advanced',
 
             // Tools
             autoTagging: true,
-            appointmentBooking: false,
+            appointmentBooking: true,
             bulkMarketing: false,
             excelExport: true,
             customBranding: false,
-            commentReply: true,
+            hubspotIntegration: false,
             prioritySupport: false,
         },
         enabledTools: [
-            'add_to_cart',
-            'view_cart',
-            'remove_from_cart',
-            'checkout',
-            'create_order',
-            'cancel_order',
-            'show_product_image',
+            'search_properties',
+            'show_property_images',
+            'calculate_loan',
+            'schedule_viewing',
+            'create_lead',
             'collect_contact_info',
             'request_human_support',
             'remember_preference',
@@ -192,8 +193,9 @@ export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
             salesIntelligence: true,
 
             // Modules
-            cartSystem: 'full',
-            paymentIntegration: true,
+            leadManagement: true,
+            viewingScheduler: true,
+            loanCalculator: true,
             crmAnalytics: 'full',
 
             // Tools
@@ -202,21 +204,18 @@ export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
             bulkMarketing: true,
             excelExport: true,
             customBranding: true,
-            commentReply: true,
+            hubspotIntegration: true,
             prioritySupport: true,
         },
         enabledTools: [
-            'add_to_cart',
-            'view_cart',
-            'remove_from_cart',
-            'checkout',
-            'create_order',
-            'cancel_order',
-            'show_product_image',
+            'search_properties',
+            'show_property_images',
+            'calculate_loan',
+            'schedule_viewing',
+            'create_lead',
             'collect_contact_info',
             'request_human_support',
             'remember_preference',
-            'check_payment_status',
         ],
     },
 };
@@ -246,8 +245,6 @@ export function getPlanTypeFromSubscription(subscription?: {
         if (trialEnds > new Date()) {
             return 'trial';
         }
-        // If trial expired, we fall through. 
-        // But we should strict check for 'active' status for paid plans below.
     }
 
     // Only allow Paid plans if status is Active
@@ -264,7 +261,7 @@ export function getPlanTypeFromSubscription(subscription?: {
         return 'pro';
     }
 
-    return 'starter'; // Default to starter
+    return 'starter';
 }
 
 /**
