@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import * as XLSX from 'xlsx';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET() {
     try {
@@ -96,8 +97,8 @@ export async function GET() {
                 'Content-Disposition': `attachment; filename="orders_${today}.xlsx"`,
             },
         });
-    } catch (error) {
-        console.error('Order export error:', error);
+    } catch (error: unknown) {
+        logger.error('Order export error:', { error: error });
         return NextResponse.json({ error: 'Export failed' }, { status: 500 });
     }
 }

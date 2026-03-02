@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         // Get the plan
         const { data: plan, error: planError } = await supabase
             .from('plans')
-            .select('*')
+            .select('id, name, price_monthly, price_yearly, features, is_active')
             .eq('id', plan_id)
             .eq('is_active', true)
             .single();
@@ -133,8 +133,8 @@ export async function POST(request: NextRequest) {
                 message: 'QR кодоор төлбөрөө төлнө үү',
                 payment_required: true
             });
-        } catch (qpayError: any) {
-            logger.error('QPay error:', qpayError);
+        } catch (qpayError: unknown) {
+            logger.error('QPay error:', { error: qpayError });
 
             // Return invoice without QPay for manual payment
             return NextResponse.json({
@@ -146,10 +146,10 @@ export async function POST(request: NextRequest) {
                 qpay_error: true
             });
         }
-    } catch (error: any) {
-        logger.error('Subscribe error:', error);
+    } catch (error: unknown) {
+        logger.error('Subscribe error:', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json(
-            { error: error.message || 'Failed to subscribe' },
+            { error: error instanceof Error ? error.message : 'Failed to subscribe' },
             { status: 500 }
         );
     }

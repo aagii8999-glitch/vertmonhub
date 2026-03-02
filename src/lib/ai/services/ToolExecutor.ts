@@ -152,7 +152,7 @@ export async function executeTool(
             default:
                 return { success: false, error: `Unknown tool: ${toolName}` };
         }
-    } catch (error) {
+    } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         logger.error(`Tool execution error (${toolName}):`, { error: errorMessage });
         return { success: false, error: errorMessage };

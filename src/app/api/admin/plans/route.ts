@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/admin/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 // GET - List all plans
 export async function GET() {
@@ -20,16 +21,16 @@ export async function GET() {
 
         const { data: plans, error } = await supabase
             .from('plans')
-            .select('*')
+            .select('id, name, slug, description, price_monthly, price_yearly, features, limits, is_active, is_featured, sort_order, created_at')
             .order('sort_order', { ascending: true });
 
         if (error) throw error;
 
         return NextResponse.json({ plans: plans || [] });
-    } catch (error: any) {
-        console.error('Get plans error:', error);
+    } catch (error: unknown) {
+        logger.error('Get plans error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Failed to fetch plans' },
+            { error: error instanceof Error ? error.message : 'Failed to fetch plans' },
             { status: 500 }
         );
     }
@@ -76,10 +77,10 @@ export async function POST(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ plan, message: 'Plan created successfully' });
-    } catch (error: any) {
-        console.error('Create plan error:', error);
+    } catch (error: unknown) {
+        logger.error('Create plan error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Failed to create plan' },
+            { error: error instanceof Error ? error.message : 'Failed to create plan' },
             { status: 500 }
         );
     }
@@ -119,10 +120,10 @@ export async function PATCH(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ plan, message: 'Plan updated successfully' });
-    } catch (error: any) {
-        console.error('Update plan error:', error);
+    } catch (error: unknown) {
+        logger.error('Update plan error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Failed to update plan' },
+            { error: error instanceof Error ? error.message : 'Failed to update plan' },
             { status: 500 }
         );
     }
@@ -172,10 +173,10 @@ export async function DELETE(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ message: 'Plan deleted successfully' });
-    } catch (error: any) {
-        console.error('Delete plan error:', error);
+    } catch (error: unknown) {
+        logger.error('Delete plan error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Failed to delete plan' },
+            { error: error instanceof Error ? error.message : 'Failed to delete plan' },
             { status: 500 }
         );
     }

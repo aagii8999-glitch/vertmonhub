@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     const tokenData = await tokenResponse.json();
 
     if (tokenData.error) {
-      console.error('Facebook token error:', tokenData.error);
+      logger.error('Facebook token error:', { error: tokenData.error });
       return NextResponse.redirect(`${origin}/setup?fb_error=token_error`);
     }
 
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
     const pagesData = await pagesResponse.json();
 
     if (pagesData.error) {
-      console.error('Facebook pages error:', pagesData.error);
+      logger.error('Facebook pages error:', { error: pagesData.error });
       return NextResponse.redirect(`${origin}/setup?fb_error=pages_error`);
     }
 
@@ -83,7 +84,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/setup?fb_success=true&page_count=${pages.length}`);
 
   } catch (err) {
-    console.error('Facebook OAuth error:', err);
+    logger.error('Facebook OAuth error:', { error: err });
     return NextResponse.redirect(`${origin}/setup?fb_error=exception`);
   }
 }

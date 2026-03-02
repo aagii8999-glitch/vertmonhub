@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
+import { logger } from '@/lib/utils/logger';
 
 const isDev = process.env.NODE_ENV === 'development';
 const ACTIVE_SHOP_KEY = 'smarthub_active_shop_id';
@@ -108,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setShops(userShops);
       return userShops;
     } catch (err) {
-      if (isDev) console.error('Fetch shops error:', err);
+      if (isDev) logger.error('Fetch shops error:', { error: err });
       return [];
     }
   }, [isSignedIn]);
@@ -152,7 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         window.location.reload();
       }
     } catch (err) {
-      if (isDev) console.error('Switch shop error:', err);
+      if (isDev) logger.error('Switch shop error:', { error: err });
     }
   }, [setActiveShop]);
 

@@ -1,10 +1,11 @@
 /**
  * useFeatures Hook - Access current shop's features and limits
+ * Migrated from SWR to TanStack Query for consistency (H10)
  */
 
 'use client';
 
-import useSWR from 'swr';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface Features {
     ai_enabled: boolean;
@@ -49,23 +50,26 @@ interface FeaturesResponse {
     shopId?: string;
 }
 
-const fetcher = (url: string) => {
+const fetchFeatures = async (): Promise<FeaturesResponse> => {
     const shopId = typeof window !== 'undefined' ? localStorage.getItem('smarthub_active_shop_id') : null;
-    return fetch(url, {
+    const res = await fetch('/api/features', {
         headers: shopId ? { 'x-shop-id': shopId } : {}
-    }).then(res => res.json());
+    });
+    if (!res.ok) throw new Error('Failed to fetch features');
+    return res.json();
 };
 
 export function useFeatures() {
-    const { data, error, isLoading, mutate } = useSWR<FeaturesResponse>(
-        '/api/features',
-        fetcher,
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-            dedupingInterval: 60000, // Cache for 1 minute
-        }
-    );
+    const queryClient = useQueryClient();
+    const shopId = typeof window !== 'undefined' ? localStorage.getItem('smarthub_active_shop_id') : null;
+
+    const { data, error, isLoading } = useQuery<FeaturesResponse>({
+        queryKey: ['features', shopId],
+        queryFn: fetchFeatures,
+        staleTime: 60_000, // Cache for 1 minute (was dedupingInterval)
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+    });
 
     /**
      * Check if a feature is enabled
@@ -139,7 +143,7 @@ export function useFeatures() {
         isLimitReached,
         isPaidPlan,
         isProOrHigher,
-        refresh: mutate,
+        refresh: () => queryClient.invalidateQueries({ queryKey: ['features'] }),
         usage: data?.usage
     };
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { logger } from '@/lib/utils/logger';
 
 // Get Instagram accounts from OAuth cookie
 export async function GET() {
@@ -16,8 +17,8 @@ export async function GET() {
         const accounts = JSON.parse(accountsJson);
 
         return NextResponse.json({ accounts });
-    } catch (error) {
-        console.error('Error fetching Instagram accounts:', error);
+    } catch (error: unknown) {
+        logger.error('Error fetching Instagram accounts:', { error: error });
         return NextResponse.json({ accounts: [], error: 'Failed to fetch accounts' });
     }
 }
@@ -28,8 +29,8 @@ export async function DELETE() {
         const cookieStore = await cookies();
         cookieStore.delete('ig_accounts');
         return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Error clearing Instagram accounts cookie:', error);
+    } catch (error: unknown) {
+        logger.error('Error clearing Instagram accounts cookie:', { error: error });
         return NextResponse.json({ success: false });
     }
 }

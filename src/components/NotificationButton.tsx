@@ -22,6 +22,13 @@ export function NotificationButton() {
         <button
             onClick={handleClick}
             disabled={isLoading || permission === 'denied'}
+            aria-label={
+                permission === 'denied'
+                    ? 'Notification зөвшөөрөл хаагдсан'
+                    : isSubscribed
+                        ? 'Notification унтраах'
+                        : 'Notification идэвхжүүлэх'
+            }
             className={`
         flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
         transition-all duration-200

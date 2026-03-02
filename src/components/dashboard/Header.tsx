@@ -10,6 +10,7 @@ import { ShopSwitcher } from '@/components/dashboard/ShopSwitcher';
 import { useFeatures } from '@/hooks/useFeatures';
 import { Avatar } from '@/components/ui/Avatar';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/utils/logger';
 
 const pageTitles: Record<string, string> = {
     '/dashboard': '',
@@ -49,9 +50,16 @@ export function Header() {
                 setShowDropdown(false);
             }
         }
+        function handleEscape(e: KeyboardEvent) {
+            if (e.key === 'Escape') setShowDropdown(false);
+        }
         if (showDropdown) {
             document.addEventListener('mousedown', handleClickOutside);
-            return () => document.removeEventListener('mousedown', handleClickOutside);
+            document.addEventListener('keydown', handleEscape);
+            return () => {
+                document.removeEventListener('mousedown', handleClickOutside);
+                document.removeEventListener('keydown', handleEscape);
+            };
         }
     }, [showDropdown]);
 
@@ -65,8 +73,8 @@ export function Header() {
             await supabase.auth.signOut();
             router.push('/auth/login');
             router.refresh();
-        } catch (error) {
-            console.error('Logout error:', error);
+        } catch (error: unknown) {
+            logger.error('Logout error:', { error: error });
             if (typeof window !== 'undefined') window.location.href = '/auth/login';
         }
     };
@@ -126,6 +134,9 @@ export function Header() {
                     <div ref={dropdownRef} className="relative">
                         <button
                             onClick={() => setShowDropdown(!showDropdown)}
+                            aria-label="Хэрэглэгчийн цэс"
+                            aria-expanded={showDropdown}
+                            aria-haspopup="true"
                             className={cn(
                                 'flex items-center gap-2 rounded-xl transition-all duration-200 p-1.5 md:px-2.5 md:py-1.5',
                                 'hover:bg-[#151040]',
@@ -165,6 +176,7 @@ export function Header() {
                                             setShowDropdown(false);
                                             router.push('/dashboard/settings');
                                         }}
+                                        aria-label="Тохиргоо хуудас руу очих"
                                         className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] text-foreground hover:bg-[#151040] rounded-xl transition-colors"
                                     >
                                         <Settings className="w-4 h-4 text-white/30" strokeWidth={1.5} />
@@ -173,6 +185,7 @@ export function Header() {
                                     <button
                                         onClick={handleLogout}
                                         disabled={loggingOut}
+                                        aria-label="Системээс гарах"
                                         className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] text-red-500 hover:bg-red-900/10 rounded-xl transition-colors"
                                     >
                                         <LogOut className="w-4 h-4" strokeWidth={1.5} />

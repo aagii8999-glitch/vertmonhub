@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import * as XLSX from 'xlsx';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET() {
     try {
@@ -15,7 +16,7 @@ export async function GET() {
         // Fetch all products for this shop
         const { data: products, error } = await supabase
             .from('products')
-            .select('*')
+            .select('id, shop_id, name, description, price, stock, reserved_stock, image_url, is_active, discount_percent, colors, sizes, type, created_at, has_variants')
             .eq('shop_id', shop.id)
             .eq('is_active', true)
             .order('name');
@@ -73,8 +74,8 @@ export async function GET() {
                 'Content-Disposition': `attachment; filename="products_${today}.xlsx"`,
             },
         });
-    } catch (error) {
-        console.error('Product export error:', error);
+    } catch (error: unknown) {
+        logger.error('Product export error:', { error: error });
         return NextResponse.json({ error: 'Export failed' }, { status: 500 });
     }
 }

@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/utils/logger';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -85,8 +86,8 @@ export default function PlansPage() {
                 const data = await res.json();
                 setPlans(data.plans || []);
             }
-        } catch (error) {
-            console.error('Fetch plans error:', error);
+        } catch (error: unknown) {
+            logger.error('Fetch plans error:', { error: error });
         } finally {
             setLoading(false);
         }
@@ -168,8 +169,8 @@ export default function PlansPage() {
                 const error = await res.json();
                 alert(error.error || 'Failed to save plan');
             }
-        } catch (error) {
-            console.error('Save plan error:', error);
+        } catch (error: unknown) {
+            logger.error('Save plan error:', { error: error });
             alert('Failed to save plan');
         } finally {
             setSaving(false);
@@ -190,8 +191,8 @@ export default function PlansPage() {
                 const error = await res.json();
                 alert(error.error || 'Failed to delete plan');
             }
-        } catch (error) {
-            console.error('Delete plan error:', error);
+        } catch (error: unknown) {
+            logger.error('Delete plan error:', { error: error });
         }
     }
 

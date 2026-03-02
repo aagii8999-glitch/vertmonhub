@@ -79,7 +79,7 @@ export async function trackAIEvent(event: AIAnalyticsEvent): Promise<void> {
             type: event.event_type,
             success: event.success
         });
-    } catch (error) {
+    } catch (error: unknown) {
         // Don't fail the main operation for analytics
         logger.warn('Failed to track AI analytics:', { error: String(error) });
     }
@@ -110,7 +110,7 @@ export async function trackToolExecution<T>(
         });
 
         return result;
-    } catch (error) {
+    } catch (error: unknown) {
         const responseTime = Date.now() - startTime;
 
         await trackAIEvent({
@@ -148,7 +148,7 @@ export async function trackFunnelStage(
         });
 
         logger.debug('Funnel stage tracked:', { stage, customerId });
-    } catch (error) {
+    } catch (error: unknown) {
         logger.warn('Failed to track funnel stage:', { error: String(error) });
     }
 }
@@ -171,7 +171,7 @@ export async function getAIMetrics(shopId: string, days: number = 30): Promise<{
     // Get all analytics for the period
     const { data: analytics, error } = await supabase
         .from('ai_analytics')
-        .select('*')
+        .select('id, shop_id, customer_id, event_type, tool_name, product_id, product_name, amount, success, error_message, metadata, session_id, response_time_ms, created_at')
         .eq('shop_id', shopId)
         .gte('created_at', startDate.toISOString());
 

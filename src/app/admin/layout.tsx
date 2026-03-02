@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/utils/logger';
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -63,15 +64,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
             if (res.ok) {
                 const data = await res.json();
-                if (isDev) console.log('Admin verified:', data.admin?.email);
+                if (isDev) logger.info('Admin verified:', { data: data.admin?.email });
                 setAdmin(data.admin);
             } else {
-                if (isDev) console.log('Not an admin, redirecting');
+                if (isDev) logger.info('Not an admin, redirecting');
                 // Not an admin - redirect to regular dashboard
                 router.push('/dashboard');
             }
-        } catch (error) {
-            if (isDev) console.error('Admin check error:', error);
+        } catch (error: unknown) {
+            if (isDev) logger.error('Admin check error:', { error: error });
             router.push('/dashboard');
         } finally {
             setLoading(false);
@@ -106,7 +107,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             )}
 
             {/* Sidebar */}
-            <aside className={`
+            <aside
+                aria-label="Admin навигаци"
+                className={`
                 fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-100 shadow-[2px_0_8px_-4px_rgba(0,0,0,0.05)]
                 transform transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]
                 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -120,13 +123,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <button
                         className="lg:hidden p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-colors"
                         onClick={() => setSidebarOpen(false)}
+                        aria-label="Хажуу цэс хаах"
                     >
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto" aria-label="Admin хуудас навигаци">
                     <div className="mb-4 px-2">
                         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Overview</p>
                     </div>
@@ -178,6 +182,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         <button
                             className="lg:hidden p-2 -ml-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
                             onClick={() => setSidebarOpen(true)}
+                            aria-label="Хажуу цэс нээх"
                         >
                             <Menu className="w-5 h-5" />
                         </button>
@@ -206,7 +211,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </header>
 
                 {/* Page content */}
-                <main className="flex-1 p-4 lg:p-8 max-w-[1600px] w-full mx-auto">
+                <main className="flex-1 p-4 lg:p-8 max-w-[1600px] w-full mx-auto" aria-label="Admin агуулга">
                     {children}
                 </main>
             </div>

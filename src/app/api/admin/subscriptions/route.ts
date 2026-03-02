@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/admin/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 // GET - List all subscriptions
 export async function GET(request: NextRequest) {
@@ -52,9 +53,9 @@ export async function GET(request: NextRequest) {
             limit,
             totalPages: Math.ceil((count || 0) / limit)
         });
-    } catch (error: any) {
-        console.error('Subscriptions fetch error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Subscriptions fetch error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -75,7 +76,7 @@ export async function PUT(request: NextRequest) {
 
         const supabase = supabaseAdmin();
 
-        const updateData: any = {};
+        const updateData: Record<string, unknown> = {};
         if (status) updateData.status = status;
         if (plan_id) updateData.plan_id = plan_id;
         if (notes !== undefined) updateData.notes = notes;
@@ -95,8 +96,8 @@ export async function PUT(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ subscription: data });
-    } catch (error: any) {
-        console.error('Subscription update error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Subscription update error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/utils/logger';
 
 // Facebook Shop/Catalog Products API
 // Fetches products from Facebook Commerce catalog
@@ -81,7 +82,7 @@ export async function GET(request: NextRequest) {
 
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Failed to fetch Facebook products';
-        console.error('FB Shop API Error:', error);
+        logger.error('FB Shop API Error:', { error: error });
         return NextResponse.json(
             { error: message },
             { status: 500 }

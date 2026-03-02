@@ -1,0 +1,117 @@
+import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
+import { sendOrderNotification } from '@/lib/notifications';
+import type { CreateOrderArgs } from '../../definitions';
+import type { ToolExecutionResult, ToolExecutionContext } from '../../../services/ToolExecutor';
+
+export async function executeCreateOrder(
+    args: CreateOrderArgs,
+    context: ToolExecutionContext
+): Promise<ToolExecutionResult> {
+    const { product_name, quantity, color, size } = args;
+    const supabase = supabaseAdmin();
+
+    const product = context.products.find(p =>
+        p.name.toLowerCase().includes(product_name.toLowerCase())
+    );
+
+    if (!product) {
+        return { success: false, error: `Product "${product_name}" not found.` };
+    }
+
+    const { data: dbProduct } = await supabase
+        .from('products')
+        .select('stock, reserved_stock, price, id')
+        .eq('id', product.id)
+        .single();
+
+    const availableStock = (dbProduct?.stock || 0) - (dbProduct?.reserved_stock || 0);
+    if (!dbProduct || availableStock < quantity) {
+        return { success: false, error: `Not enough stock. Only ${availableStock} available.` };
+    }
+
+    if (!context.shopId || !context.customerId) {
+        return { success: false, error: 'Missing shop or customer ID context.' };
+    }
+
+    // Idempotency: check for duplicate pending orders
+    const thirtySecondsAgo = new Date(Date.now() - 30000).toISOString();
+    const { data: existingOrder } = await supabase
+        .from('orders')
+        .select('id, total_amount')
+        .eq('customer_id', context.customerId)
+        .eq('shop_id', context.shopId)
+        .eq('status', 'pending')
+        .gt('created_at', thirtySecondsAgo)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+    if (existingOrder) {
+        const { data: verifyItem } = await supabase
+            .from('order_items')
+            .select('product_id')
+            .eq('order_id', existingOrder.id)
+            .eq('product_id', product.id)
+            .single();
+
+        if (verifyItem) {
+            logger.info('Duplicate order prevented, returning existing:', { orderId: existingOrder.id });
+            return {
+                success: true,
+                message: `Success! Order #${existingOrder.id.substring(0, 8)} created (Found existing). Total: ${existingOrder.total_amount.toLocaleString()}₮.`,
+                data: { orderId: existingOrder.id, total: existingOrder.total_amount }
+            };
+        }
+    }
+
+    const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+            shop_id: context.shopId,
+            customer_id: context.customerId,
+            status: 'pending',
+            total_amount: dbProduct.price * quantity,
+            notes: `AI Order: ${product_name} (${color || ''} ${size || ''})`,
+            created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+    if (orderError) {
+        logger.error('Order creation error:', { error: orderError });
+        return { success: false, error: orderError.message };
+    }
+
+    await supabase.from('order_items').insert({
+        order_id: order.id,
+        product_id: product.id,
+        quantity: quantity,
+        unit_price: dbProduct.price,
+        color: color || null,
+        size: size || null
+    });
+
+    await supabase
+        .from('products')
+        .update({ reserved_stock: (dbProduct.reserved_stock || 0) + quantity })
+        .eq('id', product.id);
+
+    if (context.notifySettings?.order !== false) {
+        try {
+            await sendOrderNotification(context.shopId, 'new', {
+                orderId: order.id,
+                customerName: context.customerName,
+                totalAmount: dbProduct.price * quantity,
+            });
+        } catch (notifError) {
+            logger.warn('Failed to send order notification:', { error: String(notifError) });
+        }
+    }
+
+    return {
+        success: true,
+        message: `Success! Order #${order.id.substring(0, 8)} created. Total: ${(dbProduct.price * quantity).toLocaleString()}₮. Stock reserved.`,
+        data: { orderId: order.id, total: dbProduct.price * quantity }
+    };
+}

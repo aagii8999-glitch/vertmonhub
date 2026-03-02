@@ -12,10 +12,10 @@ describe('Badge', () => {
             expect(screen.getByText('Test Badge')).toBeInTheDocument();
         });
 
-        it('renders as a span element', () => {
+        it('renders as a div element', () => {
             render(<Badge>Badge</Badge>);
             const badge = screen.getByText('Badge');
-            expect(badge.tagName).toBe('SPAN');
+            expect(badge.tagName).toBe('DIV');
         });
     });
 
@@ -29,52 +29,45 @@ describe('Badge', () => {
         it('applies success variant styling', () => {
             render(<Badge variant="success">Success</Badge>);
             const badge = screen.getByText('Success');
-            expect(badge.className).toContain('bg-emerald-500/10');
-            expect(badge.className).toContain('text-emerald-600');
+            expect(badge.className).toContain('bg-green-100');
+            expect(badge.className).toContain('text-green-700');
         });
 
         it('applies warning variant styling', () => {
             render(<Badge variant="warning">Warning</Badge>);
             const badge = screen.getByText('Warning');
-            expect(badge.className).toContain('bg-blue-500/10');
-            expect(badge.className).toContain('text-blue-600');
+            expect(badge.className).toContain('bg-blue-100');
+            expect(badge.className).toContain('text-blue-400');
         });
 
-        it('applies danger variant styling', () => {
-            render(<Badge variant="danger">Danger</Badge>);
+        it('applies destructive variant styling', () => {
+            render(<Badge variant="destructive">Danger</Badge>);
             const badge = screen.getByText('Danger');
-            expect(badge.className).toContain('bg-destructive/10');
-            expect(badge.className).toContain('text-destructive');
+            expect(badge.className).toContain('bg-red-100');
+            expect(badge.className).toContain('text-red-400');
         });
 
         it('applies info variant styling', () => {
             render(<Badge variant="info">Info</Badge>);
             const badge = screen.getByText('Info');
-            expect(badge.className).toContain('bg-blue-500/10');
-            expect(badge.className).toContain('text-blue-600');
+            expect(badge.className).toContain('bg-blue-100');
+            expect(badge.className).toContain('text-blue-400');
         });
 
         it('applies vip variant styling', () => {
             render(<Badge variant="vip">VIP</Badge>);
             const badge = screen.getByText('VIP');
             expect(badge.className).toContain('bg-gradient-to-r');
-            expect(badge.className).toContain('text-white');
+            expect(badge.className).toContain('font-semibold');
         });
     });
 
     describe('Sizes', () => {
-        it('applies sm size by default', () => {
+        it('applies default size', () => {
             render(<Badge>Small</Badge>);
             const badge = screen.getByText('Small');
-            expect(badge.className).toContain('px-2');
+            expect(badge.className).toContain('px-2.5');
             expect(badge.className).toContain('text-xs');
-        });
-
-        it('applies md size', () => {
-            render(<Badge size="md">Medium</Badge>);
-            const badge = screen.getByText('Medium');
-            expect(badge.className).toContain('px-3');
-            expect(badge.className).toContain('text-sm');
         });
     });
 
@@ -119,14 +112,9 @@ describe('OrderStatusBadge', () => {
             expect(screen.getByText('Баталгаажсан')).toBeInTheDocument();
         });
 
-        it('renders processing status correctly', () => {
-            render(<OrderStatusBadge status="processing" />);
-            expect(screen.getByText('Бэлтгэж буй')).toBeInTheDocument();
-        });
-
-        it('renders shipped status correctly', () => {
-            render(<OrderStatusBadge status="shipped" />);
-            expect(screen.getByText('Илгээсэн')).toBeInTheDocument();
+        it('renders shipping status correctly', () => {
+            render(<OrderStatusBadge status="shipping" />);
+            expect(screen.getByText('Хүргэлтэнд')).toBeInTheDocument();
         });
 
         it('renders delivered status correctly', () => {
@@ -148,26 +136,26 @@ describe('OrderStatusBadge', () => {
     describe('Variant Colors', () => {
         it('uses warning variant for pending', () => {
             render(<OrderStatusBadge status="pending" />);
-            const badge = screen.getByText('Хүлээгдэж буй');
-            expect(badge.className).toContain('bg-blue-500/10');
+            const badge = screen.getByText('Хүлээгдэж буй').closest('div');
+            expect(badge?.className).toContain('bg-blue-100');
         });
 
         it('uses info variant for confirmed', () => {
             render(<OrderStatusBadge status="confirmed" />);
-            const badge = screen.getByText('Баталгаажсан');
-            expect(badge.className).toContain('bg-blue-500/10');
+            const badge = screen.getByText('Баталгаажсан').closest('div');
+            expect(badge?.className).toContain('bg-blue-100');
         });
 
         it('uses success variant for delivered', () => {
             render(<OrderStatusBadge status="delivered" />);
-            const badge = screen.getByText('Хүргэгдсэн');
-            expect(badge.className).toContain('bg-emerald-500/10');
+            const badge = screen.getByText('Хүргэгдсэн').closest('div');
+            expect(badge?.className).toContain('bg-green-100');
         });
 
-        it('uses danger variant for cancelled', () => {
+        it('uses destructive variant for cancelled', () => {
             render(<OrderStatusBadge status="cancelled" />);
-            const badge = screen.getByText('Цуцлагдсан');
-            expect(badge.className).toContain('bg-destructive/10');
+            const badge = screen.getByText('Цуцлагдсан').closest('div');
+            expect(badge?.className).toContain('bg-red-100');
         });
     });
 });

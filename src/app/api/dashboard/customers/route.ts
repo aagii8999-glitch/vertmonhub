@@ -49,8 +49,8 @@ export async function GET(request: NextRequest) {
     if (error) throw error;
 
     return NextResponse.json({ customers: customers || [] });
-  } catch (error) {
-    console.error('Customers API error:', error);
+  } catch (error: unknown) {
+    logger.error('Customers API error:', { error: error });
     return NextResponse.json({ error: 'Failed to fetch customers' }, { status: 500 });
   }
 }
@@ -109,8 +109,8 @@ export async function PATCH(request: NextRequest) {
     if (error) throw error;
 
     return NextResponse.json({ customer, message: 'Customer updated' });
-  } catch (error) {
-    console.error('Customer update error:', error);
+  } catch (error: unknown) {
+    logger.error('Customer update error:', { error: error });
     return NextResponse.json({ error: 'Failed to update customer' }, { status: 500 });
   }
 }

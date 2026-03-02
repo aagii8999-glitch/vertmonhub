@@ -231,7 +231,7 @@ export async function routeToAI(
                     }
 
                     const args = (fc.args || {}) as Record<string, unknown>;
-                    logger.info(`Executing tool: ${functionName}`, args as Record<string, unknown>);
+                    logger.info(`Executing tool: ${functionName}`, { data: args as Record<string, unknown> });
 
                     const toolResult: ToolExecutionResult = await executeTool(
                         functionName,

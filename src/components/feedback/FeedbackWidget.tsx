@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { MessageCircle, Bug, HelpCircle, X, Send, Loader2, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { logger } from '@/lib/utils/logger';
 
 type FeedbackType = 'bug' | 'feature' | 'support';
 
@@ -45,8 +46,8 @@ export function FeedbackWidget() {
                 setSent(false);
                 setFeedback({ type: 'bug', message: '', email: '' });
             }, 2000);
-        } catch (error) {
-            console.error('Feedback error:', error);
+        } catch (error: unknown) {
+            logger.error('Feedback error:', { error: error });
         } finally {
             setSending(false);
         }

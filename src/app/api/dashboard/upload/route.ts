@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: Request) {
     try {
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
             });
 
         if (error) {
-            console.error('Supabase storage error:', error);
+            logger.error('Supabase storage error:', { error: error });
             throw error;
         }
 
@@ -40,8 +41,8 @@ export async function POST(request: Request) {
             .getPublicUrl(fileName);
 
         return NextResponse.json({ url: publicUrl });
-    } catch (error) {
-        console.error('Upload API error:', error);
+    } catch (error: unknown) {
+        logger.error('Upload API error:', { error: error });
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { z } from 'zod';
+import { logger } from '@/lib/utils/logger';
 
 const updateSchema = z.object({
     id: z.string().uuid(),
@@ -39,8 +40,8 @@ export async function GET(request: NextRequest) {
         }
 
         return NextResponse.json({ complaints: data || [] });
-    } catch (error) {
-        console.error('Get complaints error:', error);
+    } catch (error: unknown) {
+        logger.error('Get complaints error:', { error: error });
         return NextResponse.json(
             { error: 'Гомдол авахад алдаа гарлаа' },
             { status: 500 }
@@ -84,8 +85,8 @@ export async function PATCH(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ success: true, complaint: data });
-    } catch (error) {
-        console.error('Update complaint error:', error);
+    } catch (error: unknown) {
+        logger.error('Update complaint error:', { error: error });
         return NextResponse.json(
             { error: 'Гомдол шинэчлэхэд алдаа гарлаа' },
             { status: 500 }

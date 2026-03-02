@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils';
 interface MenuItem {
     name: string;
     href: string;
-    icon: any;
+    icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
     badge?: string;
     feature?: string;
 }
@@ -169,9 +169,11 @@ export function Sidebar() {
             style={{
                 background: 'linear-gradient(180deg, rgba(12,12,15,0.98) 0%, rgba(8,8,12,0.99) 100%)',
             }}
+            role="navigation"
+            aria-label="Үндсэн навигаци"
         >
             {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-500/[0.02] via-transparent to-violet-500/[0.02] pointer-events-none rounded-r-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-500/[0.02] via-transparent to-violet-500/[0.02] pointer-events-none rounded-r-2xl" aria-hidden="true" />
 
             {/* ─── Logo ─── */}
             <div className="relative flex items-center h-16 px-5 shrink-0">
@@ -306,6 +308,7 @@ export function Sidebar() {
                     'hover:bg-[#252530] hover:border-white/[0.15] transition-all duration-200',
                     'shadow-lg'
                 )}
+                aria-label={collapsed ? 'Цэс дэлгэх' : 'Цэс хураах'}
             >
                 <ChevronLeft
                     className={cn(

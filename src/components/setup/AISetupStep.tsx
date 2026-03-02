@@ -5,6 +5,7 @@ import { Check, RefreshCw, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { TEMPLATES, EMOTIONS, STEPS } from '@/lib/constants/ai-setup';
+import { logger } from '@/lib/utils/logger';
 
 interface AISetupStepProps {
     initialData: {
@@ -48,7 +49,7 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
                 setDescription(desc);
             }
         } catch (err) {
-            console.error('FB Fetch Error', err);
+            logger.error('FB Fetch Error', { error: err });
         } finally {
             setFetchingFb(false);
         }
@@ -71,7 +72,7 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
                 ai_instructions: instructions
             });
         } catch (err) {
-            console.error(err);
+            logger.error('Алдаа гарлаа', { error: err });
             setLoading(false);
         }
     };

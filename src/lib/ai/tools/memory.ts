@@ -59,7 +59,7 @@ export async function saveCustomerPreference(
 
         logger.success('Customer preference saved:', { customerId, key, value });
         return { success: true };
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Error saving customer preference:', { error });
         return { success: false, error: 'Системийн алдаа' };
     }
@@ -86,7 +86,7 @@ export async function getCustomerMemory(
         }
 
         return data?.ai_memory || null;
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Error getting customer memory:', { error });
         return null;
     }

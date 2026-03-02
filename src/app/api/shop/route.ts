@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getClerkUser, supabaseAdmin } from '@/lib/auth/clerk-auth';
 import { getPlanTypeFromSubscription } from '@/lib/ai/AIRouter';
 import { checkShopLimit } from '@/lib/ai/config/plans';
+import { logger } from '@/lib/utils/logger';
 
 // GET - Get user's shop
 export async function GET(request: NextRequest) {
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
     const shopId = request.headers.get('x-shop-id');
     const supabase = supabaseAdmin();
 
-    let query = supabase.from('shops').select('*').eq('user_id', userId);
+    let query = supabase.from('shops').select('id, name, owner_name, is_active, subscription_plan, setup_completed, created_at').eq('user_id', userId);
     if (shopId) {
       query = query.eq('id', shopId);
     } else {
@@ -29,9 +30,9 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ shop });
-  } catch (error: any) {
-    console.error('Get shop error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    logger.error('Get shop error:', { error: error instanceof Error ? error.message : String(error) });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     // Check if shop already exists
     if (!forceCreate) {
-      let query = supabase.from('shops').select('*').eq('user_id', userId);
+      let query = supabase.from('shops').select('id, name, owner_name, phone').eq('user_id', userId);
       if (shopId) {
         query = query.eq('id', shopId);
       } else {
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
     // Get count of all shops for this user
     const { count, error: countError } = await supabase
       .from('shops')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .eq('user_id', userId);
 
     if (countError) throw countError;
@@ -136,9 +137,9 @@ export async function POST(request: NextRequest) {
     if (error) throw error;
 
     return NextResponse.json({ shop });
-  } catch (error: any) {
-    console.error('Create shop error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    logger.error('Create shop error:', { error: error instanceof Error ? error.message : String(error) });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -199,13 +200,13 @@ export async function PATCH(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Update shop DB error:', error);
+      logger.error('Update shop DB error:', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
 
     return NextResponse.json({ shop: updatedShop });
-  } catch (error: any) {
-    console.error('Update shop error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    logger.error('Update shop error:', { error: error instanceof Error ? error.message : String(error) });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }

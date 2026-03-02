@@ -85,8 +85,8 @@ export async function GET(request: NextRequest) {
             processed: expiredOrders.length
         });
 
-    } catch (error: any) {
-        logger.error('Cleanup Cron Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Cleanup Cron Error:', { error: error instanceof Error ? error.message : String(error) });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }

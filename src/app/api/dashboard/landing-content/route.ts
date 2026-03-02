@@ -9,6 +9,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { defaultLandingContent } from '@/lib/landing/defaults';
 import type { LandingContent } from '@/lib/landing/types';
 import { getAuthUser } from '@/lib/auth/clerk-auth';
+import { logger } from '@/lib/utils/logger';
 
 // GET — Public, no auth required
 export async function GET() {
@@ -21,7 +22,7 @@ export async function GET() {
             .maybeSingle();
 
         if (error) {
-            console.error('[Landing Content API] GET error:', error);
+            logger.error('[Landing Content API] GET error:', { error: error });
             return NextResponse.json(defaultLandingContent);
         }
 
@@ -43,8 +44,8 @@ export async function GET() {
         };
 
         return NextResponse.json(content);
-    } catch (error: any) {
-        console.error('[Landing Content API] GET error:', error);
+    } catch (error: unknown) {
+        logger.error('[Landing Content API] GET error:', { error: error });
         return NextResponse.json(defaultLandingContent);
     }
 }
@@ -108,10 +109,10 @@ export async function PUT(request: NextRequest) {
         }
 
         return NextResponse.json({ success: true, section });
-    } catch (error: any) {
-        console.error('[Landing Content API] PUT error:', error);
+    } catch (error: unknown) {
+        logger.error('[Landing Content API] PUT error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Failed to update' },
+            { error: error instanceof Error ? error.message : 'Failed to update' },
             { status: 500 }
         );
     }

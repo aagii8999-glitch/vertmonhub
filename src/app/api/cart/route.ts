@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 // Type for joined product data in cart items
 interface CartItemProduct {
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest) {
             .rpc('calculate_cart_total', { p_cart_id: cartId });
 
         if (totalError) {
-            console.warn('Cart total calc error:', totalError.message);
+            logger.warn('Cart total calc error:', { error: totalError.message });
         }
 
         return NextResponse.json({
@@ -100,9 +101,9 @@ export async function GET(request: NextRequest) {
             item_count: items?.length || 0
         });
 
-    } catch (error: any) {
-        console.error('Cart GET error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Cart GET error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -244,9 +245,9 @@ export async function POST(request: NextRequest) {
             message: `${product.name} (${quantity}ш) сагсанд нэмэгдлээ!`
         });
 
-    } catch (error: any) {
-        console.error('Cart POST error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Cart POST error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -303,8 +304,8 @@ export async function DELETE(request: NextRequest) {
             message: `${product?.name || 'Бараа'} сагснаас хасагдлаа`
         });
 
-    } catch (error: any) {
-        console.error('Cart DELETE error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Cart DELETE error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }

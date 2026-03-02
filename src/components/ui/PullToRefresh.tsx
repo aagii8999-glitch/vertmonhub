@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
+import { logger } from '@/lib/utils/logger';
 
 interface PullToRefreshProps {
     onRefresh: () => Promise<void>;
@@ -65,8 +66,8 @@ export function PullToRefresh({ onRefresh, children, disabled = false }: PullToR
             setIsRefreshing(true);
             try {
                 await onRefresh();
-            } catch (error) {
-                console.error('Refresh failed:', error);
+            } catch (error: unknown) {
+                logger.error('Refresh failed:', { error: error });
             } finally {
                 setIsRefreshing(false);
                 setPullDistance(0);

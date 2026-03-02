@@ -1,3 +1,4 @@
+import { logger } from '@/lib/utils/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
@@ -43,8 +44,8 @@ export async function GET(request: NextRequest) {
 
         const automations = await getAllAutomations(shopId);
         return NextResponse.json({ automations });
-    } catch (error) {
-        console.error('GET comment-automations error:', error);
+    } catch (error: unknown) {
+        logger.error('GET comment-automations error:', { error: error });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -87,8 +88,8 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json({ automation }, { status: 201 });
-    } catch (error) {
-        console.error('POST comment-automations error:', error);
+    } catch (error: unknown) {
+        logger.error('POST comment-automations error:', { error: error });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -117,8 +118,8 @@ export async function PATCH(request: NextRequest) {
         }
 
         return NextResponse.json({ automation });
-    } catch (error) {
-        console.error('PATCH comment-automations error:', error);
+    } catch (error: unknown) {
+        logger.error('PATCH comment-automations error:', { error: error });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -147,8 +148,8 @@ export async function DELETE(request: NextRequest) {
         }
 
         return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('DELETE comment-automations error:', error);
+    } catch (error: unknown) {
+        logger.error('DELETE comment-automations error:', { error: error });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

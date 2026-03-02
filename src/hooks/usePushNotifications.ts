@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { logger } from '@/lib/utils/logger';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -52,7 +53,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ subscription: subscription.toJSON() }),
-                            }).catch(err => { if (isDev) console.error('Subscription sync error:', err); });
+                            }).catch(err => { if (isDev) logger.error('Subscription sync error:', { error: err }); });
                         }
                     }
                 } catch {
@@ -113,9 +114,9 @@ export function usePushNotifications(): UsePushNotificationsReturn {
             setIsSubscribed(true);
             setIsLoading(false);
             return true;
-        } catch (err: any) {
-            if (isDev) console.error('Subscribe error:', err);
-            alert('Notification error: ' + (err.message || 'Failed to subscribe'));
+        } catch (err: unknown) {
+            if (isDev) logger.error('Subscribe error:', { error: err });
+            alert('Notification error: ' + ((err instanceof Error ? err.message : String(err)) || 'Failed to subscribe'));
             setIsLoading(false);
             return false;
         }
@@ -147,7 +148,7 @@ export function usePushNotifications(): UsePushNotificationsReturn {
             setIsLoading(false);
             return true;
         } catch (err) {
-            if (isDev) console.error('Unsubscribe error:', err);
+            if (isDev) logger.error('Unsubscribe error:', { error: err });
             setIsLoading(false);
             return false;
         }

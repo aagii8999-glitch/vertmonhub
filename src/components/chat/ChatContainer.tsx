@@ -8,7 +8,7 @@ interface Message {
     role: 'user' | 'assistant';
     content: string;
     created_at?: string;
-    products?: any[];
+    products?: import('@/types/ai').AIProduct[];
     tool_calls?: { name: string; status: 'pending' | 'completed' }[];
 }
 

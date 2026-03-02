@@ -82,7 +82,7 @@ export async function retryWithBackoff<T>(
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {
             return await fn();
-        } catch (error) {
+        } catch (error: unknown) {
             lastError = error instanceof Error ? error : new Error(String(error));
 
             if (attempt === maxAttempts) {
@@ -146,7 +146,7 @@ export async function queueWebhookJob(
 
         logger.info('Webhook job queued:', { id: data.id, type });
         return data.id;
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Error queueing webhook job:', { error });
         return null;
     }
@@ -183,7 +183,7 @@ export async function processWebhookJob(
         logger.success('Webhook job completed:', { id: job.id });
         return { success: true, shouldRetry: false };
 
-    } catch (error) {
+    } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         const newAttempts = job.attempts + 1;
 
@@ -242,7 +242,7 @@ export async function getPendingJobs(limit: number = 10): Promise<WebhookJob[]> 
 
     const { data, error } = await supabase
         .from('webhook_jobs')
-        .select('*')
+        .select('id, type, payload, status, attempts, max_attempts, next_retry_at, last_error, updated_at, created_at')
         .eq('status', 'pending')
         .lte('next_retry_at', new Date().toISOString())
         .order('next_retry_at', { ascending: true })

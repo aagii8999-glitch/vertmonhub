@@ -79,9 +79,9 @@ export async function sendOrderStatusNotification(
         logger.info(`[OrderNotification] Sent "${status}" notification to ${customer.name || 'customer'}`);
 
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         logger.error('[OrderNotification] Failed to send notification:', { error });
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : String(error) };
     }
 }
 
@@ -107,7 +107,7 @@ export async function sendBulkOrderNotifications(
                 if (order?.customer_id) {
                     await sendOrderStatusNotification(order.customer_id, orderId, status, shopId);
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 logger.error(`[BulkNotification] Error for order ${orderId}:`, { error });
             }
         })

@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 // GET - Fetch all AI settings (FAQs, Quick Replies, Slogans, Stats)
 export async function GET(request: NextRequest) {
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
         if (!type || type === 'faqs') {
             const { data: faqs, error } = await supabase
                 .from('shop_faqs')
-                .select('*')
+                .select('id, shop_id, question, answer, category, sort_order')
                 .eq('shop_id', shop.id)
                 .order('sort_order', { ascending: true });
 
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
         if (!type || type === 'quick_replies') {
             const { data: quickReplies, error } = await supabase
                 .from('shop_quick_replies')
-                .select('*')
+                .select('id, shop_id, name, trigger_words, response, is_exact_match, created_at')
                 .eq('shop_id', shop.id)
                 .order('created_at', { ascending: false });
 
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
         if (!type || type === 'slogans') {
             const { data: slogans, error } = await supabase
                 .from('shop_slogans')
-                .select('*')
+                .select('id, shop_id, slogan, usage_context, created_at')
                 .eq('shop_id', shop.id)
                 .order('created_at', { ascending: false });
 
@@ -106,9 +107,9 @@ export async function GET(request: NextRequest) {
         }
 
         return NextResponse.json(result);
-    } catch (error: any) {
-        console.error('AI Settings GET error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('AI Settings GET error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -176,9 +177,9 @@ export async function POST(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ success: true, data: created });
-    } catch (error: any) {
-        console.error('AI Settings POST error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('AI Settings POST error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -230,9 +231,9 @@ export async function PATCH(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ success: true, data: updated });
-    } catch (error: any) {
-        console.error('AI Settings PATCH error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('AI Settings PATCH error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -279,8 +280,8 @@ export async function DELETE(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        console.error('AI Settings DELETE error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('AI Settings DELETE error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }

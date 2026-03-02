@@ -104,7 +104,7 @@ export class ChatHistoryService {
     ): Promise<ChatHistoryEntry[]> {
         let query = this.supabase
             .from('chat_history')
-            .select('*')
+            .select('id, shop_id, customer_id, message, response, intent, created_at')
             .eq('shop_id', shopId)
             .order('created_at', { ascending: false });
 

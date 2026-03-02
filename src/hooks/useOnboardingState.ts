@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '@/lib/utils/logger';
 
 const STORAGE_KEY = 'syncly_onboarding_state';
 const EXPIRY_HOURS = 24; // State expires after 24 hours
@@ -52,7 +53,7 @@ export function useOnboardingState() {
                 }
             }
         } catch (err) {
-            console.error('Error loading onboarding state:', err);
+            logger.error('Error loading onboarding state:', { error: err });
         } finally {
             setIsLoaded(true);
         }
@@ -70,7 +71,7 @@ export function useOnboardingState() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
             } catch (err) {
-                console.error('Error saving onboarding state:', err);
+                logger.error('Error saving onboarding state:', { error: err });
             }
 
             return newState;
@@ -94,7 +95,7 @@ export function useOnboardingState() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
             } catch (err) {
-                console.error('Error saving onboarding state:', err);
+                logger.error('Error saving onboarding state:', { error: err });
             }
 
             return newState;
@@ -111,7 +112,7 @@ export function useOnboardingState() {
         try {
             localStorage.removeItem(STORAGE_KEY);
         } catch (err) {
-            console.error('Error clearing onboarding state:', err);
+            logger.error('Error clearing onboarding state:', { error: err });
         }
         setState(defaultState);
         setHasExistingState(false);

@@ -25,7 +25,11 @@ import {
 import { getMatchingAutomation, executeAutomation } from '@/lib/services/CommentAutomationService';
 import crypto from 'crypto';
 
-const VERIFY_TOKEN = process.env.FACEBOOK_VERIFY_TOKEN || 'smarthub_verify_token_2024';
+const VERIFY_TOKEN = process.env.FACEBOOK_VERIFY_TOKEN;
+
+if (!VERIFY_TOKEN) {
+    logger.warn('FACEBOOK_VERIFY_TOKEN environment variable is not set');
+}
 
 /**
  * SEC-8: Verify webhook signature using Facebook or Instagram App Secret
@@ -102,6 +106,10 @@ interface WebhookEntry {
 
 // Verify webhook (GET request from Facebook)
 export async function GET(request: NextRequest) {
+    if (!VERIFY_TOKEN) {
+        return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const mode = searchParams.get('hub.mode');
     const token = searchParams.get('hub.verify_token');
@@ -136,9 +144,6 @@ export async function POST(request: NextRequest) {
 
         const rawBodyText = rawBodyBuffer.toString('utf8');
         const body = JSON.parse(rawBodyText);
-
-        // TEMP DEBUG: Log raw webhook body (remove after fixing)
-        logger.info('🔍 RAW WEBHOOK BODY', { rawBody: rawBodyText.substring(0, 500) });
 
         // Determine platform type: 'page' for Messenger, 'instagram' for Instagram
         const platform: 'messenger' | 'instagram' = body.object === 'instagram' ? 'instagram' : 'messenger';
@@ -260,9 +265,7 @@ export async function POST(request: NextRequest) {
                 if (event.message?.text) {
                     const userMessage = event.message.text;
                     logger.info(`[${shop.name}] Received ${platform} message`, {
-                        userMessage,
                         senderId,
-                        tokenPrefix: accessToken.substring(0, 10),
                         tokenSource: shop.instagram_access_token ? 'ig_token' : shop.facebook_page_access_token ? 'page_token' : 'env',
                     });
 
@@ -469,7 +472,7 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json({ status: 'ok' });
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Webhook error:', { error });
 
         // Sentry monitoring for critical webhook failures

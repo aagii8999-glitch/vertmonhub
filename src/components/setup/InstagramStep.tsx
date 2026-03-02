@@ -59,8 +59,8 @@ export function InstagramStep({
         setError('');
         try {
             await onSelectAccount(account);
-        } catch (err: any) {
-            setError(err.message || 'Instagram холбоход алдаа гарлаа');
+        } catch (err: unknown) {
+            setError((err instanceof Error ? err.message : String(err)) || 'Instagram холбоход алдаа гарлаа');
         } finally {
             setSaving(false);
             setSelectedAccountId(null);
@@ -80,8 +80,8 @@ export function InstagramStep({
                 username: manualUsername,
                 accessToken: manualToken
             });
-        } catch (err: any) {
-            setError(err.message || 'Алдаа гарлаа');
+        } catch (err: unknown) {
+            setError((err instanceof Error ? err.message : String(err)) || 'Алдаа гарлаа');
         } finally {
             setSaving(false);
         }

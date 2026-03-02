@@ -89,8 +89,8 @@ export async function GET(
             },
         });
 
-    } catch (error: any) {
-        logger.error('Invoice generation error:', error);
+    } catch (error: unknown) {
+        logger.error('Invoice generation error:', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({
             error: 'Failed to generate invoice'
         }, { status: 500 });

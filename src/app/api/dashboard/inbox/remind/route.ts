@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
             message: `Сануулга амжилттай илгээгдлээ (${sentMethod === 'facebook_simulated' ? 'Facebook' : 'System'})`
         });
 
-    } catch (error: any) {
-        logger.error('Reminder API error:', error);
-        return NextResponse.json({ error: error.message || 'Internal Error' }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Reminder API error:', { error: error instanceof Error ? error.message : String(error) });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal Error' }, { status: 500 });
     }
 }

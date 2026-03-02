@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClerkUserShop, supabaseAdmin } from '@/lib/auth/clerk-auth';
 import { parseProductFile, ParsedProduct } from '@/lib/utils/file-parser';
+import { logger } from '@/lib/utils/logger';
 
 // POST - Import products from Excel/DOCX file
 export async function POST(request: NextRequest) {
@@ -73,10 +74,10 @@ export async function POST(request: NextRequest) {
             message: `${insertedProducts.length} бүтээгдэхүүн амжилттай импорт хийгдлээ!`
         });
 
-    } catch (error: any) {
-        console.error('Import error:', error);
+    } catch (error: unknown) {
+        logger.error('Import error:', { error: error });
         return NextResponse.json({
-            error: error.message || 'Import failed',
+            error: error instanceof Error ? error.message : 'Import failed',
         }, { status: 500 });
     }
 }

@@ -54,7 +54,7 @@ export async function getAdminUser(): Promise<AdminUser | null> {
             email: admin.email,
             role: admin.role as AdminUser['role']
         };
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Admin auth error', { error });
         return null;
     }

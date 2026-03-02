@@ -37,7 +37,7 @@ export interface Product {
     is_active: boolean;
     created_at: string;
     has_variants?: boolean;
-    variants?: any[]; // Detailed type in useProducts for now
+    variants?: { color: string | null; size: string | null; stock: number; price?: number }[]; // Detailed type in useProducts for now
 }
 
 export interface Customer {

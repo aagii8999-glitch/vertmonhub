@@ -16,7 +16,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 async function retryOperation<T>(operation: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
     try {
         return await operation();
-    } catch (error) {
+    } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : '';
         if (retries > 0 && (errorMessage.includes('503') || errorMessage.includes('overloaded'))) {
             logger.warn(`Gemini overloaded, retrying in ${delay}ms... (${retries} retries left)`);
@@ -125,7 +125,7 @@ ${productList}
             }
 
             return { matchedProduct: null, confidence: 0, description: 'Зургийг таньж чадсангүй.' };
-        } catch (error) {
+        } catch (error: unknown) {
             const err = error as Error;
             logger.error('Gemini Vision Error:', { message: err.message });
             return { matchedProduct: null, confidence: 0, description: 'Зураг боловсруулахад алдаа гарлаа.' };

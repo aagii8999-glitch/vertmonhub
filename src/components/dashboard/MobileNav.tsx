@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -38,6 +38,16 @@ export function MobileNav() {
     const pathname = usePathname();
     const [showMore, setShowMore] = useState(false);
 
+    // Close on Escape key
+    useEffect(() => {
+        if (!showMore) return;
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setShowMore(false);
+        };
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [showMore]);
+
     const isActiveItem = (href: string) => {
         return pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
     };
@@ -59,6 +69,7 @@ export function MobileNav() {
                                 <span className="font-bold text-foreground text-sm tracking-[-0.03em]">Бусад</span>
                                 <button
                                     onClick={() => setShowMore(false)}
+                                    aria-label="Цэс хаах"
                                     className="p-2 rounded-xl hover:bg-[#151040] transition-colors"
                                 >
                                     <X className="w-4 h-4 text-white/40" />
@@ -96,7 +107,7 @@ export function MobileNav() {
             )}
 
             {/* Bottom Navigation Bar */}
-            <nav className="fixed bottom-3 left-3 right-3 z-50 block md:hidden">
+            <nav className="fixed bottom-3 left-3 right-3 z-50 block md:hidden" aria-label="Гар утасны навигаци">
                 <div className="bg-[#141418]/70 backdrop-blur-2xl rounded-2xl border border-white/[0.08] shadow-lg">
                     <ul className="flex justify-around items-stretch h-[58px]">
                         {primaryNavItems.map((item) => {
@@ -134,6 +145,8 @@ export function MobileNav() {
                         <li className="flex-1">
                             <button
                                 onClick={() => setShowMore(!showMore)}
+                                aria-label="Нэмэлт цэс"
+                                aria-expanded={showMore}
                                 className={cn(
                                     'flex flex-col items-center justify-center w-full h-full gap-1 transition-all duration-200 active:scale-90',
                                     showMore || isMoreActive ? 'text-foreground' : 'text-white/30'

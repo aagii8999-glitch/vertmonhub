@@ -6,13 +6,14 @@
 import { NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET() {
     try {
         const shop = await getClerkUserShop();
 
         if (!shop) {
-            console.error('Subscription API: Unauthorized - No shop found for user');
+            logger.error('Subscription API: Unauthorized - No shop found for user');
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -106,10 +107,10 @@ export async function GET() {
             invoices: invoices || [],
             has_subscription: !!subscription
         });
-    } catch (error: any) {
-        console.error('Get subscription error:', error);
+    } catch (error: unknown) {
+        logger.error('Get subscription error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Failed to fetch subscription' },
+            { error: error instanceof Error ? error.message : 'Failed to fetch subscription' },
             { status: 500 }
         );
     }

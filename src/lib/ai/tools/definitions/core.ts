@@ -27,7 +27,7 @@ export function getGeminiFunctionDeclarations(tools: ToolDefinition[]): Function
         const properties: Record<string, any> = {};
 
         for (const [key, prop] of Object.entries(tool.parameters.properties)) {
-            const schemaProp: any = {
+            const schemaProp: Record<string, unknown> = {
                 type: toSchemaType(prop.type),
                 description: prop.description,
             };

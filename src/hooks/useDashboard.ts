@@ -41,12 +41,13 @@ interface DashboardData {
 }
 
 export function useDashboard(period: 'today' | 'week' | 'month' = 'today') {
+    const shopId = typeof window !== 'undefined' ? localStorage.getItem('smarthub_active_shop_id') : null;
     return useQuery({
-        queryKey: ['dashboard', period],
+        queryKey: ['dashboard', shopId, period],
         queryFn: async (): Promise<DashboardData> => {
             const res = await fetch(`/api/dashboard/stats?period=${period}`, {
                 headers: {
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': shopId || ''
                 }
             });
             if (!res.ok) throw new Error('Failed to fetch dashboard data');

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { createProductSchema, updateProductSchema, parseWithErrors } from '@/lib/validations';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET() {
   try {
@@ -16,15 +17,15 @@ export async function GET() {
 
     const { data: products, error } = await supabase
       .from('products')
-      .select('*')
+      .select('id, shop_id, name, description, price, stock, image_url, is_active, created_at, has_variants')
       .eq('shop_id', shopId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
     return NextResponse.json({ products: products || [] });
-  } catch (error) {
-    console.error('Products API error:', error);
+  } catch (error: unknown) {
+    logger.error('Products API error:', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
   }
 }
@@ -79,8 +80,8 @@ export async function POST(request: Request) {
     if (error) throw error;
 
     return NextResponse.json({ product: data });
-  } catch (error) {
-    console.error('Product create error:', error);
+  } catch (error: unknown) {
+    logger.error('Product create error:', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
   }
 }
@@ -149,8 +150,8 @@ export async function PATCH(request: Request) {
     if (error) throw error;
 
     return NextResponse.json({ product: data });
-  } catch (error) {
-    console.error('Product update error:', error);
+  } catch (error: unknown) {
+    logger.error('Product update error:', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
   }
 }
@@ -192,8 +193,8 @@ export async function DELETE(request: Request) {
     if (error) throw error;
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Product delete error:', error);
+  } catch (error: unknown) {
+    logger.error('Product delete error:', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import * as XLSX from 'xlsx';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET(request: NextRequest) {
     try {
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
                 .in('status', ['confirmed', 'processing', 'shipped', 'delivered'])
                 .order('created_at', { ascending: false });
 
-            const exportData: any[] = [];
+            const exportData: Record<string, string | number>[] = [];
 
             orders?.forEach(order => {
                 const items = order.order_items as any[];
@@ -132,8 +133,8 @@ export async function GET(request: NextRequest) {
             },
         });
 
-    } catch (error) {
-        console.error('Export API error:', error);
+    } catch (error: unknown) {
+        logger.error('Export API error:', { error: error });
         return NextResponse.json({ error: 'Failed to export data' }, { status: 500 });
     }
 }

@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 // Get single customer with full details
 export async function GET(
@@ -50,8 +51,8 @@ export async function GET(
                 chat_history: chatHistory || []
             }
         });
-    } catch (error) {
-        console.error('Customer detail error:', error);
+    } catch (error: unknown) {
+        logger.error('Customer detail error:', { error: error });
         return NextResponse.json({ error: 'Failed to fetch customer' }, { status: 500 });
     }
 }

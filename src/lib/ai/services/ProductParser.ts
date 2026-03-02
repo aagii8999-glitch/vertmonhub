@@ -91,8 +91,8 @@ Response Format (JSON only):
             sizes: Array.isArray(p.sizes) ? p.sizes : [],
         }));
 
-    } catch (error: any) {
-        logger.error('Gemini Parse Error:', { message: error?.message || error });
+    } catch (error: unknown) {
+        logger.error('Gemini Parse Error:', { message: error instanceof Error ? error.message : String(error) });
         return [];
     }
 }

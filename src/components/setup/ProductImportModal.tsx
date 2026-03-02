@@ -113,8 +113,8 @@ export function ProductImportModal({ isOpen, onClose, onImport }: ProductImportM
             setColumnMapping(autoMapping);
             setError('');
             setStep('mapping');
-        } catch (err: any) {
-            setError(err.message || 'Файл уншихад алдаа гарлаа');
+        } catch (err: unknown) {
+            setError((err instanceof Error ? err.message : String(err)) || 'Файл уншихад алдаа гарлаа');
         }
     };
 
@@ -171,8 +171,8 @@ export function ProductImportModal({ isOpen, onClose, onImport }: ProductImportM
         try {
             await onImport(products);
             onClose();
-        } catch (err: any) {
-            setError(err.message || 'Import хийхэд алдаа гарлаа');
+        } catch (err: unknown) {
+            setError((err instanceof Error ? err.message : String(err)) || 'Import хийхэд алдаа гарлаа');
         } finally {
             setImporting(false);
         }

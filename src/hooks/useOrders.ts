@@ -33,8 +33,9 @@ interface OrdersResponse {
 }
 
 export function useOrders(dateRange?: { from: Date | undefined; to: Date | undefined }) {
+    const shopId = typeof window !== 'undefined' ? localStorage.getItem('smarthub_active_shop_id') : null;
     return useQuery({
-        queryKey: ['orders', dateRange?.from?.toISOString(), dateRange?.to?.toISOString()],
+        queryKey: ['orders', shopId, dateRange?.from?.toISOString(), dateRange?.to?.toISOString()],
         queryFn: async (): Promise<OrderWithDetails[]> => {
             const params = new URLSearchParams();
             if (dateRange?.from) params.set('from', dateRange.from.toISOString());
@@ -42,7 +43,7 @@ export function useOrders(dateRange?: { from: Date | undefined; to: Date | undef
 
             const res = await fetch(`/api/dashboard/orders?${params.toString()}`, {
                 headers: {
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': shopId || ''
                 }
             });
             if (!res.ok) throw new Error('Failed to fetch orders');

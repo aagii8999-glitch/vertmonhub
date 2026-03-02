@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sendTextMessage } from '@/lib/facebook/messenger';
+import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: NextRequest) {
     try {
@@ -68,8 +69,8 @@ export async function POST(request: NextRequest) {
 
 
         return NextResponse.json({ success: true, message: 'Message sent successfully' });
-    } catch (error) {
-        console.error('Reply API error:', error);
+    } catch (error: unknown) {
+        logger.error('Reply API error:', { error: error });
         return NextResponse.json({
             error: 'Failed to send message',
             details: error instanceof Error ? error.message : 'Unknown error'

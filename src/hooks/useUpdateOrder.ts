@@ -17,11 +17,12 @@ export function useBulkUpdateOrders() {
 
     return useMutation({
         mutationFn: async ({ orderIds, status }: BulkUpdateParams) => {
+            const shopId = typeof window !== 'undefined' ? localStorage.getItem('smarthub_active_shop_id') : null;
             const res = await fetch('/api/orders/bulk', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': shopId || ''
                 },
                 body: JSON.stringify({ orderIds, status }),
             });
@@ -30,25 +31,27 @@ export function useBulkUpdateOrders() {
         },
         onMutate: async ({ orderIds, status }) => {
             await queryClient.cancelQueries({ queryKey: ['orders'] });
-            const previousOrders = queryClient.getQueryData<OrderWithDetails[]>(['orders']);
 
-            if (previousOrders) {
-                queryClient.setQueryData<OrderWithDetails[]>(['orders'], (old) => {
-                    if (!old) return [];
-                    return old.map((order) =>
-                        orderIds.includes(order.id) ? { ...order, status } : order
-                    );
-                });
-            }
-            return { previousOrders };
+            const previousQueries = queryClient.getQueriesData<OrderWithDetails[]>({ queryKey: ['orders'] });
+
+            queryClient.setQueriesData<OrderWithDetails[]>({ queryKey: ['orders'] }, (old) => {
+                if (!old) return [];
+                return old.map((order) =>
+                    orderIds.includes(order.id) ? { ...order, status } : order
+                );
+            });
+
+            return { previousQueries };
         },
         onSuccess: (data) => {
             toast.success(data.message || 'Захиалгууд амжилттай шинэчлэгдлээ');
         },
         onError: (err, variables, context) => {
             toast.error('Бөөнөөр шинэчлэхэд алдаа гарлаа');
-            if (context?.previousOrders) {
-                queryClient.setQueryData(['orders'], context.previousOrders);
+            if (context?.previousQueries) {
+                context.previousQueries.forEach(([queryKey, data]) => {
+                    queryClient.setQueryData(queryKey, data);
+                });
             }
         },
         onSettled: () => {
@@ -63,11 +66,12 @@ export function useUpdateOrder() {
 
     return useMutation({
         mutationFn: async ({ orderId, status }: UpdateOrderParams) => {
+            const shopId = typeof window !== 'undefined' ? localStorage.getItem('smarthub_active_shop_id') : null;
             const res = await fetch('/api/orders', {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': shopId || ''
                 },
                 body: JSON.stringify({ orderId, status }),
             });
@@ -76,37 +80,31 @@ export function useUpdateOrder() {
         },
         // Optimistic Update
         onMutate: async ({ orderId, status }) => {
-            // Cancel outgoing refetches
             await queryClient.cancelQueries({ queryKey: ['orders'] });
 
-            // Snapshot previous value
-            const previousOrders = queryClient.getQueryData<OrderWithDetails[]>(['orders']);
+            const previousQueries = queryClient.getQueriesData<OrderWithDetails[]>({ queryKey: ['orders'] });
 
-            // Optimistically update
-            if (previousOrders) {
-                queryClient.setQueryData<OrderWithDetails[]>(['orders'], (old) => {
-                    if (!old) return [];
-                    return old.map((order) =>
-                        order.id === orderId ? { ...order, status } : order
-                    );
-                });
-            }
+            queryClient.setQueriesData<OrderWithDetails[]>({ queryKey: ['orders'] }, (old) => {
+                if (!old) return [];
+                return old.map((order) =>
+                    order.id === orderId ? { ...order, status } : order
+                );
+            });
 
-            // Return context for rollback
-            return { previousOrders };
+            return { previousQueries };
         },
         onSuccess: () => {
             toast.success('Захиалгын төлөв амжилттай шинэчлэгдлээ');
         },
         onError: (err, newTodo, context) => {
             toast.error('Төлөв шинэчлэхэд алдаа гарлаа');
-            // Rollback
-            if (context?.previousOrders) {
-                queryClient.setQueryData(['orders'], context.previousOrders);
+            if (context?.previousQueries) {
+                context.previousQueries.forEach(([queryKey, data]) => {
+                    queryClient.setQueryData(queryKey, data);
+                });
             }
         },
         onSettled: () => {
-            // Always refetch to sync server state
             queryClient.invalidateQueries({ queryKey: ['orders'] });
         },
     });

@@ -52,8 +52,8 @@ export function FacebookStep({
     setError('');
     try {
       await onSelectPage(id);
-    } catch (err: any) {
-      setError(err.message || 'Page сонгоход алдаа гарлаа');
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Page сонгоход алдаа гарлаа');
     } finally {
       setSaving(false);
       setSelectedPageId(null);
@@ -69,8 +69,8 @@ export function FacebookStep({
         pageName: manualPageName,
         accessToken: manualToken
       });
-    } catch (err: any) {
-      setError(err.message || 'Алдаа гарлаа');
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Алдаа гарлаа');
     } finally {
       setSaving(false);
     }
@@ -90,8 +90,8 @@ export function FacebookStep({
       // Logic for updating list from token can be complex, for now let's keep it simple
       // or just allow saving the token manually
       setError('Энэ хэсгийг parent-аас удирдах эсвэл шууд хадгалах боломжтой');
-    } catch (err: any) {
-      setError(err.message || 'Page татахад алдаа гарлаа');
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Page татахад алдаа гарлаа');
     } finally {
       setFbLoading(false);
     }

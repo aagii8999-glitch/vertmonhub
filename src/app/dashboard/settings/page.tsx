@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Save, Store, Building2, CreditCard, Globe, LogOut, Trash2, AlertTriangle, Facebook, Instagram, Bot, User, Phone, Mail, MapPin, Clock, Loader2, Link2, Unlink } from 'lucide-react';
 import { toast } from 'sonner';
+import { logger } from '@/lib/utils/logger';
 
 export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
@@ -51,10 +52,10 @@ export default function SettingsPage() {
                 setFbConnected(!!data.shop.facebook_page_id);
                 setIgConnected(!!data.shop.instagram_business_account_id);
             }
-        } catch (e) { console.error(e); } finally { setLoading(false); }
+        } catch (e) { logger.error('Алдаа гарлаа', { error: e }); } finally { setLoading(false); }
     }
 
-    async function saveSettings(body: any) {
+    async function saveSettings(body: Record<string, unknown>) {
         setSaving(true);
         try {
             const res = await fetch('/api/shop', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || '' }, body: JSON.stringify(body) });

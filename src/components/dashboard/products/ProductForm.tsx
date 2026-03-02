@@ -158,7 +158,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                 imageUrl = await uploadImage(imageFile);
             }
 
-            const productData: any = {
+            const productData: Record<string, unknown> = {
                 name: formData.get('name') as string,
                 description: formData.get('description') as string,
                 price: Number(formData.get('price')),
@@ -194,8 +194,8 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                 await createProduct.mutateAsync(productData);
             }
             onSuccess();
-        } catch (error: any) {
-            alert(error.message || 'Алдаа гарлаа');
+        } catch (error: unknown) {
+            alert(error instanceof Error ? error.message : 'Алдаа гарлаа');
         } finally {
             setSaving(false);
         }

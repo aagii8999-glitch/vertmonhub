@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
         const body = JSON.parse(rawBody);
 
-        logger.info('QPay webhook received:', body);
+        logger.info('QPay webhook received:', { data: body });
 
         // Extract invoice ID from webhook payload
         const invoiceId = body.invoice_id || body.object_id;
@@ -60,18 +60,18 @@ export async function POST(request: NextRequest) {
         // Find payment by invoice ID
         const { data: payment, error: paymentError } = await supabase
             .from('payments')
-            .select('*')
+            .select('id, shop_id, status, amount, plan_id, metadata, order_id, payment_method')
             .eq('qpay_invoice_id', invoiceId)
             .single();
 
         if (paymentError || !payment) {
-            logger.warn('Payment not found for invoice:', invoiceId);
+            logger.warn('Payment not found for invoice:', { error: invoiceId });
             return NextResponse.json({ error: 'Payment not found' }, { status: 404 });
         }
 
         // Check if already processed
         if (payment.status === 'paid') {
-            logger.info('Payment already processed:', payment.id);
+            logger.info('Payment already processed:', { data: payment.id });
             return NextResponse.json({ message: 'Already processed' });
         }
 
@@ -156,8 +156,8 @@ export async function POST(request: NextRequest) {
 
                     logger.success('Payment confirmation email sent');
                 }
-            } catch (emailError: any) {
-                logger.error('Failed to send email (non-critical)', { error: emailError?.message });
+            } catch (emailError: unknown) {
+                logger.error('Failed to send email (non-critical)', { error: (emailError instanceof Error ? emailError.message : String(emailError)) });
             }
 
             return NextResponse.json({
@@ -165,14 +165,14 @@ export async function POST(request: NextRequest) {
                 message: 'Payment confirmed'
             });
         } else {
-            logger.warn('Payment not completed yet:', invoiceId);
+            logger.warn('Payment not completed yet:', { error: invoiceId });
             return NextResponse.json({
                 message: 'Payment not completed'
             }, { status: 200 });
         }
 
-    } catch (error: any) {
-        logger.error('Webhook processing error:', error);
+    } catch (error: unknown) {
+        logger.error('Webhook processing error:', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({
             error: 'Webhook processing failed'
         }, { status: 500 });

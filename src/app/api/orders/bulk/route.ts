@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
             message: `${updatedOrders?.length || 0} захиалга шинэчлэгдлээ`
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         logger.error('Bulk update error:', { error });
         return NextResponse.json({ error: 'Failed to update orders' }, { status: 500 });
     }

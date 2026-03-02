@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { logger } from '@/lib/utils/logger';
 import { Card, CardContent } from '@/components/ui/Card';
 import {
     Settings, Users, Save, Plus, Trash2,
@@ -65,8 +66,8 @@ export default function AdminSettingsPage() {
                 setSettings(data.settings);
                 setCurrentAdmin(data.admin);
             }
-        } catch (error) {
-            console.error('Settings fetch error:', error);
+        } catch (error: unknown) {
+            logger.error('Settings fetch error:', { error });
         } finally {
             setLoading(false);
         }
@@ -79,8 +80,8 @@ export default function AdminSettingsPage() {
                 const data = await res.json();
                 setAdmins(data.admins || []);
             }
-        } catch (error) {
-            console.error('Admins fetch error:', error);
+        } catch (error: unknown) {
+            logger.error('Admins fetch error:', { error });
         }
     }
 
@@ -96,8 +97,8 @@ export default function AdminSettingsPage() {
             if (res.ok) {
                 alert('Тохиргоо амжилттай хадгалагдлаа!');
             }
-        } catch (error) {
-            console.error('Save error:', error);
+        } catch (error: unknown) {
+            logger.error('Save error:', { error });
             alert('Алдаа гарлаа');
         } finally {
             setSaving(false);
@@ -120,8 +121,8 @@ export default function AdminSettingsPage() {
                 const error = await res.json();
                 alert(error.error || 'Алдаа гарлаа');
             }
-        } catch (error) {
-            console.error('Add admin error:', error);
+        } catch (error: unknown) {
+            logger.error('Add admin error:', { error });
         } finally {
             setAddingAdmin(false);
         }
@@ -137,8 +138,8 @@ export default function AdminSettingsPage() {
             if (res.ok) {
                 fetchAdmins();
             }
-        } catch (error) {
-            console.error('Update error:', error);
+        } catch (error: unknown) {
+            logger.error('Update error:', { error });
         }
     }
 
@@ -154,8 +155,8 @@ export default function AdminSettingsPage() {
                 const error = await res.json();
                 alert(error.error || 'Алдаа гарлаа');
             }
-        } catch (error) {
-            console.error('Delete error:', error);
+        } catch (error: unknown) {
+            logger.error('Delete error:', { error });
         }
     }
 
@@ -474,7 +475,7 @@ export default function AdminSettingsPage() {
                                                             </select>
                                                         ) : (
                                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wide ${admin.role === 'super_admin' ? 'bg-violet-100 text-violet-700 border border-violet-200/50' :
-                                                                    getRoleBadge(admin.role).replace('bg-', 'bg-').replace('text-', 'text-')
+                                                                getRoleBadge(admin.role).replace('bg-', 'bg-').replace('text-', 'text-')
                                                                 }`}>
                                                                 {admin.role.replace('_', ' ')}
                                                             </span>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Crown, Check, Zap, BarChart3, Package, MessageSquare, Bot, Calendar, Download, CreditCard, Loader2, X, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { logger } from '@/lib/utils/logger';
 
 interface Plan { id: string; name: string; price_monthly: number; price_yearly: number; features: string[]; limits: { products: number; orders: number; messages: number }; highlighted?: boolean; }
 export default function SubscriptionPage() {
@@ -71,7 +72,7 @@ export default function SubscriptionPage() {
                 setUsage(d.usage || { products: 0, orders: 0, messages: 0 });
                 setBillingHistory(d.invoices || []);
             }
-        } catch (e) { console.error(e); } finally { setLoading(false); }
+        } catch (e) { logger.error('Алдаа гарлаа', { error: e }); } finally { setLoading(false); }
     }
 
     const safePlans = plans.length > 0 ? plans : [

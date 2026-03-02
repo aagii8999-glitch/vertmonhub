@@ -16,7 +16,7 @@ export async function GET() {
         // Check admins table directly
         const { data: admins, error: adminError } = await supabase
             .from('admins')
-            .select('*');
+            .select('id, name, owner_name, phone, created_at, is_active, setup_completed, subscription_plan');
 
         // Simple query - just get all shops without joins
         const { data: shops, error, count } = await supabase
@@ -33,10 +33,10 @@ export async function GET() {
             shops: shops,
             error: error ? { message: error.message, code: error.code } : null
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         return NextResponse.json({
-            error: error.message,
-            stack: error.stack
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
         }, { status: 500 });
     }
 }

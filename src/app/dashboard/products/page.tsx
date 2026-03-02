@@ -7,6 +7,7 @@ import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, Prod
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductForm from '@/components/dashboard/products/ProductForm';
+import { logger } from '@/lib/utils/logger';
 
 export default function ProductsPage() {
     const { data: products = [], isLoading } = useProducts();
@@ -82,8 +83,8 @@ export default function ProductsPage() {
         if (!confirm('Устгахдаа итгэлтэй байна уу?')) return;
         try {
             await deleteProduct.mutateAsync(id);
-        } catch (error) {
-            console.error('Failed to delete product:', error);
+        } catch (error: unknown) {
+            logger.error('Failed to delete product:', { error: error });
         }
     }
 
@@ -105,8 +106,8 @@ export default function ProductsPage() {
                 } else {
                     setImportPreview(data.products || []);
                 }
-            } catch (error: any) {
-                setImportError(error.message || 'Preview failed');
+            } catch (error: unknown) {
+                setImportError(error instanceof Error ? error.message : 'Preview failed');
             } finally {
                 setImporting(false);
             }
@@ -130,8 +131,8 @@ export default function ProductsPage() {
                 setImportPreview([]);
                 queryClient.invalidateQueries({ queryKey: ['products'] });
             }
-        } catch (error: any) {
-            setImportError(error.message || 'Import failed');
+        } catch (error: unknown) {
+            setImportError(error instanceof Error ? error.message : 'Import failed');
         } finally {
             setImporting(false);
         }

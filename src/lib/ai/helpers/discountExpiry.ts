@@ -212,7 +212,7 @@ export async function createDiscountSchedule(
         }
 
         return data.id;
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Error creating discount schedule:', { error });
         return null;
     }
@@ -259,7 +259,7 @@ export async function getActiveDiscountSchedules(
             isActive: d.is_active,
             createdAt: new Date(d.created_at)
         }));
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Error fetching discount schedules:', { error });
         return [];
     }
@@ -291,7 +291,7 @@ export async function deactivateExpiredDiscounts(): Promise<number> {
         }
 
         return count;
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Error deactivating expired discounts:', { error });
         return 0;
     }

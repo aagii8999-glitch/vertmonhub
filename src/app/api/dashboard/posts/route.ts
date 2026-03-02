@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * GET /api/dashboard/posts
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
                     }
                 }
             } catch (e) {
-                console.error('Error fetching FB posts:', e);
+                logger.error('Error fetching FB posts:', { error: e });
             }
         }
 
@@ -86,7 +87,7 @@ export async function GET(request: NextRequest) {
                     }
                 }
             } catch (e) {
-                console.error('Error fetching IG media:', e);
+                logger.error('Error fetching IG media:', { error: e });
             }
         }
 
@@ -94,8 +95,8 @@ export async function GET(request: NextRequest) {
         posts.sort((a, b) => new Date(b.created_time).getTime() - new Date(a.created_time).getTime());
 
         return NextResponse.json({ posts });
-    } catch (error) {
-        console.error('GET posts error:', error);
+    } catch (error: unknown) {
+        logger.error('GET posts error:', { error: error });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

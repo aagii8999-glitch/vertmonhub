@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import crypto from 'crypto';
+import { logger } from '@/lib/utils/logger';
 
 const APP_SECRET = process.env.FACEBOOK_APP_SECRET || '';
 
@@ -46,13 +47,13 @@ function parseSignedRequest(signedRequest: string): SignedRequestData | null {
             .replace(/=+$/, '');
 
         if (encodedSig !== expectedSig) {
-            console.warn('Invalid signature for data deletion request');
+            logger.warn('Invalid signature for data deletion request');
             return null;
         }
 
         return data as SignedRequestData;
-    } catch (error) {
-        console.error('Error parsing signed request:', error);
+    } catch (error: unknown) {
+        logger.error('Error parsing signed request:', { error: error });
         return null;
     }
 }
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
             .or(`facebook_user_id.eq.${userId},instagram_user_id.eq.${userId}`);
 
         if (deleteError) {
-            console.error('Error deleting customer data:', deleteError);
+            logger.error('Error deleting customer data:', { error: deleteError });
             // Still return success to Meta - we'll handle cleanup later
         }
 
@@ -127,8 +128,8 @@ export async function POST(request: NextRequest) {
             confirmation_code: confirmationCode,
         });
 
-    } catch (error) {
-        console.error('Data deletion error:', error);
+    } catch (error: unknown) {
+        logger.error('Data deletion error:', { error: error });
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

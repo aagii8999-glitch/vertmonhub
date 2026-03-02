@@ -19,6 +19,7 @@ import { AISetupStep } from '@/components/setup/AISetupStep';
 import { SubscriptionStep } from '@/components/setup/SubscriptionStep';
 import { PWAInstallBanner } from '@/components/setup/PWAInstallBanner';
 import { SetupPreview } from '@/components/setup/SetupPreview';
+import { logger } from '@/lib/utils/logger';
 
 const stepLabels = [
   'Дэлгүүр',
@@ -178,7 +179,7 @@ function SetupContent() {
       const data = await res.json();
       if (data.pages) setFbPages(data.pages);
     } catch (err) {
-      console.error('Error fetching pages:', err);
+      logger.error('Error fetching pages:', { error: err });
       setError('Facebook Page татахад алдаа гарлаа');
     }
   };
@@ -189,7 +190,7 @@ function SetupContent() {
       const data = await res.json();
       if (data.accounts) setIgAccounts(data.accounts);
     } catch (err) {
-      console.error('Error fetching Instagram accounts:', err);
+      logger.error('Error fetching Instagram accounts:', { error: err });
       setError('Instagram account татахад алдаа гарлаа');
     }
   };

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getStartOfPeriod } from '@/lib/utils/date';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET(request: NextRequest) {
     try {
@@ -216,8 +217,8 @@ export async function GET(request: NextRequest) {
             orderStatus: statusBreakdown,
         });
 
-    } catch (error) {
-        console.error('Reports API error:', error);
+    } catch (error: unknown) {
+        logger.error('Reports API error:', { error: error });
         return NextResponse.json({ error: 'Failed to fetch reports' }, { status: 500 });
     }
 }

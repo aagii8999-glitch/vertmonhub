@@ -142,7 +142,7 @@ export async function parseProductFile(buffer: Buffer, fileName: string): Promis
             colors: p.colors,
             sizes: p.sizes
         }));
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('AI Parsing failed, falling back to rule-based:', { error });
         // Fallback to old methods if AI fails
         if (['xlsx', 'xls', 'csv'].includes(extension)) {

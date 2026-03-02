@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminUser, hasPermission } from '@/lib/admin/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 // GET - List all admins
 export async function GET() {
@@ -19,15 +20,15 @@ export async function GET() {
 
         const { data, error } = await supabase
             .from('admins')
-            .select('*')
+            .select('id, user_id, email, role, is_active, created_at')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
 
         return NextResponse.json({ admins: data });
-    } catch (error: any) {
-        console.error('Admins fetch error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Admins fetch error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -75,9 +76,9 @@ export async function POST(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ admin: data });
-    } catch (error: any) {
-        console.error('Admin create error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Admin create error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -98,7 +99,7 @@ export async function PUT(request: NextRequest) {
 
         const supabase = supabaseAdmin();
 
-        const updateData: any = {};
+        const updateData: Record<string, unknown> = {};
         if (role) updateData.role = role;
         if (is_active !== undefined) updateData.is_active = is_active;
 
@@ -112,9 +113,9 @@ export async function PUT(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ admin: data });
-    } catch (error: any) {
-        console.error('Admin update error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Admin update error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -148,8 +149,8 @@ export async function DELETE(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        console.error('Admin delete error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Admin delete error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }

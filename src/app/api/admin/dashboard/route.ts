@@ -6,6 +6,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/admin/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET() {
     try {
@@ -89,10 +90,10 @@ export async function GET() {
                 role: admin.role
             }
         });
-    } catch (error: any) {
-        console.error('Admin dashboard error:', error);
+    } catch (error: unknown) {
+        logger.error('Admin dashboard error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Failed to fetch dashboard data' },
+            { error: error instanceof Error ? error.message : 'Failed to fetch dashboard data' },
             { status: 500 }
         );
     }

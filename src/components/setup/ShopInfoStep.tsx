@@ -75,9 +75,9 @@ export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoS
         account_name: accountName
       });
       toast.success('Амжилттай хадгаллаа!');
-    } catch (err: any) {
-      setError(err.message || 'Алдаа гарлаа');
-      toast.error(err.message || 'Алдаа гарлаа');
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Алдаа гарлаа');
+      toast.error((err instanceof Error ? err.message : String(err)) || 'Алдаа гарлаа');
     } finally {
       setSaving(false);
     }

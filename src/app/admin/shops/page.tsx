@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { logger } from '@/lib/utils/logger';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { toast } from 'sonner';
@@ -104,8 +105,8 @@ export default function ShopsPage() {
                 const data = await res.json();
                 setAvailablePlans(data.plans || []);
             }
-        } catch (error) {
-            console.error('Fetch plans error:', error);
+        } catch (error: unknown) {
+            logger.error('Fetch plans error:', { error });
         }
     }
 
@@ -130,8 +131,8 @@ export default function ShopsPage() {
             } else {
                 toast.error('Дэлгүүрүүдийг татахад алдаа гарлаа');
             }
-        } catch (error) {
-            console.error('Fetch shops error:', error);
+        } catch (error: unknown) {
+            logger.error('Fetch shops error:', { error });
             toast.error('Холболтын алдаа гарлаа');
         } finally {
             setLoading(false);
@@ -161,8 +162,8 @@ export default function ShopsPage() {
             } else {
                 toast.error('Статус өөрчлөхөд алдаа гарлаа');
             }
-        } catch (error) {
-            console.error('Toggle status error:', error);
+        } catch (error: unknown) {
+            logger.error('Toggle status error:', { error });
             toast.error('Холболтын алдаа гарлаа');
         } finally {
             setTogglingId(null);
@@ -224,8 +225,8 @@ export default function ShopsPage() {
                 const error = await res.json();
                 toast.error(error.error || 'Хадгалахад алдаа гарлаа');
             }
-        } catch (error) {
-            console.error('Save edit error:', error);
+        } catch (error: unknown) {
+            logger.error('Save edit error:', { error });
             toast.error('Холболтын алдаа гарлаа');
         } finally {
             setSaving(false);

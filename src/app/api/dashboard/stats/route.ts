@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { getStartOfPeriod } from '@/lib/utils/date';
 import { checkRateLimit, getRateLimitHeaders, RATE_LIMITS } from '@/lib/utils/rate-limit';
 import { apiError } from '@/lib/utils/api-response';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -190,8 +191,8 @@ export async function GET(request: NextRequest) {
       lowStockProducts: lowStockProducts || [],
       unansweredCount,
     });
-  } catch (error) {
-    console.error('Stats API error:', error);
+  } catch (error: unknown) {
+    logger.error('Stats API error:', { error: error });
     return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
   }
 }

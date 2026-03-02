@@ -1,3 +1,4 @@
+import { logger } from '@/lib/utils/logger';
 const GRAPH_API_URL = 'https://graph.facebook.com/v21.0';
 
 interface SendMessageOptions {
@@ -33,10 +34,10 @@ export async function sendSenderAction(
         });
 
         if (!response.ok) {
-            console.warn(`⚠️ Sender action '${action}' failed but continuing...`);
+            logger.warn(`⚠️ Sender action '${action}' failed but continuing...`);
         }
-    } catch (error) {
-        console.warn(`⚠️ Sender action '${action}' network error:`, error);
+    } catch (error: unknown) {
+        logger.warn(`⚠️ Sender action '${action}' network error:`, { error: error });
     }
 }
 
@@ -54,7 +55,7 @@ export async function sendTextMessage({ recipientId, message, pageAccessToken }:
 
     if (!response.ok) {
         const error = await response.json();
-        console.error('Facebook API error:', error);
+        logger.error('Facebook API error:', { error: error });
         throw new Error(`Failed to send message: ${error.error?.message || 'Unknown error'}`);
     }
 
@@ -88,7 +89,7 @@ export async function sendTaggedMessage({
 
     if (!response.ok) {
         const error = await response.json();
-        console.error('Facebook API error (tagged message):', error);
+        logger.error('Facebook API error (tagged message):', { error: error });
         throw new Error(`Failed to send tagged message: ${error.error?.message || 'Unknown error'}`);
     }
 
@@ -117,7 +118,7 @@ export async function sendMessageWithQuickReplies({
 
     if (!response.ok) {
         const error = await response.json();
-        console.error('Facebook API error:', error);
+        logger.error('Facebook API error:', { error: error });
         throw new Error(`Failed to send message: ${error.error?.message || 'Unknown error'}`);
     }
 
@@ -172,7 +173,7 @@ export async function sendProductCard({
 
     if (!response.ok) {
         const error = await response.json();
-        console.error('Facebook API error:', error);
+        logger.error('Facebook API error:', { error: error });
         throw new Error(`Failed to send product card: ${error.error?.message || 'Unknown error'}`);
     }
 
@@ -210,7 +211,7 @@ export async function sendImage({
 
     if (!response.ok) {
         const error = await response.json();
-        console.error('Facebook API error:', error);
+        logger.error('Facebook API error:', { error: error });
         throw new Error(`Failed to send image: ${error.error?.message || 'Unknown error'}`);
     }
 
@@ -284,7 +285,7 @@ export async function sendImageGallery({
 
     if (!response.ok) {
         const error = await response.json();
-        console.error('Facebook API error:', error);
+        logger.error('Facebook API error:', { error: error });
         throw new Error(`Failed to send image gallery: ${error.error?.message || 'Unknown error'}`);
     }
 

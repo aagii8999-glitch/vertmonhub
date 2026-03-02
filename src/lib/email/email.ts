@@ -38,13 +38,13 @@ async function sendEmail({ to, subject, html }: EmailParams): Promise<boolean> {
         });
 
         if (error) {
-            logger.error('Email sending failed:', error);
+            logger.error('Email sending failed:', { error: error instanceof Error ? error.message : String(error) });
             return false;
         }
 
         logger.success('Email sent successfully:', { to, subject, id: data?.id });
         return true;
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Email error:', { error: error instanceof Error ? error.message : 'Unknown error' });
         return false;
     }

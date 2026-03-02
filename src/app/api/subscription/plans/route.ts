@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET() {
     try {
@@ -19,10 +20,10 @@ export async function GET() {
         if (error) throw error;
 
         return NextResponse.json({ plans: plans || [] });
-    } catch (error: any) {
-        console.error('Get plans error:', error);
+    } catch (error: unknown) {
+        logger.error('Get plans error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Failed to fetch plans' },
+            { error: error instanceof Error ? error.message : 'Failed to fetch plans' },
             { status: 500 }
         );
     }

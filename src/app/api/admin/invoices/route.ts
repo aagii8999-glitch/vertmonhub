@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/admin/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 // GET - List all invoices
 export async function GET(request: NextRequest) {
@@ -65,9 +66,9 @@ export async function GET(request: NextRequest) {
             limit,
             totalPages: Math.ceil((count || 0) / limit)
         });
-    } catch (error: any) {
-        console.error('Invoices fetch error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Invoices fetch error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -108,9 +109,9 @@ export async function POST(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ invoice: data });
-    } catch (error: any) {
-        console.error('Invoice create error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Invoice create error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }
 
@@ -131,7 +132,7 @@ export async function PUT(request: NextRequest) {
 
         const supabase = supabaseAdmin();
 
-        const updateData: any = { updated_at: new Date().toISOString() };
+        const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() };
         if (status) {
             updateData.status = status;
             if (status === 'paid' && !paid_at) {
@@ -154,8 +155,8 @@ export async function PUT(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ invoice: data });
-    } catch (error: any) {
-        console.error('Invoice update error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        logger.error('Invoice update error:', { error: error });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
     }
 }

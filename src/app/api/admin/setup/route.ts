@@ -108,10 +108,10 @@ export async function GET() {
             next_step: 'Now go to /admin to access the admin dashboard'
         });
 
-    } catch (error: any) {
-        console.error('Admin setup error:', error);
+    } catch (error: unknown) {
+        logger.error('Admin setup error:', { error: error });
         return NextResponse.json({
-            error: error.message,
+            error: error instanceof Error ? error.message : 'Unknown error',
             hint: 'Check server logs for details'
         }, { status: 500 });
     }

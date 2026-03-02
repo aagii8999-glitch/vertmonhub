@@ -92,10 +92,10 @@ export async function GET(request: NextRequest) {
                 pages: Math.ceil((count || 0) / limit)
             }
         });
-    } catch (error: any) {
-        console.error('Get shops error:', error);
+    } catch (error: unknown) {
+        logger.error('Get shops error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Failed to fetch shops' },
+            { error: error instanceof Error ? error.message : 'Failed to fetch shops' },
             { status: 500 }
         );
     }
@@ -142,7 +142,7 @@ export async function PATCH(request: NextRequest) {
             if (plan?.slug) {
                 updateData.subscription_plan = plan.slug;
                 updateData.subscription_status = 'active'; // Activate subscription when plan is set
-                console.log(`[Admin Shops] Syncing plan_id=${plan_id} with subscription_plan=${plan.slug}`);
+                logger.info(`[Admin Shops] Syncing plan_id=${plan_id} with subscription_plan=${plan.slug}`);
             }
 
             // Also update/create subscription in subscriptions table for UI consistency
@@ -163,7 +163,7 @@ export async function PATCH(request: NextRequest) {
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', existingSubscription.id);
-                console.log(`[Admin Shops] Updated subscription ${existingSubscription.id} with plan_id=${plan_id}`);
+                logger.info(`[Admin Shops] Updated subscription ${existingSubscription.id} with plan_id=${plan_id}`);
             } else {
                 // Create new subscription
                 const { data: newSub, error: subError } = await supabase
@@ -180,9 +180,9 @@ export async function PATCH(request: NextRequest) {
                     .single();
 
                 if (subError) {
-                    console.error('[Admin Shops] Failed to create subscription:', subError);
+                    logger.error('[Admin Shops] Failed to create subscription:', { error: subError });
                 } else {
-                    console.log(`[Admin Shops] Created new subscription ${newSub.id} for shop ${id}`);
+                    logger.info(`[Admin Shops] Created new subscription ${newSub.id} for shop ${id}`);
                 }
             }
         }
@@ -214,10 +214,10 @@ export async function PATCH(request: NextRequest) {
         if (error) throw error;
 
         return NextResponse.json({ shop, message: 'Shop updated successfully' });
-    } catch (error: any) {
-        console.error('Update shop error:', error);
+    } catch (error: unknown) {
+        logger.error('Update shop error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Failed to update shop' },
+            { error: error instanceof Error ? error.message : 'Failed to update shop' },
             { status: 500 }
         );
     }

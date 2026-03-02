@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/utils/logger';
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
@@ -53,7 +54,7 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                 const data = await res.json();
                 setPlans(data.plans || []);
             } catch (err) {
-                console.error('Error fetching plans:', err);
+                logger.error('Error fetching plans:', { error: err });
             } finally {
                 setLoading(false);
             }
@@ -122,7 +123,7 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                 onComplete();
             }
         } catch (err) {
-            console.error('Subscription error:', err);
+            logger.error('Subscription error:', { error: err });
         } finally {
             setSubscribing(false);
         }

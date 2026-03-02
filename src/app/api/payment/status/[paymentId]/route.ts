@@ -89,8 +89,8 @@ export async function GET(
             },
         });
 
-    } catch (error: any) {
-        logger.error('Payment status check error:', error);
+    } catch (error: unknown) {
+        logger.error('Payment status check error:', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({
             error: 'Failed to check payment status'
         }, { status: 500 });

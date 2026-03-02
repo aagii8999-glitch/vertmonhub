@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getClerkUser, supabaseAdmin } from '@/lib/auth/clerk-auth';
+import { logger } from '@/lib/utils/logger';
 
 // POST /api/user/switch-shop - Switch active shop
 export async function POST(request: Request) {
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
         // Verify the shop belongs to the user
         const { data: shop, error } = await supabase
             .from('shops')
-            .select('*')
+            .select('id, name, owner_name, is_active, subscription_plan')
             .eq('id', shopId)
             .eq('user_id', userId)
             .single();
@@ -38,8 +39,8 @@ export async function POST(request: Request) {
             shop,
             message: `Switched to ${shop.name}`
         });
-    } catch (error) {
-        console.error('Switch shop error:', error);
+    } catch (error: unknown) {
+        logger.error('Switch shop error:', { error: error });
         return NextResponse.json({ error: 'Failed to switch shop' }, { status: 500 });
     }
 }

@@ -3,6 +3,7 @@
  */
 
 import { expect } from 'vitest';
+import { logger } from '@/lib/utils/logger';
 
 /** Mongolian Unicode range check (Cyrillic used for Mongolian) */
 const MONGOLIAN_CYRILLIC = /[\u0410-\u044F\u0401\u0451\u04E8\u04E9\u04AE\u04AF]/;
@@ -35,7 +36,7 @@ export function assertNoHallucination(
         );
         if (!isValid && cleanName.length > 3) {
             // Only flag if it looks like a product name (not a generic word)
-            console.warn(`Possible hallucination: "${cleanName}" not in product list`);
+            logger.warn(`Possible hallucination: "${cleanName}" not in product list`);
         }
     }
 }

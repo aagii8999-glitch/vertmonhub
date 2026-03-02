@@ -15,22 +15,22 @@ describe('Card', () => {
         it('applies default styles', () => {
             const { container } = render(<Card>Test</Card>);
             const card = container.firstChild as HTMLElement;
-            expect(card.className).toContain('bg-white');
-            expect(card.className).toContain('rounded-2xl');
+            expect(card.className).toContain('bg-card');
+            expect(card.className).toContain('rounded-xl');
             expect(card.className).toContain('border');
         });
 
         it('applies hover styles when hover prop is true', () => {
             const { container } = render(<Card hover>Hoverable</Card>);
             const card = container.firstChild as HTMLElement;
-            expect(card.className).toContain('hover:border-gray-300');
-            expect(card.className).toContain('transition-all');
+            expect(card.className).toContain('card-hover-lift');
+            expect(card.className).toContain('cursor-pointer');
         });
 
         it('does not apply hover styles when hover prop is false', () => {
             const { container } = render(<Card hover={false}>No Hover</Card>);
             const card = container.firstChild as HTMLElement;
-            expect(card.className).not.toContain('hover:border-gray-300');
+            expect(card.className).not.toContain('card-hover-lift');
         });
 
         it('accepts custom className', () => {
@@ -54,14 +54,14 @@ describe('Card', () => {
         it('applies default padding styles', () => {
             const { container } = render(<CardHeader>Header</CardHeader>);
             const header = container.firstChild as HTMLElement;
-            expect(header.className).toContain('px-4');
-            expect(header.className).toContain('py-4');
+            expect(header.className).toContain('p-4');
         });
 
-        it('has border-bottom style', () => {
+        it('has flex-col layout', () => {
             const { container } = render(<CardHeader>Header</CardHeader>);
             const header = container.firstChild as HTMLElement;
-            expect(header.className).toContain('border-b');
+            expect(header.className).toContain('flex');
+            expect(header.className).toContain('flex-col');
         });
 
         it('accepts custom className', () => {
@@ -80,8 +80,7 @@ describe('Card', () => {
         it('applies default padding styles', () => {
             const { container } = render(<CardContent>Content</CardContent>);
             const content = container.firstChild as HTMLElement;
-            expect(content.className).toContain('px-4');
-            expect(content.className).toContain('py-4');
+            expect(content.className).toContain('p-4');
         });
 
         it('accepts custom className', () => {
@@ -106,7 +105,7 @@ describe('Card', () => {
             render(<CardTitle>Title</CardTitle>);
             const title = screen.getByText('Title');
             expect(title.className).toContain('font-semibold');
-            expect(title.className).toContain('text-gray-900');
+            expect(title.className).toContain('text-base');
         });
 
         it('accepts custom className', () => {

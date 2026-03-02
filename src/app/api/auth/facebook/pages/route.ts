@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { logger } from '@/lib/utils/logger';
 
 interface FacebookPage {
   id: string;
@@ -33,8 +34,8 @@ export async function GET() {
     }));
 
     return NextResponse.json({ pages: safePagesData });
-  } catch (err: any) {
-    console.error('Error fetching FB pages:', err);
+  } catch (err: unknown) {
+    logger.error('Error fetching FB pages:', { error: err });
     return NextResponse.json({ pages: [], error: 'Failed to parse pages data' });
   }
 }
@@ -80,8 +81,8 @@ export async function POST(request: NextRequest) {
         access_token: selectedPage.access_token,
       }
     });
-  } catch (err: any) {
-    console.error('Error selecting FB page:', err);
+  } catch (err: unknown) {
+    logger.error('Error selecting FB page:', { error: err });
     return NextResponse.json({ error: 'Failed to select page' }, { status: 500 });
   }
 }

@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
         // Get pending messages that are ready to process (process_after has passed)
         const { data: pendingMessages, error: fetchError } = await supabase
             .from('pending_messages')
-            .select('*')
+            .select('id, shop_id, customer_id, sender_id, platform, message_type, content, image_url, access_token, process_after, created_at')
             .eq('processed', false)
             .lte('process_after', now)
             .order('created_at', { ascending: true });
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
             batches: groupedMessages.size
         });
 
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Cron job error:', { error });
         return NextResponse.json({ error: 'Internal error' }, { status: 500 });
     }
@@ -168,7 +168,7 @@ async function processMessageBatch(supabase: ReturnType<typeof supabaseAdmin>, m
     // Get customer data
     const { data: customer } = await supabase
         .from('customers')
-        .select('*')
+        .select('id, shop_id, facebook_id, name, phone, address, total_orders, total_spent, is_vip, ai_paused_until, message_count, created_at')
         .eq('id', customerId)
         .single();
 
@@ -320,7 +320,7 @@ async function processMessageBatch(supabase: ReturnType<typeof supabaseAdmin>, m
 
         logger.success(`Processed batch of ${messages.length} messages for sender ${senderId}`);
 
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Batch processing error:', { error });
 
         // Send fallback message

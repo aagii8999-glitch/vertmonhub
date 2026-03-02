@@ -5,6 +5,7 @@ import { Package, ArrowLeft, Check, Upload, X, Plus, Layers, Box, FileSpreadshee
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProductImportModal } from './ProductImportModal';
+import { logger } from '@/lib/utils/logger';
 
 interface Product {
   name: string;
@@ -101,7 +102,7 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
     }
   };
 
-  const updateProduct = (index: number, field: keyof Product, value: any) => {
+  const updateProduct = (index: number, field: keyof Product, value: string | number | boolean) => {
     const updated = [...products];
     updated[index] = { ...updated[index], [field]: value };
     setProducts(updated);
@@ -174,7 +175,7 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
           try {
             finalImageUrl = await uploadImage(p.imageFile);
           } catch (e) {
-            console.error("Image upload failed:", e);
+            logger.error('Image upload failed:', { error: e });
             finalImageUrl = undefined; // Clear blob URL if upload fails
           }
         }
@@ -189,8 +190,8 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
       }));
 
       await onComplete(processedProducts);
-    } catch (err: any) {
-      setError(err.message || 'Алдаа гарлаа. "products" bucket үүссэн эсэхийг шалгаарай.');
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Алдаа гарлаа. "products" bucket үүссэн эсэхийг шалгаарай.');
     } finally {
       setSaving(false);
       setUploading(false);
@@ -374,8 +375,8 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
               } else {
                 setError(data.message || 'Facebook Shop бүтээгдэхүүн олдсонгүй');
               }
-            } catch (err: any) {
-              setError(err.message || 'FB Shop татахад алдаа гарлаа');
+            } catch (err: unknown) {
+              setError((err instanceof Error ? err.message : String(err)) || 'FB Shop татахад алдаа гарлаа');
             } finally {
               setFbImporting(false);
             }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 // POST - Subscribe to push notifications
 export async function POST(request: NextRequest) {
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
             .single();
 
         if (error) {
-            console.error('Subscription error:', error);
+            logger.error('Subscription error:', { error: error });
             return NextResponse.json({ error: 'Failed to save subscription' }, { status: 500 });
         }
 
@@ -47,8 +48,8 @@ export async function POST(request: NextRequest) {
             message: 'Push notification subscribed!',
             id: data.id
         });
-    } catch (error) {
-        console.error('Push subscribe error:', error);
+    } catch (error: unknown) {
+        logger.error('Push subscribe error:', { error: error });
         return NextResponse.json({ error: 'Server error' }, { status: 500 });
     }
 }
@@ -77,8 +78,8 @@ export async function DELETE(request: NextRequest) {
             .eq('endpoint', endpoint);
 
         return NextResponse.json({ success: true, message: 'Unsubscribed' });
-    } catch (error) {
-        console.error('Push unsubscribe error:', error);
+    } catch (error: unknown) {
+        logger.error('Push unsubscribe error:', { error: error });
         return NextResponse.json({ error: 'Server error' }, { status: 500 });
     }
 }

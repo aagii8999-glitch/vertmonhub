@@ -143,7 +143,7 @@ export async function executeSuggestRelatedProducts(
             message: `"${currentProduct.name}"-тэй хамт авах уу?\n\n${suggestionText}`,
             data: { suggestions: suggestionList }
         };
-    } catch (error) {
+    } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         logger.error('Suggest related products error:', { error: errorMessage });
         return { success: false, error: 'Санал болгох бараа хайхад алдаа гарлаа' };
@@ -162,7 +162,7 @@ export async function executeCheckPaymentStatus(
 
     let query = supabase
         .from('orders')
-        .select('*')
+        .select('id, name, description, price, stock, image_url, has_variants, is_active')
         .eq('shop_id', context.shopId)
         .eq('customer_id', context.customerId)
         .eq('status', 'pending');
@@ -231,8 +231,8 @@ export async function executeCheckPaymentStatus(
                     verifiedOrderIds.push(order.id);
                     verifiedCount++;
                 }
-            } catch (err: any) {
-                logger.warn(`Failed to check payment for order ${order.id}:`, { error: err.message || String(err) });
+            } catch (err: unknown) {
+                logger.warn(`Failed to check payment for order ${order.id}:`, { error: (err instanceof Error ? err.message : String(err)) });
             }
         }
     }
@@ -303,7 +303,7 @@ export async function executeLogComplaint(
             message: 'Таны санал хүсэлтийг хүлээн авлаа. Бид удахгүй эргэж холбогдоно.',
             data: { logged: true }
         };
-    } catch (error) {
+    } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         logger.error('Log complaint error:', { error: errorMessage });
         return { success: false, error: 'Гомдол бүртгэхэд алдаа гарлаа' };

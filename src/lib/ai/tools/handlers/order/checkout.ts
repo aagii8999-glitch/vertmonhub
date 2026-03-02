@@ -1,0 +1,86 @@
+import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
+import { sendOrderNotification } from '@/lib/notifications';
+import { getCartFromDB } from '../../../helpers/stockHelpers';
+import { createQPayInvoice } from '@/lib/payment/qpay';
+import type { CheckoutArgs } from '../../definitions';
+import type { ToolExecutionResult, ToolExecutionContext } from '../../../services/ToolExecutor';
+
+export async function executeCheckout(
+    args: CheckoutArgs,
+    context: ToolExecutionContext
+): Promise<ToolExecutionResult> {
+    const { notes } = args;
+    const supabase = supabaseAdmin();
+
+    if (!context.customerId) {
+        return { success: false, error: 'No customer context' };
+    }
+
+    const cart = await getCartFromDB(context.shopId, context.customerId);
+
+    if (!cart || cart.items.length === 0) {
+        return { success: false, error: 'Сагс хоосон байна. Эхлээд бараа нэмнэ үү.' };
+    }
+
+    const { data: orderId, error: checkoutError } = await supabase.rpc('checkout_cart', {
+        p_cart_id: cart.id,
+        p_notes: notes || 'AI Chat Checkout'
+    });
+
+    if (checkoutError) {
+        logger.error('Checkout error:', { error: checkoutError });
+        return { success: false, error: checkoutError.message };
+    }
+
+    let qpayInvoice = null;
+    let bankInfo = null;
+
+    try {
+        const { data: shop } = await supabase
+            .from('shops')
+            .select('bank_name, account_number, account_name')
+            .eq('id', context.shopId)
+            .single();
+
+        bankInfo = shop;
+
+        qpayInvoice = await createQPayInvoice({
+            orderId: orderId,
+            amount: cart.total_amount,
+            description: `Order #${orderId.substring(0, 8)}`,
+            callbackUrl: `https://smarthub.mn/api/payment/callback/qpay`
+        });
+    } catch (err) {
+        logger.warn('Failed to generate payment info:', { error: String(err) });
+    }
+
+    if (context.notifySettings?.order !== false) {
+        try {
+            await sendOrderNotification(context.shopId, 'new', {
+                orderId: orderId,
+                customerName: context.customerName,
+                totalAmount: cart.total_amount,
+            });
+        } catch (notifyError) {
+            logger.warn('Notification failed but order created:', { error: String(notifyError) });
+        }
+    }
+
+    let paymentMsg = `Захиалга #${orderId.substring(0, 8)} амжилттай үүслээ! Нийт: ${cart.total_amount.toLocaleString()}₮\n\nТөлбөр төлөх сонголтууд:`;
+
+    if (qpayInvoice) {
+        paymentMsg += `\n\n1. QPay (Хялбар): Доорх линкээр орж эсвэл QR кодыг уншуулж төлнө үү.\n${qpayInvoice.qpay_shorturl}`;
+    }
+
+    if (bankInfo && bankInfo.account_number) {
+        paymentMsg += `\n\n2. Дансны шилжүүлэг:\nБанк: ${bankInfo.bank_name || 'Банк'}\nДанс: ${bankInfo.account_number}\nНэр: ${bankInfo.account_name || 'Дэлгүүр'}\nГүйлгээний утга: ${orderId.substring(0, 8)}`;
+        paymentMsg += `\n\n*Дансаар шилжүүлсэн бол баримтаа илгээнэ үү.`;
+    }
+
+    return {
+        success: true,
+        message: paymentMsg,
+        data: { order_id: orderId, qpay: qpayInvoice, bank: bankInfo }
+    };
+}

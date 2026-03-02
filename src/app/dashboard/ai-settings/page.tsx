@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Bot, Save, Plus, Trash2, Edit2, X, MessageSquare, Bell, BookOpen, Shield, BarChart3, Settings, Zap, Smile, Globe, Check, Loader2, ChevronRight, Hash } from 'lucide-react';
 import { toast } from 'sonner';
 import { EMOTIONS } from '@/lib/constants/ai-setup';
+import { logger } from '@/lib/utils/logger';
 
 const TABS = [
     { id: 'general', label: 'Ерөнхий', icon: Settings },
@@ -77,7 +78,7 @@ export default function AISettingsPage() {
             if (faqRes?.ok) { const d = await faqRes.json(); setFaqs(d.faqs || []); }
             if (repRes?.ok) { const d = await repRes.json(); setReplies(d.replies || []); }
             if (sloRes?.ok) { const d = await sloRes.json(); setSlogans(d.slogans || []); }
-        } catch (e) { console.error(e); } finally { setLoading(false); }
+        } catch (e) { logger.error('Алдаа гарлаа', { error: e }); } finally { setLoading(false); }
     }
 
     async function saveGeneral() {

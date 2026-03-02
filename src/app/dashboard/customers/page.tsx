@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/utils/logger';
 import { Search, User, Crown, Phone, Mail, Tag, X, Plus, MessageSquare, Clock, ChevronDown, Edit2, Save, Users } from 'lucide-react';
 
 interface Customer {
@@ -35,7 +36,7 @@ export default function CustomersPage() {
             const res = await fetch(`/api/dashboard/customers?${params}`, { headers: { 'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || '' } });
             const data = await res.json();
             setCustomers(data.customers || []);
-        } catch (e) { console.error(e); } finally { setLoading(false); }
+        } catch (e) { logger.error('Хэрэглэгчийн алдаа', { error: e }); } finally { setLoading(false); }
     }
 
     async function fetchDetail(id: string) {
@@ -45,7 +46,7 @@ export default function CustomersPage() {
             setSelectedCustomer(data.customer);
             setEditForm({ name: data.customer.name || '', phone: data.customer.phone || '', email: data.customer.email || '', address: data.customer.address || '', notes: data.customer.notes || '' });
             setIsDetailOpen(true);
-        } catch (e) { console.error(e); }
+        } catch (e) { logger.error('Хэрэглэгчийн алдаа', { error: e }); }
     }
 
     async function saveCustomer() {
@@ -54,14 +55,14 @@ export default function CustomersPage() {
         try {
             await fetch('/api/dashboard/customers', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || '' }, body: JSON.stringify({ id: selectedCustomer.id, ...editForm }) });
             setEditMode(false); fetchCustomers(); fetchDetail(selectedCustomer.id);
-        } catch (e) { console.error(e); } finally { setSaving(false); }
+        } catch (e) { logger.error('Хэрэглэгчийн алдаа', { error: e }); } finally { setSaving(false); }
     }
 
     async function addTag(cid: string, tag: string) {
-        try { await fetch(`/api/dashboard/customers/${cid}/tags`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tag }) }); fetchCustomers(); if (selectedCustomer?.id === cid) fetchDetail(cid); } catch (e) { console.error(e); }
+        try { await fetch(`/api/dashboard/customers/${cid}/tags`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tag }) }); fetchCustomers(); if (selectedCustomer?.id === cid) fetchDetail(cid); } catch (e) { logger.error('Хэрэглэгчийн алдаа', { error: e }); }
     }
     async function removeTag(cid: string, tag: string) {
-        try { await fetch(`/api/dashboard/customers/${cid}/tags`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tag }) }); fetchCustomers(); if (selectedCustomer?.id === cid) fetchDetail(cid); } catch (e) { console.error(e); }
+        try { await fetch(`/api/dashboard/customers/${cid}/tags`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tag }) }); fetchCustomers(); if (selectedCustomer?.id === cid) fetchDetail(cid); } catch (e) { logger.error('Хэрэглэгчийн алдаа', { error: e }); }
     }
 
     const filtered = customers.filter(c => (c.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || (c.phone || '').includes(searchQuery));

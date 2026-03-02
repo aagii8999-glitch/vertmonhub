@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/utils/logger';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -44,8 +45,8 @@ export default function ReportsPage() {
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
-        } catch (error) {
-            console.error('Export error:', error);
+        } catch (error: unknown) {
+            logger.error('Export error:', { error: error });
         } finally {
             setExporting(null);
         }

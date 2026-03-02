@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClerkUserShop, supabaseAdmin } from '@/lib/auth/clerk-auth';
+import { logger } from '@/lib/utils/logger';
 
 // POST - Add products to shop
 export async function POST(request: NextRequest) {
@@ -57,9 +58,9 @@ export async function POST(request: NextRequest) {
       products: insertedProducts,
       message: `${insertedProducts.length} бүтээгдэхүүн нэмэгдлээ`
     });
-  } catch (error: any) {
-    console.error('Add products error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    logger.error('Add products error:', { error: error });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 

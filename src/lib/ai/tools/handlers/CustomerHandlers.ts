@@ -45,7 +45,7 @@ export async function executeCollectContact(
         return { success: false, error: error.message };
     }
 
-    logger.info('Contact info saved to CRM:', updateData);
+    logger.info('Contact info saved to CRM:', { data: updateData });
 
     if (context.notifySettings?.contact !== false) {
         await sendPushNotification(context.shopId, {

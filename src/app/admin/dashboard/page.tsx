@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/utils/logger';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -44,8 +45,8 @@ export default function AdminDashboard() {
                 const result = await res.json();
                 setData(result);
             }
-        } catch (error) {
-            console.error('Dashboard error:', error);
+        } catch (error: unknown) {
+            logger.error('Dashboard error:', { error: error });
         } finally {
             setLoading(false);
         }

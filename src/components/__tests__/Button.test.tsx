@@ -44,8 +44,8 @@ describe('Button', () => {
             expect(button.className).toContain('bg-secondary');
         });
 
-        it('applies danger variant', () => {
-            render(<Button variant="danger">Danger</Button>);
+        it('applies destructive variant', () => {
+            render(<Button variant="destructive">Danger</Button>);
             const button = screen.getByRole('button');
             expect(button.className).toContain('bg-destructive');
         });
@@ -53,7 +53,7 @@ describe('Button', () => {
         it('applies ghost variant', () => {
             render(<Button variant="ghost">Ghost</Button>);
             const button = screen.getByRole('button');
-            expect(button.className).toContain('text-muted-foreground');
+            expect(button.className).toContain('hover:bg-secondary');
         });
 
         it('applies outline variant', () => {
@@ -67,19 +67,19 @@ describe('Button', () => {
         it('applies md size by default', () => {
             render(<Button>Medium</Button>);
             const button = screen.getByRole('button');
-            expect(button.className).toContain('min-h-[44px]');
+            expect(button.className).toContain('h-10');
         });
 
         it('applies sm size', () => {
             render(<Button size="sm">Small</Button>);
             const button = screen.getByRole('button');
-            expect(button.className).toContain('min-h-[40px]');
+            expect(button.className).toContain('h-8');
         });
 
         it('applies lg size', () => {
             render(<Button size="lg">Large</Button>);
             const button = screen.getByRole('button');
-            expect(button.className).toContain('min-h-[48px]');
+            expect(button.className).toContain('h-11');
         });
 
         it('applies icon size', () => {
@@ -91,19 +91,19 @@ describe('Button', () => {
     });
 
     describe('Loading State', () => {
-        it('shows loading spinner when isLoading is true', () => {
-            render(<Button isLoading>Loading</Button>);
+        it('shows loading spinner when loading is true', () => {
+            render(<Button loading>Loading</Button>);
             const button = screen.getByRole('button');
             expect(button.querySelector('svg')).toBeInTheDocument();
         });
 
-        it('disables button when isLoading is true', () => {
-            render(<Button isLoading>Loading</Button>);
+        it('disables button when loading is true', () => {
+            render(<Button loading>Loading</Button>);
             expect(screen.getByRole('button')).toBeDisabled();
         });
 
         it('shows loading spinner in link button', () => {
-            render(<Button href="/test" isLoading>Link Loading</Button>);
+            render(<Button href="/test" loading>Link Loading</Button>);
             const link = screen.getByRole('link');
             expect(link.querySelector('svg')).toBeInTheDocument();
         });
@@ -139,7 +139,7 @@ describe('Button', () => {
 
         it('does not call onClick when loading', () => {
             const handleClick = vi.fn();
-            render(<Button onClick={handleClick} isLoading>Click</Button>);
+            render(<Button onClick={handleClick} loading>Click</Button>);
             fireEvent.click(screen.getByRole('button'));
             expect(handleClick).not.toHaveBeenCalled();
         });

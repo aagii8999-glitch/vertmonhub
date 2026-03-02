@@ -35,7 +35,7 @@ export async function getActiveAutomations(shopId: string): Promise<CommentAutom
 
     const { data, error } = await supabase
         .from('comment_automations')
-        .select('*')
+        .select('id, shop_id, name, is_active, post_id, post_url, trigger_keywords, match_type, reply_template, is_private_reply, private_reply_template, action_type, dm_message, reply_message, platform, trigger_count, last_triggered_at, updated_at, created_at')
         .eq('shop_id', shopId)
         .eq('is_active', true);
 
@@ -137,7 +137,7 @@ export async function executeAutomation(
             logger.success(`[Comment Automation] DM sent to ${senderId} via ${platform}`, {
                 automationName: automation.name,
             });
-        } catch (error) {
+        } catch (error: unknown) {
             const msg = error instanceof Error ? error.message : 'Unknown error';
             logger.error(`[Comment Automation] Failed to send DM`, { error: msg, senderId });
         }
@@ -170,9 +170,9 @@ export async function executeAutomation(
                 });
             } else {
                 const errorData = await response.json();
-                logger.error(`[Comment Automation] Comment reply failed`, errorData);
+                logger.error(`[Comment Automation] Comment reply failed`, { error: errorData });
             }
-        } catch (error) {
+        } catch (error: unknown) {
             const msg = error instanceof Error ? error.message : 'Unknown error';
             logger.error(`[Comment Automation] Comment reply error`, { error: msg });
         }
@@ -206,7 +206,7 @@ export async function getAllAutomations(shopId: string): Promise<CommentAutomati
 
     const { data, error } = await supabase
         .from('comment_automations')
-        .select('*')
+        .select('id, shop_id, name, is_active, post_id, post_url, trigger_keywords, match_type, reply_template, is_private_reply, private_reply_template, action_type, dm_message, reply_message, platform, trigger_count, last_triggered_at, updated_at, created_at')
         .eq('shop_id', shopId)
         .order('created_at', { ascending: false });
 

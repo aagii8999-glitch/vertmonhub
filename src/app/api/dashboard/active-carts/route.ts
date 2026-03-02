@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET() {
     try {
@@ -41,7 +42,7 @@ export async function GET() {
             .order('updated_at', { ascending: false });
 
         if (error) {
-            console.error('Error fetching active carts:', error);
+            logger.error('Error fetching active carts:', { error: error });
             return new NextResponse('Internal Server Error', { status: 500 });
         }
 
@@ -76,8 +77,8 @@ export async function GET() {
 
         return NextResponse.json({ carts: formattedCarts });
 
-    } catch (error) {
-        console.error('API Error:', error);
+    } catch (error: unknown) {
+        logger.error('API Error:', { error: error });
         return new NextResponse('Internal Server Error', { status: 500 });
     }
 }

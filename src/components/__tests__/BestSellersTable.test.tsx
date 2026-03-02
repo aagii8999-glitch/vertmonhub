@@ -118,8 +118,8 @@ describe('BestSellersTable', () => {
         it('applies silver styling for rank 2', () => {
             render(<BestSellersTable products={mockProducts} />);
             const rank2 = screen.getByText('2');
-            expect(rank2.className).toContain('bg-gray-200');
-            expect(rank2.className).toContain('text-gray-700');
+            expect(rank2.className).toContain('bg-[#1C1650]');
+            expect(rank2.className).toContain('text-white/70');
         });
 
         it('applies bronze styling for rank 3', () => {
@@ -132,8 +132,8 @@ describe('BestSellersTable', () => {
         it('applies default styling for rank > 3', () => {
             render(<BestSellersTable products={mockProducts} />);
             const rank4 = screen.getByText('4');
-            expect(rank4.className).toContain('bg-gray-100');
-            expect(rank4.className).toContain('text-gray-600');
+            expect(rank4.className).toContain('bg-[#151040]');
+            expect(rank4.className).toContain('text-white/60');
         });
     });
 
@@ -170,7 +170,7 @@ describe('BestSellersTable', () => {
     describe('Hover Effects', () => {
         it('has hover transition classes', () => {
             const { container } = render(<BestSellersTable products={mockProducts} />);
-            const rows = container.querySelectorAll('.hover\\:bg-gray-100');
+            const rows = container.querySelectorAll('.transition-colors');
             expect(rows.length).toBe(mockProducts.length);
         });
     });

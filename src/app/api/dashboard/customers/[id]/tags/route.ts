@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 // Add tag to customer
 export async function POST(
@@ -53,8 +54,8 @@ export async function POST(
         if (error) throw error;
 
         return NextResponse.json({ message: 'Tag added', tags: data.tags });
-    } catch (error) {
-        console.error('Add tag error:', error);
+    } catch (error: unknown) {
+        logger.error('Add tag error:', { error: error });
         return NextResponse.json({ error: 'Failed to add tag' }, { status: 500 });
     }
 }
@@ -104,8 +105,8 @@ export async function DELETE(
         if (error) throw error;
 
         return NextResponse.json({ message: 'Tag removed', tags: data.tags });
-    } catch (error) {
-        console.error('Remove tag error:', error);
+    } catch (error: unknown) {
+        logger.error('Remove tag error:', { error: error });
         return NextResponse.json({ error: 'Failed to remove tag' }, { status: 500 });
     }
 }

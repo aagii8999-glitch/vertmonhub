@@ -39,8 +39,9 @@ async function fetchActiveCarts(): Promise<ActiveCart[]> {
 }
 
 export function useActiveCarts() {
+    const shopId = typeof window !== 'undefined' ? localStorage.getItem('smarthub_active_shop_id') : null;
     return useQuery({
-        queryKey: ['active-carts'],
+        queryKey: ['active-carts', shopId],
         queryFn: fetchActiveCarts,
         staleTime: 1000 * 30, // 30 seconds
         refetchInterval: 1000 * 60, // Refetch every minute

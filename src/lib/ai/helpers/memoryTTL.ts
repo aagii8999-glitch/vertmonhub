@@ -113,7 +113,7 @@ export async function saveMemoryWithTTL(
         }
 
         return { success: true };
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Error saving memory with TTL:', { error });
         return { success: false, error: 'System error' };
     }
@@ -193,7 +193,7 @@ export async function getMemoryWithTracking(
         }
 
         return Object.keys(result).length > 0 ? result : null;
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Error getting memory:', { error });
         return null;
     }
@@ -264,7 +264,7 @@ export async function runBatchCleanup(): Promise<{
 
         logger.info('Batch cleanup completed:', { processed, cleaned, errors });
         return { processed, cleaned, errors };
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Batch cleanup failed:', { error });
         return { processed, cleaned, errors: errors + 1 };
     }
@@ -297,7 +297,7 @@ export async function deleteMemoryKey(
             .eq('id', customerId);
 
         return true;
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Error deleting memory key:', { error });
         return false;
     }
@@ -316,7 +316,7 @@ export async function clearAllMemory(customerId: string): Promise<boolean> {
             .eq('id', customerId);
 
         return true;
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error('Error clearing memory:', { error });
         return false;
     }

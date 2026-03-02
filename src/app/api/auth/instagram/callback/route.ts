@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 interface PageWithInstagram {
     id: string;
@@ -65,7 +66,7 @@ export async function GET(request: NextRequest) {
         const tokenData = await tokenResponse.json();
 
         if (tokenData.error) {
-            console.error('Instagram token error:', tokenData.error);
+            logger.error('Instagram token error:', { error: tokenData.error.message });
             return NextResponse.redirect(`${origin}${redirectBase}?ig_error=token_error`);
         }
 
@@ -77,23 +78,22 @@ export async function GET(request: NextRequest) {
         const pagesData = await pagesResponse.json();
 
         if (pagesData.error) {
-            console.error('Instagram pages error:', pagesData.error);
+            logger.error('Instagram pages error:', { error: pagesData.error.message });
             return NextResponse.redirect(`${origin}${redirectBase}?ig_error=pages_error`);
         }
 
-        console.log('Facebook Pages data:', JSON.stringify(pagesData.data, null, 2));
+        logger.info('Instagram OAuth: found pages', { pageCount: (pagesData.data || []).length });
 
         // Filter pages that have Instagram Business Account connected
         const pagesWithInstagram: PageWithInstagram[] = (pagesData.data || [])
             .filter((page: PageWithInstagram) => page.instagram_business_account?.id)
             .slice(0, 10);
 
-        console.log('Pages with Instagram:', pagesWithInstagram.length);
+        logger.info('Pages with Instagram:', { count: pagesWithInstagram.length });
 
         if (pagesWithInstagram.length === 0) {
             const allPages = pagesData.data || [];
-            console.log('Total Facebook Pages:', allPages.length);
-            console.log('Pages without IG:', allPages.map((p: any) => ({ id: p.id, name: p.name, hasIG: !!p.instagram_business_account })));
+            logger.info('No Instagram accounts found', { totalPages: allPages.length });
 
             return NextResponse.redirect(`${origin}${redirectBase}?ig_error=no_instagram_account&pages=${allPages.length}`);
         }
@@ -114,11 +114,11 @@ export async function GET(request: NextRequest) {
                 .eq('id', shopId);
 
             if (dbError) {
-                console.error('Failed to save Instagram data:', dbError);
+                logger.error('Failed to save Instagram data:', { error: dbError.message });
                 return NextResponse.redirect(`${origin}${redirectBase}?ig_error=db_save_failed`);
             }
 
-            console.log(`✅ Instagram connected for shop ${shopId}: @${igAccount.instagram_business_account!.username}`);
+            logger.success(`Instagram connected for shop ${shopId}`);
             return NextResponse.redirect(`${origin}/dashboard/settings?ig_success=true`);
         }
 
@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${origin}/setup?ig_success=true&ig_count=${instagramAccounts.length}`);
 
     } catch (err) {
-        console.error('Instagram OAuth error:', err);
+        logger.error('Instagram OAuth error:', { error: err instanceof Error ? err.message : 'Unknown' });
         return NextResponse.redirect(`${origin}${redirectBase}?ig_error=exception`);
     }
 }

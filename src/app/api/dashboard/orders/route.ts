@@ -40,8 +40,8 @@ export async function GET(request: Request) {
     if (error) throw error;
 
     return NextResponse.json({ orders: orders || [] });
-  } catch (error) {
-    console.error('Orders API error:', error);
+  } catch (error: unknown) {
+    logger.error('Orders API error:', { error: error });
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
   }
 }
@@ -95,8 +95,8 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json({ order: data });
-  } catch (error) {
-    console.error('Order update error:', error);
+  } catch (error: unknown) {
+    logger.error('Order update error:', { error: error });
     return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
   }
 }

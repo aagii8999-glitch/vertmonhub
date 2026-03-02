@@ -1,4 +1,5 @@
 'use client';
+import { logger } from '@/lib/utils/logger';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -53,8 +54,8 @@ export default function AdminInvoicesPage() {
                 setTotals(data.totals || { total: 0, paid: 0, pending: 0, overdue: 0 });
                 setTotalPages(data.totalPages || 1);
             }
-        } catch (error) {
-            console.error('Fetch error:', error);
+        } catch (error: unknown) {
+            logger.error('Fetch error:', { error: error });
         } finally {
             setLoading(false);
         }
@@ -70,8 +71,8 @@ export default function AdminInvoicesPage() {
             if (res.ok) {
                 fetchInvoices();
             }
-        } catch (error) {
-            console.error('Update error:', error);
+        } catch (error: unknown) {
+            logger.error('Update error:', { error: error });
         }
     }
 

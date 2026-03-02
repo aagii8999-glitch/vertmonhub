@@ -188,7 +188,7 @@ export async function tryCatch<T>(
 ): Promise<T> {
     try {
         return await operation();
-    } catch (error) {
+    } catch (error: unknown) {
         logger.error(`Operation failed: ${context?.action || 'unknown'}`, {
             error: getErrorMessage(error),
         });

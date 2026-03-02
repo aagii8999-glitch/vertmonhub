@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { logger } from '@/lib/utils/logger';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -46,7 +47,7 @@ ${message ? `Түүний хэлсэн зүйл: "${message}"` : 'Ерөнхий
             const result = await model.generateContent(prompt);
             aiResponse = result.response.text();
         } catch (aiError) {
-            console.error('AI response error:', aiError);
+            logger.error('AI response error:', { error: aiError });
             aiResponse = `Сайн байна уу ${name}! 😊
 
 Таны хүсэлтийг хүлээн авлаа. Бид тантай удахгүй холбогдоно.
@@ -69,7 +70,7 @@ ${message ? `Түүний хэлсэн зүйл: "${message}"` : 'Ерөнхий
             .single();
 
         if (error) {
-            console.error('Lead insert error:', error);
+            logger.error('Lead insert error:', { error: error });
             return NextResponse.json(
                 { error: 'Хүсэлт илгээхэд алдаа гарлаа' },
                 { status: 500 }
@@ -82,10 +83,10 @@ ${message ? `Түүний хэлсэн зүйл: "${message}"` : 'Ерөнхий
             aiResponse
         });
 
-    } catch (error: any) {
-        console.error('API Error:', error);
+    } catch (error: unknown) {
+        logger.error('API Error:', { error: error });
         return NextResponse.json(
-            { error: error.message || 'Алдаа гарлаа' },
+            { error: error instanceof Error ? error.message : 'Алдаа гарлаа' },
             { status: 500 }
         );
     }

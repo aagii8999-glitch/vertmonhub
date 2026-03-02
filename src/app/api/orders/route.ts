@@ -34,7 +34,7 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     return NextResponse.json({ orders: orders || [] });
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Orders API error:', { error });
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
   }
@@ -124,9 +124,9 @@ export async function POST(request: NextRequest) {
       message: `Захиалга #${order.id.slice(0, 8)} амжилттай үүслээ`
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Create order error:', { error });
-    return NextResponse.json({ error: error.message || 'Failed to create order' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to create order' }, { status: 500 });
   }
 }
 
@@ -198,7 +198,7 @@ export async function PATCH(request: NextRequest) {
       order: updatedOrder,
       message: `Захиалга "${status}" болгож шинэчлэгдлээ`
     });
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Update order error:', { error });
     return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
   }

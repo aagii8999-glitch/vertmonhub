@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         // Check if payment already exists
         const { data: existingPayment } = await supabase
             .from('payments')
-            .select('*')
+            .select('id, shop_id, amount, status, created_at')
             .eq('order_id', orderId)
             .eq('status', 'paid')
             .single();
@@ -154,10 +154,10 @@ export async function POST(request: NextRequest) {
             }, { status: 400 });
         }
 
-    } catch (error: any) {
-        logger.error('Payment creation error:', error);
+    } catch (error: unknown) {
+        logger.error('Payment creation error:', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json({
-            error: error.message || 'Payment creation failed'
+            error: error instanceof Error ? error.message : 'Payment creation failed'
         }, { status: 500 });
     }
 }

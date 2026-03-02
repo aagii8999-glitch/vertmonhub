@@ -186,7 +186,7 @@ export class ProductService {
     async getLowStock(shopId: string, threshold: number = 5): Promise<Product[]> {
         const { data, error } = await this.supabase
             .from('products')
-            .select('*')
+            .select('id, shop_id, name, description, price, stock, image_url, is_active, created_at, has_variants')
             .eq('shop_id', shopId)
             .eq('is_active', true)
             .lte('stock', threshold)

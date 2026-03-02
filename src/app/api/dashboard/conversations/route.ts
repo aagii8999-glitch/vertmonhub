@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClerkUserShop } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET(request: NextRequest) {
     try {
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
             .limit(200);
 
         if (convoError) {
-            console.error('Error fetching conversations:', convoError);
+            logger.error('Error fetching conversations:', { error: convoError });
             return NextResponse.json({ error: 'Failed to fetch conversations', details: convoError.message }, { status: 500 });
         }
 
@@ -79,8 +80,8 @@ export async function GET(request: NextRequest) {
         const groupedConversations = Array.from(customerMap.values());
 
         return NextResponse.json({ conversations: groupedConversations });
-    } catch (error) {
-        console.error('Conversations API error:', error);
+    } catch (error: unknown) {
+        logger.error('Conversations API error:', { error: error });
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

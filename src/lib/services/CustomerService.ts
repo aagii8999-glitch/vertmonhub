@@ -30,7 +30,7 @@ export class CustomerService {
     async getById(id: string): Promise<Customer | null> {
         const { data, error } = await this.supabase
             .from('customers')
-            .select('*')
+            .select('id, name, phone, address, facebook_id, instagram_id, total_orders, total_spent, is_vip, ai_paused_until, message_count, shop_id, created_at')
             .eq('id', id)
             .single();
 
@@ -48,7 +48,7 @@ export class CustomerService {
     async getByFacebookId(facebookId: string, shopId: string): Promise<Customer | null> {
         const { data, error } = await this.supabase
             .from('customers')
-            .select('*')
+            .select('id, name, phone, address, facebook_id, total_orders, total_spent, is_vip, ai_paused_until, message_count, shop_id, created_at')
             .eq('facebook_id', facebookId)
             .eq('shop_id', shopId)
             .single();
@@ -143,7 +143,7 @@ export class CustomerService {
             }
 
             return null;
-        } catch (error) {
+        } catch (error: unknown) {
             logger.warn('Error fetching Facebook profile', { facebookId, error });
             return null;
         }
@@ -174,7 +174,7 @@ export class CustomerService {
     ): Promise<Customer[]> {
         let query = this.supabase
             .from('customers')
-            .select('*')
+            .select('id, shop_id, name, phone, address, facebook_id, instagram_id, total_orders, total_spent, is_vip, tags, created_at')
             .eq('shop_id', shopId);
 
         if (options?.orderBy) {
@@ -207,7 +207,7 @@ export class CustomerService {
     async getVIPCustomers(shopId: string): Promise<Customer[]> {
         const { data, error } = await this.supabase
             .from('customers')
-            .select('*')
+            .select('id, shop_id, name, phone, address, facebook_id, total_orders, total_spent, is_vip, tags, created_at')
             .eq('shop_id', shopId)
             .eq('is_vip', true)
             .order('total_spent', { ascending: false });

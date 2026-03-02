@@ -212,7 +212,7 @@ export class CircuitBreaker {
             const result = await operation();
             this.recordSuccess();
             return result;
-        } catch (error) {
+        } catch (error: unknown) {
             this.recordFailure(error instanceof Error ? error : String(error));
             throw error;
         }

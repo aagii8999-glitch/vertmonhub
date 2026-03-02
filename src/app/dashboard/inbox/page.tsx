@@ -40,8 +40,8 @@ export default function InboxPage() {
 
             await refetch();
             setActiveId(null);
-        } catch (err: any) {
-            toast.error(err.message);
+        } catch (err: unknown) {
+            toast.error((err instanceof Error ? err.message : String(err)));
         } finally {
             setIsConverting(false);
         }
@@ -69,8 +69,8 @@ export default function InboxPage() {
             }
 
             toast.success(data.message || 'Сануулга илгээгдлээ');
-        } catch (err: any) {
-            toast.error(err.message);
+        } catch (err: unknown) {
+            toast.error((err instanceof Error ? err.message : String(err)));
         } finally {
             setIsReminding(false);
         }

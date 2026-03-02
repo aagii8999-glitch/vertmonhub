@@ -146,7 +146,7 @@ export async function withErrorTracking<T>(
         const result = await operation();
         addBreadcrumb('operation', `Completed: ${operationName}`, errorContext);
         return result;
-    } catch (error) {
+    } catch (error: unknown) {
         captureException(error, {
             ...errorContext,
             action: operationName,

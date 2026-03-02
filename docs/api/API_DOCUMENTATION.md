@@ -1,4 +1,4 @@
-# SmartHub API Documentation 📡
+# Syncly API Documentation 📡
 
 > Backend API endpoints-ийн бүрэн баримт бичиг
 

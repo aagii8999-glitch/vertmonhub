@@ -83,10 +83,10 @@ export async function POST(request: NextRequest) {
             message: 'Subscription activated successfully',
             shop_id: invoice.shop_id
         });
-    } catch (error: any) {
-        logger.error('Subscription webhook error:', error);
+    } catch (error: unknown) {
+        logger.error('Subscription webhook error:', { error: error instanceof Error ? error.message : String(error) });
         return NextResponse.json(
-            { error: error.message || 'Webhook processing failed' },
+            { error: error instanceof Error ? error.message : 'Webhook processing failed' },
             { status: 500 }
         );
     }

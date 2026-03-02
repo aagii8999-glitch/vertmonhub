@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     // Check if shop exists
     const { data: existingShop } = await supabase
         .from('shops')
-        .select('*')
+        .select('id, name, created_at')
         .eq('facebook_page_id', pageId)
         .single();
 

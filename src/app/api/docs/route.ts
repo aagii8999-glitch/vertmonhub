@@ -242,7 +242,6 @@ export async function GET() {
     return NextResponse.json(OPENAPI_SPEC, {
         headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
         }
     });
 }

@@ -3,17 +3,13 @@
  */
 
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { getAuthUser } from '@/lib/auth/clerk-auth';
-
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getAuthUser, supabaseAdmin } from '@/lib/auth/clerk-auth';
+import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: Request) {
     try {
         const userId = await getAuthUser();
+        const supabase = supabaseAdmin();
         const body = await request.json();
 
         const { type, message, email } = body;
@@ -59,13 +55,13 @@ export async function POST(request: Request) {
 
         if (insertError) {
             // If table doesn't exist, just log the feedback
-            console.log('Feedback received:', { type, message, email, shopName });
+            logger.info('Feedback received (table may not exist)', { type });
         }
 
         return NextResponse.json({ success: true });
 
-    } catch (error) {
-        console.error('Feedback API error:', error);
+    } catch (error: unknown) {
+        logger.error('Feedback API error:', { error: error });
         return NextResponse.json(
             { error: 'Failed to save feedback' },
             { status: 500 }

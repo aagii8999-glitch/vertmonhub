@@ -90,10 +90,7 @@ export function ShopSwitcher({ onAddShop }: ShopSwitcherProps) {
                         <div className="p-2 border-t border-border">
                             <button
                                 onClick={() => {
-                                    console.log('[ShopSwitcher] Add shop clicked, onAddShop:', typeof onAddShop);
-                                    setIsOpen(false);
                                     if (onAddShop) {
-                                        console.log('[ShopSwitcher] Calling onAddShop...');
                                         onAddShop();
                                     }
                                 }}

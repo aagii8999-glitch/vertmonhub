@@ -165,8 +165,8 @@ export async function GET() {
             shopId: shop.id
         });
 
-    } catch (error) {
-        console.error('Features API error:', error);
+    } catch (error: unknown) {
+        logger.error('Features API error:', { error: error });
         return NextResponse.json(
             { error: 'Failed to fetch features' },
             { status: 500 }

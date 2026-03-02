@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth/clerk-auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * POST /api/shop/disconnect
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
             .eq('id', shop.id);
 
         if (updateError) {
-            console.error('Disconnect error:', updateError);
+            logger.error('Disconnect error:', { error: updateError });
             return NextResponse.json(
                 { error: 'Failed to disconnect platform' },
                 { status: 500 }
@@ -72,8 +73,8 @@ export async function POST(request: NextRequest) {
             success: true,
             message: `${platform} disconnected successfully`,
         });
-    } catch (error) {
-        console.error('Disconnect API error:', error);
+    } catch (error: unknown) {
+        logger.error('Disconnect API error:', { error: error });
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getClerkUser, supabaseAdmin } from '@/lib/auth/clerk-auth';
+import { logger } from '@/lib/utils/logger';
 
 // GET /api/user/shops - Get all shops for the current user
 export async function GET() {
@@ -21,8 +22,8 @@ export async function GET() {
         if (error) throw error;
 
         return NextResponse.json({ shops: shops || [] });
-    } catch (error) {
-        console.error('User shops API error:', error);
+    } catch (error: unknown) {
+        logger.error('User shops API error:', { error: error });
         return NextResponse.json({ error: 'Failed to fetch shops' }, { status: 500 });
     }
 }
@@ -61,8 +62,8 @@ export async function POST(request: Request) {
         if (error) throw error;
 
         return NextResponse.json({ shop });
-    } catch (error) {
-        console.error('Create shop error:', error);
+    } catch (error: unknown) {
+        logger.error('Create shop error:', { error: error });
         return NextResponse.json({ error: 'Failed to create shop' }, { status: 500 });
     }
 }

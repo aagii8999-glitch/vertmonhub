@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         const igData = await igResponse.json();
 
         if (igData.error) {
-            logger.error('Failed to fetch IG account from Page', igData.error);
+            logger.error('Failed to fetch IG account from Page', { error: igData.error });
             return NextResponse.json({ error: `Facebook API: ${igData.error.message}` }, { status: 400 });
         }
 

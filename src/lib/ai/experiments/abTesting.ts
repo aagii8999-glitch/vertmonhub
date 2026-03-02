@@ -69,7 +69,7 @@ export class ABTestManager {
 
             const { data, error } = await supabase
                 .from('ab_experiments')
-                .select('*')
+                .select('id, name, type, description, variants, start_date, end_date, is_active, target_shop_ids, created_at')
                 .eq('is_active', true)
                 .gte('end_date', new Date().toISOString())
                 .or('end_date.is.null');
@@ -95,7 +95,7 @@ export class ABTestManager {
             }
 
             logger.info(`Loaded ${this.experiments.size} active experiments`);
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error('Error loading experiments:', { error });
         }
     }
@@ -178,7 +178,7 @@ export class ABTestManager {
                 metadata: result.metadata || {},
                 created_at: result.timestamp.toISOString()
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logger.warn('Failed to track experiment event:', { error });
         }
     }
@@ -238,7 +238,7 @@ export class ABTestManager {
                     ? (variantStats[v.id].conversions / variantStats[v.id].impressions) * 100
                     : 0
             }));
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error('Error getting experiment results:', { error });
             return [];
         }
@@ -275,7 +275,7 @@ export class ABTestManager {
             await this.loadExperiments();
 
             return data.id;
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error('Error creating experiment:', { error });
             return null;
         }
@@ -295,7 +295,7 @@ export class ABTestManager {
 
             this.experiments.delete(experimentId);
             return true;
-        } catch (error) {
+        } catch (error: unknown) {
             logger.error('Error deactivating experiment:', { error });
             return false;
         }
