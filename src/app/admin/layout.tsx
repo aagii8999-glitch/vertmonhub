@@ -1,7 +1,7 @@
 'use client';
 import { logger } from '@/lib/utils/logger';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
@@ -38,6 +38,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     // Allow login page to render without auth check
     const isLoginPage = pathname?.startsWith('/admin/login');
 
+    const checkedRef = React.useRef(false);
+
     useEffect(() => {
         if (isLoginPage) {
             setLoading(false);
@@ -51,9 +53,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             return;
         }
 
-        // Check if user is admin
-        checkAdmin();
-    }, [isLoaded, isSignedIn, isLoginPage]);
+        // Only check admin once
+        if (!checkedRef.current) {
+            checkedRef.current = true;
+            checkAdmin();
+        }
+    }, [isLoaded, isSignedIn, isLoginPage, router]);
 
     async function checkAdmin() {
         try {
