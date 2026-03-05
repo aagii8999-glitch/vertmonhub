@@ -35,6 +35,7 @@ export async function executeCheckout(
 
     let qpayInvoice = null;
     let bankInfo = null;
+    let qpayFailed = false;
 
     try {
         const { data: shop } = await supabase
@@ -44,15 +45,23 @@ export async function executeCheckout(
             .single();
 
         bankInfo = shop;
+    } catch (err) {
+        logger.warn('Failed to fetch shop bank info:', { error: String(err) });
+    }
 
+    try {
         qpayInvoice = await createQPayInvoice({
             orderId: orderId,
             amount: cart.total_amount,
             description: `Order #${orderId.substring(0, 8)}`,
             callbackUrl: `https://smarthub.mn/api/payment/callback/qpay`
         });
+        if (!qpayInvoice) {
+            qpayFailed = true;
+        }
     } catch (err) {
-        logger.warn('Failed to generate payment info:', { error: String(err) });
+        logger.warn('QPay invoice creation failed:', { error: String(err) });
+        qpayFailed = true;
     }
 
     if (context.notifySettings?.order !== false) {
@@ -71,16 +80,19 @@ export async function executeCheckout(
 
     if (qpayInvoice) {
         paymentMsg += `\n\n1. QPay (Хялбар): Доорх линкээр орж эсвэл QR кодыг уншуулж төлнө үү.\n${qpayInvoice.qpay_shorturl}`;
+    } else if (qpayFailed) {
+        paymentMsg += `\n\n⚠️ QPay одоогоор түр ажиллахгүй байна. Дансаар шилжүүлнэ үү.`;
     }
 
     if (bankInfo && bankInfo.account_number) {
-        paymentMsg += `\n\n2. Дансны шилжүүлэг:\nБанк: ${bankInfo.bank_name || 'Банк'}\nДанс: ${bankInfo.account_number}\nНэр: ${bankInfo.account_name || 'Дэлгүүр'}\nГүйлгээний утга: ${orderId.substring(0, 8)}`;
+        const bankNum = qpayInvoice ? '2' : '1';
+        paymentMsg += `\n\n${bankNum}. Дансны шилжүүлэг:\nБанк: ${bankInfo.bank_name || 'Банк'}\nДанс: ${bankInfo.account_number}\nНэр: ${bankInfo.account_name || 'Дэлгүүр'}\nГүйлгээний утга: ${orderId.substring(0, 8)}`;
         paymentMsg += `\n\n*Дансаар шилжүүлсэн бол баримтаа илгээнэ үү.`;
     }
 
     return {
         success: true,
         message: paymentMsg,
-        data: { order_id: orderId, qpay: qpayInvoice, bank: bankInfo }
+        data: { order_id: orderId, qpay: qpayInvoice, bank: bankInfo, qpay_failed: qpayFailed }
     };
 }

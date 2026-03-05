@@ -181,6 +181,7 @@ export async function executeCheckPaymentStatus(
 
     let verifiedCount = 0;
     const verifiedOrderIds: string[] = [];
+    let qpayErrors = 0;
 
     for (const order of orders) {
         const { data: payment } = await supabase
@@ -232,7 +233,8 @@ export async function executeCheckPaymentStatus(
                     verifiedCount++;
                 }
             } catch (err: unknown) {
-                logger.warn(`Failed to check payment for order ${order.id}:`, { error: (err instanceof Error ? err.message : String(err)) });
+                logger.warn(`QPay check failed for order ${order.id}:`, { error: (err instanceof Error ? err.message : String(err)) });
+                qpayErrors++;
             }
         }
     }
@@ -242,6 +244,14 @@ export async function executeCheckPaymentStatus(
             success: true,
             message: `Төлбөр баталгаажлаа! ✅ Захиалга: ${verifiedOrderIds.map(id => '#' + id.substring(0, 8)).join(', ')}`,
             data: { verified_orders: verifiedOrderIds }
+        };
+    }
+
+    if (qpayErrors > 0) {
+        return {
+            success: true,
+            message: 'QPay-аас төлбөр шалгаж чадсангүй. Түр хүлээгээд дахин оролдоно уу. Хэрвээ дансаар шилжүүлсэн бол баримтаа илгээнэ үү.',
+            data: { paid: false, qpay_error: true }
         };
     }
 

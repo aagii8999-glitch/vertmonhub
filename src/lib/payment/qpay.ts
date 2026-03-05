@@ -10,6 +10,7 @@
  */
 
 import { logger } from '@/lib/utils/logger';
+import { qpayBreaker } from '@/lib/ai/resilience/circuitBreaker';
 import crypto from 'crypto';
 
 // QPay API Configuration
@@ -136,8 +137,14 @@ export async function createQPayInvoice(params: {
     amount: number;
     description: string;
     callbackUrl?: string;
-}): Promise<QPayInvoice> {
+}): Promise<QPayInvoice | null> {
     const { orderId, amount, description, callbackUrl } = params;
+
+    // Circuit breaker check - skip if QPay is known to be down
+    if (!qpayBreaker.isAllowed()) {
+        logger.warn('QPay circuit breaker OPEN — skipping invoice creation');
+        return null;
+    }
 
     // Mock mode if credentials not available
     if (!CLIENT_ID || !CLIENT_SECRET || !MERCHANT_ID) {
@@ -180,12 +187,14 @@ export async function createQPayInvoice(params: {
 
         const invoice: QPayInvoice = await response.json();
 
+        qpayBreaker.recordSuccess();
         logger.success('QPay invoice created:', { invoice_id: invoice.invoice_id });
         return invoice;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        qpayBreaker.recordFailure(error instanceof Error ? error : errorMessage);
         logger.error('Failed to create QPay invoice', { error: errorMessage });
-        throw error;
+        return null;
     }
 }
 
@@ -193,6 +202,12 @@ export async function createQPayInvoice(params: {
  * Check payment status for an invoice
  */
 export async function checkPaymentStatus(invoiceId: string): Promise<QPayPaymentCheck> {
+    // Circuit breaker check
+    if (!qpayBreaker.isAllowed()) {
+        logger.warn('QPay circuit breaker OPEN — skipping payment check');
+        throw new Error('QPay түр ажиллахгүй байна. Түр хүлээгээд дахин оролдоно уу.');
+    }
+
     // Mock mode
     if (!CLIENT_ID || !CLIENT_SECRET) {
         logger.warn('QPay in mock mode - returning unpaid status');
@@ -226,6 +241,7 @@ export async function checkPaymentStatus(invoiceId: string): Promise<QPayPayment
 
         const result: QPayPaymentCheck = await response.json();
 
+        qpayBreaker.recordSuccess();
         logger.info('QPay payment check result:', {
             invoiceId,
             paid: result.count > 0,
@@ -235,6 +251,7 @@ export async function checkPaymentStatus(invoiceId: string): Promise<QPayPayment
         return result;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        qpayBreaker.recordFailure(error instanceof Error ? error : errorMessage);
         logger.error('Failed to check QPay payment', { error: errorMessage });
         throw error;
     }
