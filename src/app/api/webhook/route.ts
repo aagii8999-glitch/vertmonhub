@@ -341,10 +341,22 @@ export async function POST(request: NextRequest) {
                             previousHistory
                         );
 
+                        // Guard: if AI returned empty, use fallback instead
+                        let aiText = response.text;
+                        if (!aiText?.trim()) {
+                            logger.warn(`[${shop.name}] AI returned empty text, using fallback`, {
+                                hasText: !!response.text,
+                                textLength: response.text?.length,
+                                usage: response.usage,
+                                limitReached: response.limitReached,
+                            });
+                            aiText = generateFallbackResponse(intent, shop.name, shop.products);
+                        }
+
                         // Send AI response
                         await sendTextMessage({
                             recipientId: senderId,
-                            message: response.text,
+                            message: aiText,
                             pageAccessToken: accessToken,
                         });
 
@@ -352,7 +364,7 @@ export async function POST(request: NextRequest) {
                         await processAIResponse(response, senderId, accessToken);
 
                         // Save to chat history
-                        await saveChatHistory(shop.id, customer.id, userMessage, response.text, intent.intent);
+                        await saveChatHistory(shop.id, customer.id, userMessage, aiText, intent.intent);
                         await incrementMessageCount(customer.id);
 
                         logger.success(`[${shop.name}] AI response sent to ${senderId}`);
