@@ -83,10 +83,11 @@ async function retryOperation<T>(
 
 /**
  * Convert ChatMessage history to Gemini Content format
+ * Filters out empty messages that can cause Gemini to return empty responses
  */
 function toGeminiHistory(messages: ChatMessage[]): Content[] {
     return messages
-        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .filter(m => (m.role === 'user' || m.role === 'assistant') && m.content?.trim())
         .map(m => ({
             role: m.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: m.content }] as Part[],
@@ -298,13 +299,18 @@ export async function routeToAI(
                     }
                 }
             } else if (!finalResponseText.trim()) {
-                // No function calls and no text - log diagnostic
+                // No function calls and no text - log diagnostic with raw candidate
                 const candidates = response.candidates;
                 logger.warn('Gemini returned empty (no function calls)', {
                     candidateCount: candidates?.length,
                     finishReason: candidates?.[0]?.finishReason,
                     safetyRatings: candidates?.[0]?.safetyRatings?.map(r => ({ category: r.category, probability: r.probability })),
                     partTypes: candidates?.[0]?.content?.parts?.map(p => Object.keys(p)),
+                    rawContent: JSON.stringify(candidates?.[0]?.content)?.substring(0, 500),
+                    hasThoughtPart: candidates?.[0]?.content?.parts?.some((p: unknown) => typeof p === 'object' && p !== null && 'thought' in p),
+                    promptTokens: response.usageMetadata?.promptTokenCount,
+                    candidateTokens: response.usageMetadata?.candidatesTokenCount,
+                    historyLength: geminiHistory.length,
                 });
             }
 
