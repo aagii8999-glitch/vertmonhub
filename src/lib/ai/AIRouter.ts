@@ -260,6 +260,19 @@ export async function routeToAI(
                 // Send function results back to Gemini
                 const secondResult = await chat.sendMessage(functionResponseParts);
                 finalResponseText = secondResult.response.text?.() || '';
+
+                // Fallback: if Gemini returned empty, use the tool's own message
+                if (!finalResponseText.trim()) {
+                    const lastToolMessage = functionResponseParts
+                        .map(p => (p.functionResponse?.response as Record<string, unknown>)?.message)
+                        .filter(Boolean)
+                        .pop() as string | undefined;
+
+                    if (lastToolMessage) {
+                        logger.warn('Gemini returned empty response after tool call, using tool message as fallback');
+                        finalResponseText = lastToolMessage;
+                    }
+                }
             }
 
             // Log usage info
