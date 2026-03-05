@@ -17,7 +17,7 @@ export async function GET() {
 
     const { data: products, error } = await supabase
       .from('products')
-      .select('id, shop_id, name, description, price, stock, image_url, is_active, created_at, has_variants')
+      .select('id, shop_id, name, description, price, stock, reserved_stock, image_url, is_active, created_at, has_variants, type, colors, sizes, images, discount_percent, duration_minutes, available_days, start_time, end_time, max_bookings_per_day')
       .eq('shop_id', shopId)
       .order('created_at', { ascending: false });
 
