@@ -42,6 +42,17 @@ export async function sendSenderAction(
 }
 
 export async function sendTextMessage({ recipientId, message, pageAccessToken }: SendMessageOptions) {
+    // Guard against empty messages (Facebook API error #100)
+    const text = message?.trim();
+    if (!text) {
+        logger.warn('⚠️ Attempted to send empty message, using fallback');
+        return sendTextMessage({
+            recipientId,
+            message: 'Уучлаарай, хариултыг боловсруулж чадсангүй. Дахин оролдоно уу! 🙏',
+            pageAccessToken,
+        });
+    }
+
     const response = await fetch(`${GRAPH_API_URL}/me/messages?access_token=${pageAccessToken}`, {
         method: 'POST',
         headers: {
@@ -49,7 +60,7 @@ export async function sendTextMessage({ recipientId, message, pageAccessToken }:
         },
         body: JSON.stringify({
             recipient: { id: recipientId },
-            message: { text: message },
+            message: { text },
         }),
     });
 
