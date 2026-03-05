@@ -2,14 +2,14 @@
  * Syncly AI Plan Configuration - Gemini Family
  * 
  * Strategy: 3 plans using Gemini models (matching landing page)
- * - Starter: Gemini 2.5 Flash Lite - ₮179,000/сар
- * - Pro: Gemini 2.5 Flash - ₮379,000/сар
- * - Enterprise: Gemini 2.5 Flash - Тохиролцоно
+ * - Starter: Gemini 3.1 Flash Lite - ₮179,000/сар
+ * - Pro: Gemini 3 Flash - ₮379,000/сар
+ * - Enterprise: Gemini 3 Flash - Тохиролцоно
  */
 
 export type PlanType = 'starter' | 'pro' | 'enterprise';
 export type AIProvider = 'gemini';
-export type AIModel = 'gemini-2.5-flash-lite' | 'gemini-2.5-flash';
+export type AIModel = 'gemini-3.1-flash-lite-preview' | 'gemini-3-flash-preview';
 
 // Tool names available for each plan
 import type { ToolName } from '../tools/definitions';
@@ -59,7 +59,7 @@ export interface PlanAIConfig {
 export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
     starter: {
         provider: 'gemini',
-        model: 'gemini-2.5-flash-lite',
+        model: 'gemini-3.1-flash-lite-preview',
         maxTokens: 500,
         messagesPerMonth: 2000,
         maxShops: 1,
@@ -101,7 +101,7 @@ export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
 
     pro: {
         provider: 'gemini',
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         maxTokens: 800,
         messagesPerMonth: 10000,
         maxShops: 3,
@@ -151,7 +151,7 @@ export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
 
     enterprise: {
         provider: 'gemini',
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         maxTokens: 1500,
         messagesPerMonth: 100000, // Effectively unlimited
         maxShops: 1000,           // Effectively unlimited
@@ -287,8 +287,8 @@ export function checkShopLimit(
  * Model display names for UI
  */
 export const MODEL_DISPLAY_NAMES: Record<AIModel, string> = {
-    'gemini-2.5-flash-lite': 'Gemini 2.5 Flash Lite',
-    'gemini-2.5-flash': 'Gemini 2.5 Flash',
+    'gemini-3.1-flash-lite-preview': 'Gemini 3.1 Flash Lite',
+    'gemini-3-flash-preview': 'Gemini 3 Flash',
 };
 
 /**

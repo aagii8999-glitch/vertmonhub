@@ -31,8 +31,8 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
  * Model mapping - Gemini models
  */
 const MODEL_MAPPING: Record<AIModel, string> = {
-    'gemini-2.5-flash-lite': 'gemini-2.5-flash-lite',
-    'gemini-2.5-flash': 'gemini-2.5-flash',
+    'gemini-3.1-flash-lite-preview': 'gemini-3.1-flash-lite-preview',
+    'gemini-3-flash-preview': 'gemini-3-flash-preview',
 };
 
 /**

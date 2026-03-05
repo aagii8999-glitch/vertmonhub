@@ -335,7 +335,7 @@ export default function AdminSettingsPage() {
                                         onChange={(e) => setSettings({ ...settings, ai: { ...settings.ai, default_provider: e.target.value as 'openai' | 'gemini' } })}
                                         className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all outline-none bg-gray-50 focus:bg-white cursor-pointer"
                                     >
-                                        <option value="gemini">🚀 Gemini 2.5 Flash (Хямд, Хурдан)</option>
+                                        <option value="gemini">🚀 Gemini (Хямд, Хурдан)</option>
                                         <option value="openai">🤖 OpenAI GPT (Premium)</option>
                                     </select>
                                     <div className="mt-2.5 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
@@ -354,7 +354,10 @@ export default function AdminSettingsPage() {
                                         className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all outline-none bg-gray-50 focus:bg-white cursor-pointer"
                                     >
                                         {settings.ai.default_provider === 'gemini' ? (
-                                            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                                            <>
+                                                <option value="gemini-3-flash-preview">⚡ Gemini 3 Flash (Ухаалаг + Хурдан)</option>
+                                                <option value="gemini-3.1-flash-lite-preview">💰 Gemini 3.1 Flash Lite (Хямд)</option>
+                                            </>
                                         ) : (
                                             <>
                                                 <option value="gpt-4o-mini">GPT-4o Mini</option>
@@ -362,6 +365,15 @@ export default function AdminSettingsPage() {
                                             </>
                                         )}
                                     </select>
+                                    {settings.ai.default_provider === 'gemini' && (
+                                        <div className="mt-2.5 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
+                                            <p className="text-[11px] font-medium text-gray-600">
+                                                {settings.ai.default_model === 'gemini-3-flash-preview'
+                                                    ? '🧠 Хамгийн ухаалаг + хурдан, search & grounding дэмжинэ'
+                                                    : '💰 Хямд, олон тооны мессежинд тохиромжтой'}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">Max Tokens</label>
