@@ -49,7 +49,7 @@ const TOUR_STEPS: TourStep[] = [
     }
 ];
 
-const TOUR_STORAGE_KEY = 'smarthub_tour_completed';
+const TOUR_STORAGE_KEY = 'vertmonhub_tour_completed';
 
 export function OnboardingTour() {
     const [isOpen, setIsOpen] = useState(false);

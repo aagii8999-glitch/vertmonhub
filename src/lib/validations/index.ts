@@ -58,6 +58,10 @@ export const createProductSchema = z.object({
     sizes: z.array(z.string()).optional().default([]),
     images: z.array(z.string().url()).optional().default([]),
     isActive: z.boolean().optional().default(true),
+    conditions: z.array(z.object({
+        title: z.string().min(1, 'Нөхцөлийн гарчиг оруулна уу'),
+        content: z.string().min(1, 'Нөхцөлийн агуулга оруулна уу')
+    })).optional().default([]),
     // Appointment-specific fields
     durationMinutes: z.number().int().min(15).max(480).optional().nullable(),
     availableDays: z.array(z.enum(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'])).optional().default([]),

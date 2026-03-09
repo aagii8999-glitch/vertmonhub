@@ -65,7 +65,7 @@ export default function CustomersPage() {
 
             const res = await fetch(`/api/dashboard/customers?${params}`, {
                 headers: {
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 }
             });
             const data = await res.json();
@@ -81,7 +81,7 @@ export default function CustomersPage() {
         try {
             const res = await fetch(`/api/dashboard/customers/${id}`, {
                 headers: {
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 }
             });
             const data = await res.json();
@@ -106,7 +106,7 @@ export default function CustomersPage() {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 },
                 body: JSON.stringify({
                     id: selectedCustomer.id,

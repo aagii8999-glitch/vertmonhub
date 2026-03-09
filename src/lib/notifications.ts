@@ -10,7 +10,7 @@ function ensureVapidConfigured(): boolean {
 
     const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
     const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-    const vapidEmail = process.env.VAPID_EMAIL || 'mailto:admin@smarthub.mn';
+    const vapidEmail = process.env.VAPID_EMAIL || 'mailto:admin@vertmon.mn';
 
     if (vapidPublicKey && vapidPrivateKey) {
         try {

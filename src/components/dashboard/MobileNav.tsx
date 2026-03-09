@@ -13,9 +13,10 @@ import {
     Users,
     Settings,
     Bot,
-    CreditCard,
     FileText,
     MessageCircle,
+    Eye,
+    TrendingUp,
 } from 'lucide-react';
 
 // Main nav items (4 essential)
@@ -27,12 +28,11 @@ const primaryNavItems = [
 
 // Secondary nav items (in More menu)
 const secondaryNavItems = [
-    { name: 'Бүтээгдэхүүн', href: '/dashboard/products', icon: Package },
-    { name: 'Харилцагч', href: '/dashboard/customers', icon: Users },
-
-    { name: 'Сагс', href: '/dashboard/inbox', icon: ShoppingCart },
+    { name: 'Лийд', href: '/dashboard/leads', icon: Users },
+    { name: 'Үзлэг', href: '/dashboard/viewings', icon: Eye },
+    { name: 'Гэрээ', href: '/dashboard/contracts', icon: FileText },
+    { name: 'Маркетинг', href: '/dashboard/marketing-roi', icon: TrendingUp },
     { name: 'AI Тохиргоо', href: '/dashboard/ai-settings', icon: Bot },
-    { name: 'Захиалга', href: '/dashboard/subscription', icon: CreditCard },
     { name: 'Тохиргоо', href: '/dashboard/settings', icon: Settings },
 ];
 

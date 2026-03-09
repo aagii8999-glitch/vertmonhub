@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import {
-    LayoutDashboard, Users, CreditCard, Package,
+    LayoutDashboard, Users, Upload, Shield,
     FileText, Settings, LogOut, ChevronRight, Menu, X
 } from 'lucide-react';
 
@@ -18,8 +18,8 @@ interface AdminLayoutProps {
 const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/shops', label: 'Shops', icon: Users },
-    { href: '/admin/plans', label: 'Plans', icon: Package },
-    { href: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard },
+    { href: '/admin/users', label: 'Хэрэглэгчид', icon: Shield },
+    { href: '/admin/import', label: 'Import Data', icon: Upload },
     { href: '/admin/invoices', label: 'Invoices', icon: FileText },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
@@ -112,7 +112,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             `}>
                 {/* Logo */}
                 <div className="h-16 flex items-center justify-between px-4 border-b border-gray-800">
-                    <span className="text-xl font-bold text-violet-400">SmartHub Admin</span>
+                    <span className="text-xl font-bold text-violet-400">Vertmon Admin</span>
                     <button
                         className="lg:hidden p-2 hover:bg-gray-800 rounded-lg"
                         onClick={() => setSidebarOpen(false)}

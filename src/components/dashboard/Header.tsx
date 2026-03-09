@@ -6,6 +6,7 @@ import { User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationButton } from '@/components/NotificationButton';
 import { ShopSwitcher } from '@/components/dashboard/ShopSwitcher';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export function Header() {
     const router = useRouter();
@@ -46,14 +47,20 @@ export function Header() {
         }
 
         let title = 'Dashboard';
-        if (path.includes('/orders')) title = 'Захиалга';
+        if (path.includes('/pipeline')) title = 'Pipeline';
+        else if (path.includes('/leads')) title = 'Лийд';
+        else if (path.includes('/orders')) title = 'Захиалга';
         else if (path.includes('/products')) title = 'Бүтээгдэхүүн';
         else if (path.includes('/customers')) title = 'Харилцагч';
         else if (path.includes('/reports')) title = 'Тайлан';
         else if (path.includes('/settings')) title = 'Тохиргоо';
         else if (path.includes('/inbox')) title = 'Идэвхтэй Сагс';
-
+        else if (path.includes('/viewings')) title = 'Үзлэг';
+        else if (path.includes('/contracts')) title = 'Гэрээ';
+        else if (path.includes('/marketing-roi')) title = 'Маркетинг ROI';
         else if (path.includes('/ai-settings')) title = 'AI Тохиргоо';
+        else if (path.includes('/ai-assistant')) title = 'AI Туслах';
+        else if (path.includes('/surveys')) title = 'Судалгаа';
         else if (path.includes('/subscription')) title = 'Төлбөр & Эрх';
 
         return (
@@ -79,6 +86,9 @@ export function Header() {
             <div className="flex items-center gap-2 md:gap-3">
                 {/* Shop Switcher - show if user has multiple shops */}
                 {shops.length > 1 && <ShopSwitcher />}
+
+                {/* Language Switcher */}
+                <LanguageSwitcher />
 
                 {/* Notifications */}
                 <NotificationButton />

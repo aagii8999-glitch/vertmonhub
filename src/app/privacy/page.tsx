@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-    title: 'Privacy Policy | SmartHub',
-    description: 'SmartHub үйлчилгээний нууцлалын бодлого',
+    title: 'Privacy Policy | Vertmon Hub',
+    description: 'Vertmon Hub үйлчилгээний нууцлалын бодлого',
 };
 
 export default function PrivacyPolicyPage() {
@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
                     <section className="mb-12">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">1. Танилцуулга</h2>
                         <p className="text-gray-700 dark:text-gray-300 mb-4">
-                            SmartHub ("бид", "манай") нь таны хувийн мэдээллийн нууцлалыг хамгаалахыг эрхэмлэдэг.
+                            Vertmon Hub ("бид", "манай") нь таны хувийн мэдээллийн нууцлалыг хамгаалахыг эрхэмлэдэг.
                             Энэхүү Нууцлалын бодлого нь манай үйлчилгээг ашиглах явцад бидний цуглуулж, ашиглаж,
                             хадгалдаг мэдээллийн талаар тайлбарладаг.
                         </p>
@@ -143,7 +143,7 @@ export default function PrivacyPolicyPage() {
                             Нууцлалын бодлоготой холбоотой асуулт байвал:
                         </p>
                         <ul className="list-none text-gray-700 dark:text-gray-300 space-y-2">
-                            <li><strong>Вэб:</strong> <Link href="/" className="text-indigo-600 hover:text-indigo-500">smarthub.vercel.app</Link></li>
+                            <li><strong>Вэб:</strong> <Link href="/" className="text-indigo-600 hover:text-indigo-500">vertmonhub.vercel.app</Link></li>
                             <li><strong>Facebook:</strong> Framebrone хуудас</li>
                         </ul>
                     </section>

@@ -1,109 +1,153 @@
-// SmartHub Service Worker
-const CACHE_NAME = 'smarthub-v1';
-const STATIC_ASSETS = [
+/**
+ * Vertmon Hub — Service Worker for PWA Offline Support
+ * 
+ * Caching strategy:
+ * - Static assets: Cache First
+ * - API calls: Network First (fallback to cache)
+ * - Images: Cache First with expiration
+ */
+
+const CACHE_NAME = 'vertmonhub-v2';
+const STATIC_CACHE = 'vertmonhub-static-v2';
+const API_CACHE = 'vertmonhub-api-v1';
+
+const STATIC_URLS = [
+    '/',
     '/dashboard',
-    '/icon-192.png',
-    '/icon-512.png'
+    '/manifest.json',
 ];
 
-// Install event - cache static assets
+// Install — cache static assets
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(STATIC_ASSETS);
+        caches.open(STATIC_CACHE).then(cache => {
+            console.log('[SW] Caching static assets');
+            return cache.addAll(STATIC_URLS);
         })
     );
     self.skipWaiting();
 });
 
-// Activate event - clean old caches
+// Activate — clean old caches
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames
-                    .filter((name) => name !== CACHE_NAME)
-                    .map((name) => caches.delete(name))
-            );
-        })
+        caches.keys().then(keys =>
+            Promise.all(
+                keys.filter(key => key !== STATIC_CACHE && key !== API_CACHE && key !== CACHE_NAME)
+                    .map(key => {
+                        console.log('[SW] Deleting old cache:', key);
+                        return caches.delete(key);
+                    })
+            )
+        )
     );
     self.clients.claim();
 });
 
-// Fetch event - network first, fallback to cache
+// Fetch — routing strategies
 self.addEventListener('fetch', (event) => {
+    const { request } = event;
+    const url = new URL(request.url);
+
     // Skip non-GET requests
-    if (event.request.method !== 'GET') return;
+    if (request.method !== 'GET') return;
 
-    // Skip API requests (always network)
-    if (event.request.url.includes('/api/')) return;
+    // Skip external requests
+    if (url.origin !== self.location.origin) return;
 
-    event.respondWith(
-        fetch(event.request)
-            .then((response) => {
-                // Cache successful responses
-                if (response.status === 200) {
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone);
-                    });
-                }
-                return response;
-            })
-            .catch(() => {
-                // Fallback to cache
-                return caches.match(event.request);
-            })
-    );
+    // API requests — Network First
+    if (url.pathname.startsWith('/api/')) {
+        event.respondWith(networkFirst(request, API_CACHE));
+        return;
+    }
+
+    // Static assets (JS, CSS, fonts) — Cache First
+    if (url.pathname.match(/\.(js|css|woff2?|ttf|eot)$/)) {
+        event.respondWith(cacheFirst(request, STATIC_CACHE));
+        return;
+    }
+
+    // Images — Cache First with 7-day expiration
+    if (url.pathname.match(/\.(png|jpg|jpeg|gif|svg|webp|ico)$/)) {
+        event.respondWith(cacheFirst(request, CACHE_NAME));
+        return;
+    }
+
+    // HTML pages — Network First (get latest)
+    event.respondWith(networkFirst(request, STATIC_CACHE));
 });
 
-// Push notification event
+// Push notifications
 self.addEventListener('push', (event) => {
-    if (!event.data) return;
+    let data = { title: 'Vertmon Hub', body: 'Шинэ мэдэгдэл', icon: '/icons/icon-192x192.png' };
 
-    const data = event.data.json();
-
-    const options = {
-        body: data.body || 'Шинэ мэдэгдэл байна',
-        icon: '/icon-192.png',
-        badge: '/icon-192.png',
-        vibrate: [100, 50, 100],
-        data: {
-            url: data.url || '/dashboard',
-            ...data
-        },
-        actions: data.actions || [
-            { action: 'open', title: 'Нээх' },
-            { action: 'close', title: 'Хаах' }
-        ],
-        tag: data.tag || 'smarthub-notification',
-        renotify: true
-    };
+    if (event.data) {
+        try {
+            data = { ...data, ...event.data.json() };
+        } catch {
+            data.body = event.data.text();
+        }
+    }
 
     event.waitUntil(
-        self.registration.showNotification(data.title || 'SmartHub', options)
+        self.registration.showNotification(data.title, {
+            body: data.body,
+            icon: data.icon,
+            badge: '/icons/icon-72x72.png',
+            vibrate: [100, 50, 100],
+            data: { url: '/' },
+        })
     );
 });
 
-// Notification click event
+// Notification click — open app
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
-
-    const urlToOpen = event.notification.data?.url || '/dashboard';
-
+    const url = event.notification.data?.url || '/';
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true })
-            .then((clientList) => {
-                // Focus existing window if available
-                for (const client of clientList) {
-                    if (client.url.includes('/dashboard') && 'focus' in client) {
-                        return client.focus();
-                    }
-                }
-                // Open new window
-                if (clients.openWindow) {
-                    return clients.openWindow(urlToOpen);
-                }
-            })
+        self.clients.matchAll({ type: 'window' }).then(clients => {
+            const existing = clients.find(c => c.url.includes(self.location.origin));
+            if (existing) {
+                existing.focus();
+                existing.navigate(url);
+            } else {
+                self.clients.openWindow(url);
+            }
+        })
     );
 });
+
+// ============================================
+// CACHING STRATEGIES
+// ============================================
+
+async function cacheFirst(request, cacheName) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+
+    try {
+        const response = await fetch(request);
+        if (response.ok) {
+            const cache = await caches.open(cacheName);
+            cache.put(request, response.clone());
+        }
+        return response;
+    } catch {
+        return new Response('Offline', { status: 503 });
+    }
+}
+
+async function networkFirst(request, cacheName) {
+    try {
+        const response = await fetch(request);
+        if (response.ok) {
+            const cache = await caches.open(cacheName);
+            cache.put(request, response.clone());
+        }
+        return response;
+    } catch {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        return new Response('Offline', { status: 503 });
+    }
+}

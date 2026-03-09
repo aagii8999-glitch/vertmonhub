@@ -19,8 +19,8 @@ export async function GET() {
         // In production, these would come from a settings table
         const settings = {
             general: {
-                site_name: 'SmartHub',
-                support_email: 'support@smarthub.mn',
+                site_name: 'Vertmon Hub',
+                support_email: 'support@vertmon.mn',
                 default_currency: 'MNT'
             },
             notifications: {

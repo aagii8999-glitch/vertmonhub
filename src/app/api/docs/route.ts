@@ -8,11 +8,11 @@ import { NextResponse } from 'next/server';
 const OPENAPI_SPEC = {
     openapi: '3.0.3',
     info: {
-        title: 'SmartHub API',
+        title: 'Vertmon Hub API',
         description: 'AI-powered e-commerce platform API',
         version: '1.0.0',
         contact: {
-            email: 'support@smarthub.mn'
+            email: 'support@vertmon.mn'
         }
     },
     servers: [

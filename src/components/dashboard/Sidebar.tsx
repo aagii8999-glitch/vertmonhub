@@ -5,260 +5,276 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
-    Package,
-    ShoppingCart,
+    Building2,
     Users,
-    Settings,
-    ChevronLeft,
-    ChevronRight,
-    Facebook,
-    HelpCircle,
-    Bot,
-    CreditCard,
+    MessageSquare,
     BarChart3,
-    Lock
+    Settings,
+    ChevronDown,
+    Sparkles,
+    HelpCircle,
+    LogOut,
+    Plus,
+    Bot,
+    ChevronUp,
+    UserCircle,
+    Megaphone,
+    ArrowLeftRight,
+    ClipboardList,
+    FileText,
+    Eye,
+    Kanban,
+    TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+import { canAccessModule, getRoleDisplayName, type UserRole } from '@/lib/rbac';
 
 interface MenuItem {
     name: string;
     href: string;
     icon: React.ComponentType<React.SVGAttributes<SVGSVGElement>>;
-    tour: string;
-    feature?: string;
+    badge?: string;
+    module: string; // RBAC module slug
+    children?: { name: string; href: string }[];
 }
 
 const menuItems: MenuItem[] = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, tour: 'dashboard' },
-    { name: 'Products', href: '/dashboard/products', icon: Package, tour: 'products' },
-    { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart, tour: 'orders' },
-    { name: 'Customers', href: '/dashboard/customers', icon: Users, tour: 'customers' },
-
-    { name: 'AI Settings', href: '/dashboard/ai-settings', icon: Bot, tour: 'ai-settings' },
-    { name: 'Payments', href: '/dashboard/subscription', icon: CreditCard, tour: 'payments' },
-    { name: 'Customer Carts', href: '/dashboard/inbox', icon: ShoppingCart, tour: 'carts' },
-    { name: 'Reports', href: '/dashboard/reports', icon: BarChart3, tour: 'reports' },
+    { name: 'Хянах самбар', href: '/dashboard', icon: LayoutDashboard, module: 'dashboard' },
+    {
+        name: 'Үл хөдлөх',
+        href: '/dashboard/properties',
+        icon: Building2,
+        module: 'properties',
+        children: [
+            { name: 'Бүх үл хөдлөх', href: '/dashboard/properties' },
+            { name: 'Шинэ нэмэх', href: '/dashboard/properties/new' },
+        ]
+    },
+    {
+        name: 'Лийд',
+        href: '/dashboard/leads',
+        icon: Users,
+        module: 'leads',
+        children: [
+            { name: 'Бүх лийд', href: '/dashboard/leads' },
+            { name: 'Pipeline', href: '/dashboard/leads/pipeline' },
+        ]
+    },
+    { name: 'Үзлэг', href: '/dashboard/viewings', icon: Eye, module: 'leads' },
+    { name: 'Гэрээ', href: '/dashboard/contracts', icon: FileText, module: 'properties' },
+    { name: 'Мессеж', href: '/dashboard/inbox', icon: MessageSquare, module: 'inbox' },
+    {
+        name: 'Аналитик',
+        href: '/dashboard/reports',
+        icon: BarChart3,
+        module: 'reports',
+        children: [
+            { name: 'Тойм', href: '/dashboard/reports' },
+            { name: 'Лийд шинжилгээ', href: '/dashboard/reports/leads' },
+            { name: 'Маркетинг ROI', href: '/dashboard/marketing-roi' },
+        ]
+    },
+    { name: 'Судалгаа', href: '/dashboard/surveys', icon: ClipboardList, badge: 'Шинэ', module: 'surveys' },
+    { name: 'AI Туслах', href: '/dashboard/ai-assistant', icon: Sparkles, module: 'ai-assistant' },
+    { name: 'AI Тохиргоо', href: '/dashboard/ai-settings', icon: Bot, module: 'ai-settings' },
 ];
 
+// VERTMON: Payment/subscription removed - full access for all users
+
 const bottomMenuItems = [
-    { name: 'Help', href: '/help', icon: HelpCircle },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+    { name: 'Тусламж', href: '/help', icon: HelpCircle },
+    { name: 'Тохиргоо', href: '/dashboard/settings', icon: Settings },
 ];
 
 export function Sidebar() {
-    const [collapsed, setCollapsed] = useState(false);
+    const [expandedMenus, setExpandedMenus] = useState<string[]>(['Аналитик']);
     const pathname = usePathname();
-    const { shop } = useAuth();
+    const { shop, user, signOut } = useAuth();
+    const userRole: UserRole = user?.role || 'viewer';
 
-    // Simplified feature check (always enabled for now)
-    const isPaidPlan = true;
-    const plan = { slug: 'starter' };
-    const usage = { messages_count: 0 };
-    const limits = { max_messages: 500 };
+    // Filter menu items by role
+    const filteredMenuItems = menuItems.filter(item => canAccessModule(userRole, item.module));
+    const filteredBottomItems = bottomMenuItems.filter(item => {
+        if (item.href === '/dashboard/settings') return canAccessModule(userRole, 'settings');
+        return true;
+    });
+
+    const toggleMenu = (name: string) => {
+        setExpandedMenus(prev =>
+            prev.includes(name)
+                ? prev.filter(m => m !== name)
+                : [...prev, name]
+        );
+    };
+
+    const isActive = (href: string) => pathname === href;
+    const isParentActive = (item: MenuItem) => {
+        if (isActive(item.href)) return true;
+        return item.children?.some(child => isActive(child.href)) ?? false;
+    };
 
     return (
-        <aside
-            className={`fixed left-0 top-0 h-screen bg-neutral-950 text-white transition-all duration-300 z-50 hidden md:flex flex-col ${collapsed ? 'w-20' : 'w-64'
-                }`}
-        >
+        <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col z-50 hidden md:flex">
             {/* Logo */}
-            <div className="flex items-center justify-between h-16 px-4 border-b border-neutral-800">
-                {!collapsed && (
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
-                            <span className="text-neutral-900 font-bold text-lg">S</span>
-                        </div>
-                        <span className="font-semibold text-lg text-white">
-                            Syncly
-                        </span>
+            <div className="flex items-center justify-between h-16 px-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center">
+                        <Building2 className="w-5 h-5 text-white" />
                     </div>
-                )}
-                {collapsed && (
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center mx-auto">
-                        <span className="text-neutral-900 font-bold text-lg">S</span>
-                    </div>
-                )}
+                    <span className="font-semibold text-lg text-gray-900">
+                        Vertmon
+                    </span>
+                </div>
+                <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
             </div>
 
-            {/* Shop Status */}
-            {!collapsed && shop && (
-                <div className="mx-3 mt-4 p-3 bg-neutral-900 rounded-lg border border-neutral-800">
-                    <div className="flex items-center gap-2 text-sm">
-                        {shop.facebook_page_id ? (
-                            <>
-                                <div className="w-2 h-2 bg-gold rounded-full"></div>
-                                <span className="text-gold text-xs">Chatbot active</span>
-                            </>
-                        ) : (
-                            <>
-                                <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                                <span className="text-yellow-400 text-xs">FB not connected</span>
-                            </>
-                        )}
-                    </div>
-                    {!shop.facebook_page_id && (
-                        <Link
-                            href="/setup"
-                            className="mt-2 flex items-center gap-1 text-xs text-gold hover:text-gold-light"
-                        >
-                            <Facebook className="w-3 h-3" />
-                            Connect
-                        </Link>
-                    )}
-                </div>
-            )}
+            {/* Section Switcher */}
+            <div className="px-3 py-3 border-b border-gray-100">
+                <Link href="/marketing">
+                    <button className="w-full flex items-center justify-between px-3 py-2.5 bg-gray-50 hover:bg-purple-50 rounded-lg transition-colors group">
+                        <div className="flex items-center gap-3">
+                            <Megaphone className="w-5 h-5 text-purple-600" />
+                            <span className="text-sm font-medium text-gray-700 group-hover:text-purple-700">Маркетинг руу шилжих</span>
+                        </div>
+                        <ArrowLeftRight className="w-4 h-4 text-gray-400 group-hover:text-purple-600" />
+                    </button>
+                </Link>
+            </div>
 
-            {/* Navigation */}
-            <nav className="mt-6 px-3 flex-1">
+            {/* Main Navigation */}
+            <nav className="flex-1 overflow-y-auto py-4 px-3">
                 <ul className="space-y-1">
-                    {menuItems.map((item) => {
-                        const isActive = pathname === item.href;
-                        // @ts-ignore
-                        const isLocked = item.feature && !hasFeature(item.feature);
-
-                        const LinkContent = (
-                            <>
-                                <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-neutral-900' : 'text-neutral-400 group-hover:text-white'
-                                    }`} />
-                                {!collapsed && (
-                                    <div className="flex-1 flex items-center justify-between">
-                                        <span className="font-medium text-sm">{item.name}</span>
-                                        {isLocked && <Lock className="w-3 h-3 text-neutral-500" />}
-                                    </div>
-                                )}
-                            </>
-                        );
-
-                        if (isLocked) {
-                            return (
-                                <li key={item.name}>
-                                    <button
-                                        onClick={() => {
-                                            toast.error(`This feature requires a higher plan`, {
-                                                action: {
-                                                    label: 'Upgrade',
-                                                    onClick: () => window.location.href = '/dashboard/subscription'
-                                                }
-                                            });
-                                        }}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group text-neutral-400 hover:bg-neutral-800 cursor-not-allowed opacity-70"
-                                    >
-                                        {LinkContent}
-                                    </button>
-                                </li>
-                            );
-                        }
+                    {filteredMenuItems.map((item) => {
+                        const active = isParentActive(item);
+                        const isExpanded = expandedMenus.includes(item.name);
+                        const hasChildren = item.children && item.children.length > 0;
 
                         return (
                             <li key={item.name}>
-                                <Link
-                                    href={item.href}
-                                    data-tour={item.tour}
-                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${isActive
-                                        ? 'bg-gold text-neutral-900 font-medium'
-                                        : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
-                                        }`}
-                                >
-                                    {LinkContent}
-                                </Link>
+                                {hasChildren ? (
+                                    <>
+                                        <button
+                                            onClick={() => toggleMenu(item.name)}
+                                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group ${active
+                                                ? 'bg-emerald-50 text-emerald-700'
+                                                : 'text-gray-600 hover:bg-gray-50'
+                                                }`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <item.icon className={`w-5 h-5 ${active ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                                                <span className="font-medium text-sm">{item.name}</span>
+                                                {item.badge && (
+                                                    <span className="px-1.5 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded">
+                                                        {item.badge}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {isExpanded ? (
+                                                <ChevronUp className="w-4 h-4 text-gray-400" />
+                                            ) : (
+                                                <ChevronDown className="w-4 h-4 text-gray-400" />
+                                            )}
+                                        </button>
+                                        {isExpanded && (
+                                            <ul className="mt-1 ml-4 pl-4 border-l border-gray-200 space-y-1">
+                                                {item.children?.map((child) => (
+                                                    <li key={child.name}>
+                                                        <Link
+                                                            href={child.href}
+                                                            className={`block px-3 py-2 rounded-lg text-sm transition-colors ${isActive(child.href)
+                                                                ? 'text-emerald-700 bg-emerald-50 font-medium'
+                                                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                                                                }`}
+                                                        >
+                                                            {child.name}
+                                                        </Link>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </>
+                                ) : (
+                                    <Link
+                                        href={item.href}
+                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${active
+                                            ? 'bg-emerald-50 text-emerald-700'
+                                            : 'text-gray-600 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <item.icon className={`w-5 h-5 ${active ? 'text-emerald-600' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                                        <span className="font-medium text-sm">{item.name}</span>
+                                        {item.badge && (
+                                            <span className="px-1.5 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded">
+                                                {item.badge}
+                                            </span>
+                                        )}
+                                    </Link>
+                                )}
                             </li>
                         );
                     })}
                 </ul>
+
+                {/* VERTMON: Operations section removed - full access mode */}
             </nav>
 
-            {/* Pro Badge - Only show if on Free/Trial plans */}
-            {!collapsed && !isPaidPlan && (
-                <div className="mx-3 mb-4 p-4 bg-neutral-900 rounded-lg border border-neutral-800">
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="text-white font-semibold text-sm">Syncly</span>
-                        <span className="px-2 py-0.5 bg-gold text-neutral-900 text-xs font-bold rounded">Starter</span>
-                    </div>
-                    <ul className="text-xs text-neutral-400 space-y-1">
-                        <li>• Basic analytics</li>
-                        <li>• AI-assistant</li>
-                        <li>• Email support</li>
-                    </ul>
-                    <div className="mt-3 text-gold font-semibold text-sm">
-                        ₮149,000 / month
-                    </div>
-                    <Link href="/dashboard/subscription">
-                        <button className="w-full mt-3 py-2 bg-gold text-neutral-900 font-semibold rounded-lg text-sm hover:bg-gold-light transition-colors">
-                            Upgrade now
+            {/* Add Property Button — only for admin & sales_manager */}
+            {canAccessModule(userRole, 'properties') && (
+                <div className="px-3 pb-3">
+                    <Link href="/dashboard/properties/new">
+                        <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors text-sm">
+                            Шинэ үл хөдлөх нэмэх
                         </button>
                     </Link>
                 </div>
             )}
 
-            {!collapsed && isPaidPlan && (
-                <div className="mx-3 mb-4 p-4 bg-neutral-900 rounded-lg border border-gold/30">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-white font-medium text-sm">Current Plan</span>
-                        <span className="px-2 py-0.5 bg-gold text-neutral-900 text-xs font-bold rounded uppercase">{plan.slug}</span>
-                    </div>
-
-                    {/* Message Usage */}
-                    <div className="mb-3">
-                        <div className="flex justify-between text-xs text-neutral-400 mb-1">
-                            <span>Messages</span>
-                            <span>
-                                {usage?.messages_count || 0} / {
-                                    limits?.max_messages === -1
-                                        ? '∞'
-                                        : (limits?.max_messages || 0)
-                                }
-                            </span>
-                        </div>
-                        <div className="h-1.5 bg-neutral-800 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-gold rounded-full transition-all duration-500"
-                                style={{
-                                    width: `${limits?.max_messages === -1 ? 5 : Math.min(
-                                        ((usage?.messages_count || 0) / (limits?.max_messages || 1)) * 100,
-                                        100
-                                    )}%`
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    <Link href="/dashboard/subscription" className="text-xs text-gold hover:text-gold-light hover:underline">
-                        Manage subscription
-                    </Link>
-                </div>
-            )}
-
             {/* Bottom Menu */}
-            <div className="px-3 pb-4 border-t border-neutral-800 pt-4">
+            <div className="px-3 py-3 border-t border-gray-100">
                 <ul className="space-y-1">
-                    {bottomMenuItems.map((item) => {
-                        const isActive = pathname === item.href;
-                        return (
-                            <li key={item.name}>
-                                <Link
-                                    href={item.href}
-                                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group ${isActive
-                                        ? 'bg-neutral-800 text-gold'
-                                        : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
-                                        }`}
-                                >
-                                    <item.icon className="w-5 h-5 flex-shrink-0" />
-                                    {!collapsed && <span className="text-sm">{item.name}</span>}
-                                </Link>
-                            </li>
-                        );
-                    })}
+                    {filteredBottomItems.map((item) => (
+                        <li key={item.name}>
+                            <Link
+                                href={item.href}
+                                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive(item.href)
+                                    ? 'text-emerald-700 bg-emerald-50'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                                    }`}
+                            >
+                                <item.icon className="w-5 h-5" />
+                                <span className="text-sm">{item.name}</span>
+                            </Link>
+                        </li>
+                    ))}
+                    <li>
+                        <button
+                            onClick={() => signOut()}
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+                        >
+                            <LogOut className="w-5 h-5" />
+                            <span className="text-sm">Гарах</span>
+                        </button>
+                    </li>
                 </ul>
             </div>
 
-            {/* Collapse button */}
-            <button
-                onClick={() => setCollapsed(!collapsed)}
-                className="absolute bottom-20 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
-            >
-                {collapsed ? <ChevronRight className="w-4 h-4 text-white" /> : <ChevronLeft className="w-4 h-4 text-white" />}
-            </button>
+            {/* User Profile */}
+            <div className="px-3 pb-4 border-t border-gray-100 pt-3">
+                <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <UserCircle className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="flex-1 text-left">
+                        <p className="text-sm font-medium text-gray-900">{shop?.name || 'Агент'}</p>
+                        <p className="text-xs text-gray-400">{getRoleDisplayName(userRole)}</p>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                </button>
+            </div>
         </aside>
     );
 }

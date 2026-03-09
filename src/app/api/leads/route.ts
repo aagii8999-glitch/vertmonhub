@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         try {
             const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
             
-            const prompt = `Чи SmartHub компанийн найрсаг менежер шүү! 😊
+            const prompt = `Чи Vertmon компанийн найрсаг менежер шүү! 😊
 
 Одоо ${name}${company ? ` (${company}-с)` : ''} Odoo ERP-ийн талаар сонирхож байна. Түүнд ээлтэй, хүн шиг хариулт өг.
 

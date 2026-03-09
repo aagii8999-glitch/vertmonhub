@@ -62,8 +62,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="mn">
+    <html lang="mn" suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${inter.variable} ${playfair.variable} ${geistMono.variable} antialiased`}
       >
         <ServiceWorkerRegistration />

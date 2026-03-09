@@ -23,7 +23,7 @@ import {
 } from '@/lib/webhook/WebhookService';
 import type { ChatMessage } from '@/types/ai';
 
-const VERIFY_TOKEN = process.env.FACEBOOK_VERIFY_TOKEN || 'smarthub_verify_token_2024';
+const VERIFY_TOKEN = process.env.FACEBOOK_VERIFY_TOKEN || 'vertmonhub_verify_token_2024';
 
 /**
  * Facebook webhook entry type

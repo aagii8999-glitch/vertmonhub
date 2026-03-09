@@ -96,7 +96,7 @@ export function PWAInstallPrompt() {
                     </div>
                     <div className="flex-1 min-w-0">
                         <h3 className="text-white font-semibold text-sm">
-                            SmartHub суулгах
+                            Vertmon Hub суулгах
                         </h3>
                         <p className="text-white/80 text-xs mt-0.5">
                             {isIOS

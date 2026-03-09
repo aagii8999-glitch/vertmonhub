@@ -21,7 +21,7 @@ export function useBulkUpdateOrders() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 },
                 body: JSON.stringify({ orderIds, status }),
             });
@@ -67,7 +67,7 @@ export function useUpdateOrder() {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 },
                 body: JSON.stringify({ orderId, status }),
             });

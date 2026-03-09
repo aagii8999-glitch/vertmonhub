@@ -1,335 +1,141 @@
 /**
- * Vertmon Hub AI Plan Configuration - GPT-5 Family
+ * Vertmon Hub AI Configuration
  * 
- * Strategy: Exclusive use of GPT-5 models across all tiers
- * - Trial: GPT-5 Mini (14 days)
- * - Starter: GPT-5 Nano - ₮149,000/month
- * - Pro: GPT-5 Mini - ₮349,000/month
- * - Ultimate: GPT-5 - ₮999,000/month
+ * Internal company app — all employees have full access.
+ * Single config using Gemini 3 Pro model.
  */
 
-export type PlanType = 'trial' | 'starter' | 'pro' | 'ultimate';
-export type AIProvider = 'openai';
-export type AIModel = 'gpt-5-nano' | 'gpt-5-mini' | 'gpt-5';
-
-// Tool names available for each plan
 import type { ToolName } from '../tools/definitions';
 
-/**
- * Plan AI Configuration
- */
-export interface PlanAIConfig {
+// ============================================
+// AI Model Configuration
+// ============================================
+
+export type AIProvider = 'google';
+export type AIModel = 'gemini-3-pro';
+
+export interface AIConfig {
     provider: AIProvider;
     model: AIModel;
     maxTokens: number;
-    messagesPerMonth: number;
-    trialDays?: number;
-    maxShops: number;
-    price: {
-        mnt: number;
-        usd: number;
-    };
     features: {
-        // AI Core
         toolCalling: boolean;
         vision: boolean;
         memory: boolean;
         salesIntelligence: boolean;
-
-        // Modules
         leadManagement: boolean;
         viewingScheduler: boolean;
         loanCalculator: boolean;
-        crmAnalytics: 'none' | 'basic' | 'advanced' | 'full';
-
-        // Tools
+        crmAnalytics: 'full';
         autoTagging: boolean;
         appointmentBooking: boolean;
         bulkMarketing: boolean;
         excelExport: boolean;
-        customBranding: boolean;
-        hubspotIntegration: boolean;
-        prioritySupport: boolean;
     };
     enabledTools: ToolName[];
 }
 
 /**
- * Plan configurations - Real Estate focused
+ * Single AI configuration — full access for all Vertmon employees
  */
-export const PLAN_CONFIGS: Record<PlanType, PlanAIConfig> = {
-    trial: {
-        provider: 'openai',
-        model: 'gpt-5-mini',
-        maxTokens: 600,
-        messagesPerMonth: 1000,
-        trialDays: 14,
-        maxShops: 1,
-        price: { mnt: 0, usd: 0 },
-        features: {
-            // AI Core
-            toolCalling: true,
-            vision: true,
-            memory: true,
-            salesIntelligence: true,
-
-            // Modules
-            leadManagement: true,
-            viewingScheduler: true,
-            loanCalculator: true,
-            crmAnalytics: 'advanced',
-
-            // Tools
-            autoTagging: true,
-            appointmentBooking: true,
-            bulkMarketing: false,
-            excelExport: true,
-            customBranding: false,
-            hubspotIntegration: false,
-            prioritySupport: false,
-        },
-        enabledTools: [
-            'search_properties',
-            'show_property_images',
-            'calculate_loan',
-            'schedule_viewing',
-            'create_lead',
-            'collect_contact_info',
-            'request_human_support',
-            'remember_preference',
-        ],
+export const AI_CONFIG: AIConfig = {
+    provider: 'google',
+    model: 'gemini-3-pro',
+    maxTokens: 1500,
+    features: {
+        toolCalling: true,
+        vision: true,
+        memory: true,
+        salesIntelligence: true,
+        leadManagement: true,
+        viewingScheduler: true,
+        loanCalculator: true,
+        crmAnalytics: 'full',
+        autoTagging: true,
+        appointmentBooking: true,
+        bulkMarketing: true,
+        excelExport: true,
     },
-
-    starter: {
-        provider: 'openai',
-        model: 'gpt-5-nano',
-        maxTokens: 500,
-        messagesPerMonth: 2000,
-        maxShops: 1,
-        price: { mnt: 149000, usd: 44 },
-        features: {
-            // AI Core
-            toolCalling: true,
-            vision: true,
-            memory: false,
-            salesIntelligence: false,
-
-            // Modules
-            leadManagement: true,
-            viewingScheduler: false,
-            loanCalculator: true,
-            crmAnalytics: 'basic',
-
-            // Tools
-            autoTagging: false,
-            appointmentBooking: false,
-            bulkMarketing: false,
-            excelExport: false,
-            customBranding: false,
-            hubspotIntegration: false,
-            prioritySupport: false,
-        },
-        enabledTools: [
-            'search_properties',
-            'show_property_images',
-            'calculate_loan',
-            'collect_contact_info',
-        ],
-    },
-
-    pro: {
-        provider: 'openai',
-        model: 'gpt-5-mini',
-        maxTokens: 800,
-        messagesPerMonth: 25000,
-        maxShops: 3,
-        price: { mnt: 349000, usd: 103 },
-        features: {
-            // AI Core
-            toolCalling: true,
-            vision: true,
-            memory: true,
-            salesIntelligence: true,
-
-            // Modules
-            leadManagement: true,
-            viewingScheduler: true,
-            loanCalculator: true,
-            crmAnalytics: 'advanced',
-
-            // Tools
-            autoTagging: true,
-            appointmentBooking: true,
-            bulkMarketing: false,
-            excelExport: true,
-            customBranding: false,
-            hubspotIntegration: false,
-            prioritySupport: false,
-        },
-        enabledTools: [
-            'search_properties',
-            'show_property_images',
-            'calculate_loan',
-            'schedule_viewing',
-            'create_lead',
-            'collect_contact_info',
-            'request_human_support',
-            'remember_preference',
-        ],
-    },
-
-    ultimate: {
-        provider: 'openai',
-        model: 'gpt-5',
-        maxTokens: 1500,
-        messagesPerMonth: 50000,
-        maxShops: 1000, // Effectively unlimited
-        price: { mnt: 999000, usd: 294 },
-        features: {
-            // AI Core
-            toolCalling: true,
-            vision: true,
-            memory: true,
-            salesIntelligence: true,
-
-            // Modules
-            leadManagement: true,
-            viewingScheduler: true,
-            loanCalculator: true,
-            crmAnalytics: 'full',
-
-            // Tools
-            autoTagging: true,
-            appointmentBooking: true,
-            bulkMarketing: true,
-            excelExport: true,
-            customBranding: true,
-            hubspotIntegration: true,
-            prioritySupport: true,
-        },
-        enabledTools: [
-            'search_properties',
-            'show_property_images',
-            'calculate_loan',
-            'schedule_viewing',
-            'create_lead',
-            'collect_contact_info',
-            'request_human_support',
-            'remember_preference',
-        ],
-    },
+    enabledTools: [
+        'search_properties',
+        'show_property_images',
+        'calculate_loan',
+        'schedule_viewing',
+        'create_lead',
+        'collect_contact_info',
+        'request_human_support',
+        'remember_preference',
+    ],
 };
 
-/**
- * Get plan config by plan type
- */
-export function getPlanConfig(plan: PlanType): PlanAIConfig {
-    return PLAN_CONFIGS[plan] || PLAN_CONFIGS.starter;
+// ============================================
+// Helper functions (simplified — no plan logic)
+// ============================================
+
+/** Get the AI config */
+export function getAIConfig(): AIConfig {
+    return AI_CONFIG;
 }
 
-/**
- * Get plan type from subscription status
- */
-export function getPlanTypeFromSubscription(subscription?: {
-    plan?: string;
-    status?: string;
-    trial_ends_at?: string;
-}): PlanType {
-    if (!subscription || subscription.status === 'inactive') {
-        return 'trial';
-    }
-
-    // Check if still in trial period
-    if (subscription.status === 'trial' && subscription.trial_ends_at) {
-        const trialEnds = new Date(subscription.trial_ends_at);
-        if (trialEnds > new Date()) {
-            return 'trial';
-        }
-    }
-
-    // Only allow Paid plans if status is Active
-    if (subscription.status !== 'active') {
-        return 'starter';
-    }
-
-    const planName = subscription.plan?.toLowerCase();
-
-    if (planName === 'ultimate' || planName === 'enterprise') {
-        return 'ultimate';
-    }
-    if (planName === 'pro' || planName === 'professional') {
-        return 'pro';
-    }
-
-    return 'starter';
+/** Check if a tool is enabled */
+export function isToolEnabled(toolName: ToolName): boolean {
+    return AI_CONFIG.enabledTools.includes(toolName);
 }
 
-/**
- * Check if a tool is enabled for a plan
- */
-export function isToolEnabledForPlan(toolName: ToolName, plan: PlanType): boolean {
-    const config = getPlanConfig(plan);
-    return config.enabledTools.includes(toolName);
+/** Get all enabled tools */
+export function getEnabledTools(): ToolName[] {
+    return AI_CONFIG.enabledTools;
 }
 
-/**
- * Get enabled tools for a plan
- */
-export function getEnabledToolsForPlan(plan: PlanType): ToolName[] {
-    return getPlanConfig(plan).enabledTools;
+/** Model display name for UI */
+export const MODEL_DISPLAY_NAME = 'Gemini 3 Pro';
+
+// ============================================
+// Legacy compatibility — keeps AIRouter working
+// without changing every import
+// ============================================
+
+/** @deprecated Use AI_CONFIG directly */
+export type PlanType = 'ultimate';
+
+/** @deprecated Use AI_CONFIG directly */
+export type PlanAIConfig = AIConfig;
+
+/** @deprecated Use AI_CONFIG directly */
+export const PLAN_CONFIGS = { ultimate: AI_CONFIG } as Record<string, AIConfig>;
+
+/** @deprecated Use getAIConfig() */
+export function getPlanConfig(_plan?: string): AIConfig {
+    return AI_CONFIG;
 }
 
-/**
- * Check message limit
- */
-export function checkMessageLimit(
-    plan: PlanType,
-    currentCount: number
-): { allowed: boolean; remaining: number; limit: number } {
-    const config = getPlanConfig(plan);
-    const limit = config.messagesPerMonth;
-    const remaining = Math.max(0, limit - currentCount);
-
-    return {
-        allowed: currentCount < limit,
-        remaining,
-        limit,
-    };
+/** @deprecated No longer needed — always returns 'ultimate' */
+export function getPlanTypeFromSubscription(_subscription?: unknown): PlanType {
+    return 'ultimate';
 }
 
-/**
- * Check shop limit
- */
-export function checkShopLimit(
-    plan: PlanType,
-    currentCount: number
-): { allowed: boolean; remaining: number; limit: number } {
-    const config = getPlanConfig(plan);
-    const limit = config.maxShops;
-    const remaining = Math.max(0, limit - currentCount);
-
-    return {
-        allowed: currentCount < limit,
-        remaining,
-        limit,
-    };
+/** @deprecated Use isToolEnabled() */
+export function isToolEnabledForPlan(toolName: ToolName, _plan?: string): boolean {
+    return isToolEnabled(toolName);
 }
 
-/**
- * Model display names for UI
- */
-export const MODEL_DISPLAY_NAMES: Record<AIModel, string> = {
-    'gpt-5-nano': 'GPT-5 Nano',
-    'gpt-5-mini': 'GPT-5 Mini',
-    'gpt-5': 'GPT-5',
-};
+/** @deprecated Use getEnabledTools() */
+export function getEnabledToolsForPlan(_plan?: string): ToolName[] {
+    return getEnabledTools();
+}
 
-/**
- * Plan display names for UI
- */
-export const PLAN_DISPLAY_NAMES: Record<PlanType, string> = {
-    trial: '14-Day Trial',
-    starter: 'Starter',
-    pro: 'Pro',
-    ultimate: 'Ultimate',
-};
+/** @deprecated No message limits — always allowed */
+export function checkMessageLimit(_plan?: string, _currentCount?: number) {
+    return { allowed: true, remaining: Infinity, limit: Infinity };
+}
+
+/** @deprecated No shop limits */
+export function checkShopLimit(_plan?: string, _currentCount?: number) {
+    return { allowed: true, remaining: Infinity, limit: Infinity };
+}
+
+/** @deprecated Use MODEL_DISPLAY_NAME */
+export const MODEL_DISPLAY_NAMES = { 'gemini-3-pro': 'Gemini 3 Pro' } as Record<string, string>;
+
+/** @deprecated No plan display names needed */
+export const PLAN_DISPLAY_NAMES = { ultimate: 'Vertmon Hub' } as Record<string, string>;

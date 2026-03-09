@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="mn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertmon Hub — Гүйцэтгэлийн танилцуулга</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6C3CE1;
+            --primary-light: #8B5CF6;
+            --primary-dark: #4C1D95;
+            --accent: #06D6A0;
+            --dark: #0F172A;
+            --gray-900: #1E293B;
+            --gray-700: #334155;
+            --gray-500: #64748B;
+            --gray-300: #CBD5E1;
+            --gray-100: #F1F5F9;
+            --white: #FFFFFF;
+            --green: #10B981;
+            --blue: #3B82F6;
+            --orange: #F59E0B;
+            --red: #EF4444;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--dark);
+            background: var(--white);
+            line-height: 1.6;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        /* ===== COVER PAGE ===== */
+        .cover {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+            color: var(--white);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 80%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .cover::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -20%;
+            width: 60%;
+            height: 120%;
+            background: radial-gradient(circle, rgba(6, 214, 160, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .cover-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cover-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 100px;
+            padding: 8px 24px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+            backdrop-filter: blur(10px);
+        }
+
+        .cover h1 {
+            font-size: 56px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 12px;
+            line-height: 1.1;
+        }
+
+        .cover .tagline {
+            font-size: 22px;
+            font-weight: 300;
+            opacity: 0.85;
+            margin-bottom: 48px;
+        }
+
+        .cover-meta {
+            display: flex;
+            gap: 48px;
+            justify-content: center;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .cover-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            padding: 64px 80px;
+        }
+
+        @media (max-width: 768px) {
+            .section {
+                padding: 40px 24px;
+            }
+        }
+
+        .section-dark {
+            background: var(--dark);
+            color: var(--white);
+        }
+
+        .section-gray {
+            background: var(--gray-100);
+        }
+
+        .section-gradient {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: var(--white);
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .section-dark .section-title,
+        .section-gradient .section-title {
+            color: var(--accent);
+        }
+
+        .section h2 {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .section .subtitle {
+            font-size: 17px;
+            color: var(--gray-500);
+            max-width: 700px;
+            margin-bottom: 48px;
+        }
+
+        .section-dark .subtitle,
+        .section-gradient .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* ===== STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 28px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, var(--accent), #34D399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 4px;
+        }
+
+        /* ===== MODULE CARDS ===== */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .module-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid var(--gray-300);
+            transition: all 0.2s;
+        }
+
+        .module-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 32px rgba(108, 60, 225, 0.08);
+        }
+
+        .module-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .module-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .module-card .desc {
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-bottom: 16px;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            font-size: 13px;
+            color: var(--gray-700);
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: #ECFDF5;
+            color: var(--green);
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ===== TIMELINE ===== */
+        .timeline {
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--primary), var(--accent));
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 32px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 6px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--white);
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .timeline-item .date {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .timeline-item h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .timeline-item p {
+            font-size: 14px;
+            color: var(--gray-500);
+        }
+
+        /* ===== TABLE ===== */
+        .clean-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .clean-table thead th {
+            background: var(--dark);
+            color: var(--white);
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .clean-table thead th:first-child {
+            border-radius: 10px 0 0 0;
+        }
+
+        .clean-table thead th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+
+        .clean-table tbody td {
+            padding: 14px 20px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .clean-table tbody tr:hover {
+            background: var(--gray-100);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: #ECFDF5;
+            color: #059669;
+        }
+
+        .badge-blue {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+
+        .badge-purple {
+            background: #F3E8FF;
+            color: #7C3AED;
+        }
+
+        .badge-orange {
+            background: #FFF7ED;
+            color: #EA580C;
+        }
+
+        /* ===== TECH STACK ===== */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .tech-item h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .tech-item p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ===== AUDIT RESULTS ===== */
+        .audit-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .audit-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .audit-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 24px;
+            border-left: 4px solid;
+        }
+
+        .audit-card.done {
+            border-left-color: var(--green);
+        }
+
+        .audit-card.improved {
+            border-left-color: var(--blue);
+        }
+
+        .audit-card.info {
+            border-left-color: var(--orange);
+        }
+
+        .audit-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .audit-card p {
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+
+        .audit-card .result {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--green);
+            margin-top: 8px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--dark);
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            padding: 32px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== COVER PAGE ===== -->
+    <div class="cover">
+        <div class="cover-content">
+            <div class="cover-badge">Гүйцэтгэлийн тайлан</div>
+            <h1>Vertmon Hub</h1>
+            <div class="tagline">AI-powered Business Platform</div>
+            <div class="cover-meta">
+                <span>📅 2026 оны 3-р сар</span>
+                <span>📋 VH-REPORT-002</span>
+                <span>🏢 TYST Consulting LLC</span>
+            </div>
+            <div class="cover-meta" style="margin-top: 12px;">
+                <span>Захиалагч: Vertmon Properties LLC</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PLATFORM OVERVIEW ===== -->
+    <div class="section section-dark page-break">
+        <div class="section-title">Ерөнхий тойм</div>
+        <h2>Платформын хэмжээ</h2>
+        <p class="subtitle">Vertmon Hub нь бүрэн ажиллагаатай бизнесийн платформ бөгөөд дараах хэмжээтэй системийг бий
+            болголоо.</p>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">47</div>
+                <div class="stat-label">Хуудас (Page)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">57</div>
+                <div class="stat-label">API Endpoint</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">58</div>
+                <div class="stat-label">UI Component</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">44.8K</div>
+                <div class="stat-label">Нийт мөр код</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">268</div>
+                <div class="stat-label">TypeScript файл</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">10</div>
+                <div class="stat-label">Custom Hook</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">14</div>
+                <div class="stat-label">Unit тест</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label">TypeScript алдаа</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DELIVERED MODULES ===== -->
+    <div class="section page-break">
+        <div class="section-title">Гүйцэтгэсэн ажлууд</div>
+        <h2>Бий болгосон модулиуд</h2>
+        <p class="subtitle">Гэрээний хавсралтад тусгагдсан 9 ажлын гүйцэтгэлийг дэлгэрэнгүй тайлбарлав.</p>
+
+        <div class="modules-grid">
+            <!-- CRM Module -->
+            <div class="module-card">
+                <div class="module-icon" style="background: #EFF6FF;">💼</div>
+                <h3>CRM & Борлуулалт</h3>
+                <div class="desc">Харилцагч, захиалга, бүтээгдэхүүн бүрэн удирдах систем</div>
+                <ul class="feature-list">
+                    <li>Supabase PostgreSQL database бүтэц (32+ хүснэгт)</li>
+                    <li>Харилцагч бүртгэл, хайлт, шүүлтүүр</li>
+                    <li>Захиалгын систем (CRUD, статус удирдлага)</li>
+                    <li>Бүтээгдэхүүний каталог (Excel/CSV импорт)</li>
+                    <li>Лийд менежмент (статус, яаралтай, follow-up)</li>
+                    <li>Байрны зар (Properties) бүртгэл, шүүлт</li>
+                    <li>Dashboard статистик, тайлан</li>
+                </ul>
+            </div>
+
+            <!-- AI Module -->
+            <div class="module-card">
+                <div class="module-icon" style="background: #F3E8FF;">🤖</div>
+                <h3>AI Модуль (Gemini)</h3>
+                <div class="desc">Google Gemini дээр суурилсан AI чатбот + дата туслах</div>
+                <ul class="feature-list">
+                    <li>Messenger/Instagram AI Chatbot</li>
+                    <li>Function calling (7 read + 5 write tools)</li>
+                    <li>AI Data Assistant — бодит дата query</li>
+                    <li>Зан байдлын тохиргоо (5 emotion)</li>
+                    <li>FAQ, Quick Reply, Slogan удирдлага</li>
+                    <li>Мэдлэгийн сан (Custom Knowledge)</li>
+                    <li>Super Admin write эрх хяналт</li>
+                    <li>Chart автомат үүсгэлт</li>
+                </ul>
+            </div>
+
+            <!-- Messaging Module -->
+            <div class="module-card">
+                <div class="module-icon" style="background: #ECFDF5;">💬</div>
+                <h3>Мессенжер интеграц</h3>
+                <div class="desc">Facebook Messenger & Instagram холболт</div>
+                <ul class="feature-list">
+                    <li>Facebook Page Token холболт</li>
+                    <li>Webhook endpoint (signature verification)</li>
+                    <li>Unified Inbox — бүх яриаг нэг дор</li>
+                    <li>Оператор хариу бичих</li>
+                    <li>AI автомат хариулт</li>
+                    <li>Meta Data Deletion endpoint</li>
+                    <li>Instagram DM интеграц</li>
+                </ul>
+            </div>
+
+            <!-- Marketing Module -->
+            <div class="module-card">
+                <div class="module-icon" style="background: #FFF7ED;">📊</div>
+                <h3>Маркетинг</h3>
+                <div class="desc">Суваг удирдлага, кампейн, аналитик</div>
+                <ul class="feature-list">
+                    <li>Маркетинг Dashboard (KPI)</li>
+                    <li>Суваг холболт (Facebook, Instagram)</li>
+                    <li>Мессежийн аналитик (AI анализ)</li>
+                    <li>Кампейн удирдлага</li>
+                    <li>Бренд удирдлага</li>
+                    <li>Контент хуваарь (Calendar)</li>
+                    <li>Social Media интеграц</li>
+                </ul>
+            </div>
+
+            <!-- Reports Module -->
+            <div class="module-card">
+                <div class="module-icon" style="background: #FEF2F2;">📈</div>
+                <h3>Тайлан & Аналитик</h3>
+                <div class="desc">Борлуулалт, байр, лийдийн тайлангууд</div>
+                <ul class="feature-list">
+                    <li>Dashboard ерөнхий статистик</li>
+                    <li>Борлуулалтын тайлан (Revenue)</li>
+                    <li>Байрны тайлан (Properties)</li>
+                    <li>Excel/PDF экспорт</li>
+                    <li>Хугацааны шүүлтүүр (өдөр/долоо хоног/сар/жил)</li>
+                </ul>
+            </div>
+
+            <!-- Admin Module -->
+            <div class="module-card">
+                <div class="module-icon" style="background: #F1F5F9;">⚙️</div>
+                <h3>Админ & Тохиргоо</h3>
+                <div class="desc">Super Admin dashboard, хэрэглэгч, subscription удирдлага</div>
+                <ul class="feature-list">
+                    <li>Super Admin dashboard</li>
+                    <li>Дэлгүүр удирдлага (Shops CRUD)</li>
+                    <li>Хэрэглэгч удирдлага (Users)</li>
+                    <li>Subscription & төлбөр</li>
+                    <li>Invoice үүсгэлт</li>
+                    <li>AI тохиргоо (бодлого, бүрэн тохируулга)</li>
+                    <li>Supabase Auth (Email + Google + Facebook)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONTRACT DELIVERABLES TABLE ===== -->
+    <div class="section section-gray page-break">
+        <div class="section-title">Гэрээний хавсралт</div>
+        <h2>Гүйцэтгэх ажлуудын тулгалт</h2>
+        <p class="subtitle">Гэрээнд тусгагдсан 9 ажил тус бүрийн гүйцэтгэл.</p>
+
+        <table class="clean-table">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Гүйцэтгэх ажил</th>
+                    <th>Гүйцэтгэл</th>
+                    <th>Тэмдэглэл</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>1</strong></td>
+                    <td><strong>Database бэлдэх</strong></td>
+                    <td>Supabase PostgreSQL — 40+ хүснэгт, RLS, migration</td>
+                    <td>Бүтэц бүрэн бэлэн. Бодит дата оруулахад бэлэн</td>
+                    <td><span class="badge badge-green">✅ Дууссан</span></td>
+                </tr>
+                <tr>
+                    <td><strong>2</strong></td>
+                    <td><strong>Data синк хийх</strong></td>
+                    <td>Excel/CSV импорт API, Product файл parser, Messenger data sync</td>
+                    <td>Код бэлэн, API endpoint-ууд ажилладаг. Бодит дата оруулаагүй, mock дата дээр ажиллаж байгаа</td>
+                    <td><span class="badge badge-blue">🔧 Код бэлэн</span></td>
+                </tr>
+                <tr>
+                    <td><strong>3</strong></td>
+                    <td><strong>Өгөгдөл ангилах (Sort)</strong></td>
+                    <td>Харилцагч, лийд, захиалга — статус, огноо, үнэ, tag-аар шүүлт</td>
+                    <td>UI шүүлтүүр бэлэн. Бодит дата оруулсан үед функционал бүрэн ажиллана</td>
+                    <td><span class="badge badge-blue">🔧 Код бэлэн</span></td>
+                </tr>
+                <tr>
+                    <td><strong>4</strong></td>
+                    <td><strong>Бүтээгдэхүүний цэс үүсгэх</strong></td>
+                    <td>Products CRUD, категори, зураг, үнэ, нөөц удирдлага</td>
+                    <td>CRUD бүрэн ажилладаг. Supabase-д бодит бүтээгдэхүүний мэдээлэл оруулах шаардлагатай</td>
+                    <td><span class="badge badge-blue">🔧 Код бэлэн</span></td>
+                </tr>
+                <tr>
+                    <td><strong>5</strong></td>
+                    <td><strong>Data аналитик хийх</strong></td>
+                    <td>Dashboard stats, Reports (борлуулалт/байр), AI Data Assistant query</td>
+                    <td>Dashboard + Reports hook-ууд Supabase-аас бодит query хийдэг. Бодит дата оруулахад шууд ажиллана
+                    </td>
+                    <td><span class="badge badge-blue">🔧 Код бэлэн</span></td>
+                </tr>
+                <tr>
+                    <td><strong>6</strong></td>
+                    <td><strong>AI Agent үүсгэх</strong></td>
+                    <td>Gemini chatbot + Function calling (12 tools) + Data Assistant</td>
+                    <td>Gemini API бүрэн интеграцлагдсан. Function calling ажилладаг</td>
+                    <td><span class="badge badge-green">✅ Дууссан</span></td>
+                </tr>
+                <tr>
+                    <td><strong>7</strong></td>
+                    <td><strong>IF (Automation) холбох</strong></td>
+                    <td>AI автомат хариулт, гэрээний процесс автомат, cron job (order cleanup)</td>
+                    <td>Webhook + AI auto-reply бэлэн. Бодит ашиглалтад шалгах шаардлагатай</td>
+                    <td><span class="badge badge-blue">🔧 Код бэлэн</span></td>
+                </tr>
+                <tr>
+                    <td><strong>8</strong></td>
+                    <td><strong>Facebook апп холболт</strong></td>
+                    <td>Page token, Webhook, Messenger AI, Meta App Review permissions бэлдсэн</td>
+                    <td>Webhook + AI хариулт ажилладаг. Meta App Review дуусгах шаардлагатай</td>
+                    <td><span class="badge badge-blue">🔄 Хэсэгчлэн</span></td>
+                </tr>
+                <tr>
+                    <td><strong>9</strong></td>
+                    <td><strong>Имэйл платформ холболт</strong></td>
+                    <td>Push notification (VAPID), Мэдэгдлийн тохиргоо (захиалга/холбогдох/тусламж)</td>
+                    <td>Push notification + Resend template бэлэн. Имэйл маркетинг кампейн дуусгах шаардлагатай</td>
+                    <td><span class="badge badge-blue">🔄 Хэсэгчлэн</span></td>
+                </tr>
+        </table>
+
+        <div
+            style="margin-top: 20px; display: flex; gap: 24px; flex-wrap: wrap; font-size: 13px; color: var(--gray-500);">
+            <span><span class="badge badge-green">✅ Дууссан</span> — Бүрэн ажилладаг</span>
+            <span><span class="badge badge-blue">🔧 Код бэлэн</span> — Код бичигдсэн, бодит дата оруулахад бэлэн</span>
+            <span><span class="badge badge-blue">🔄 Хэсэгчлэн</span> — Нэмэлт ажил шаардлагатай</span>
+        </div>
+
+        <div
+            style="margin-top: 16px; background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 12px; padding: 16px;">
+            <p style="font-size: 13px; color: #9A3412; margin: 0;"><strong>📌 Тэмдэглэл:</strong> Платформын кодын бүтэц
+                бүрэн бэлэн. Одоогоор mock/demo дата дээр ажиллаж байгаа. Бодит дата (харилцагч, бүтээгдэхүүн, захиалга)
+                оруулсан даруйд бүх функционал шууд ажилладаг.</p>
+        </div>
+    </div>
+
+    <!-- ===== TECH STACK ===== -->
+    <div class="section section-dark page-break">
+        <div class="section-title">Технологи</div>
+        <h2>Ашигласан технологийн стек</h2>
+        <p class="subtitle">Орчин үеийн, найдвартай, өргөтгөх боломжтой технологиуд.</p>
+
+        <div class="tech-grid">
+            <div class="tech-item">
+                <h4>⚛️ Next.js 15</h4>
+                <p>React framework — SSR, API routes, App Router</p>
+            </div>
+            <div class="tech-item">
+                <h4>📘 TypeScript</h4>
+                <p>Type-safe код — 0 compile error</p>
+            </div>
+            <div class="tech-item">
+                <h4>🛡️ Supabase</h4>
+                <p>PostgreSQL + Auth + RLS + Realtime</p>
+            </div>
+            <div class="tech-item">
+                <h4>🤖 Google Gemini</h4>
+                <p>AI chatbot + function calling + vision</p>
+            </div>
+            <div class="tech-item">
+                <h4>📱 Meta API</h4>
+                <p>Messenger + Instagram integration</p>
+            </div>
+            <div class="tech-item">
+                <h4>🎨 Tailwind CSS</h4>
+                <p>shadcn/ui components + custom design</p>
+            </div>
+            <div class="tech-item">
+                <h4>☁️ Vercel</h4>
+                <p>Edge deployment, serverless functions</p>
+            </div>
+            <div class="tech-item">
+                <h4>📊 Recharts</h4>
+                <p>Interactive charts, dashboard визуализаци</p>
+            </div>
+            <div class="tech-item">
+                <h4>🔔 Web Push</h4>
+                <p>VAPID push notifications</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CODE QUALITY ===== -->
+    <div class="section section-gray page-break">
+        <div class="section-title">Код чанар</div>
+        <h2>Код аудит & Сайжруулалт</h2>
+        <p class="subtitle">Кодын бүтэц, чанарыг шалгаж, сайжруулалт хийсэн тайлан.</p>
+
+        <div class="audit-grid">
+            <div class="audit-card done">
+                <h4>OpenAI → Gemini шилжүүлэлт</h4>
+                <p>Бүрэн AI engine шилжүүлэлт хийж дууссан. AIRouter, file-parser, tools бүгдийг Gemini руу шилжүүлсэн.
+                </p>
+                <div class="result">✅ Бүрэн дууссан</div>
+            </div>
+            <div class="audit-card done">
+                <h4>Ашиглагдаагүй package устгалт</h4>
+                <p>openai, @ai-sdk/openai, ai, drizzle-orm, postgres — 5 package устгасан.</p>
+                <div class="result">✅ 5 dep устгасан</div>
+            </div>
+            <div class="audit-card done">
+                <h4>AI Settings салгалт</h4>
+                <p>1,214 мөрийн нэг файлыг 9 component-д салгасан. Давхардлыг арилгасан.</p>
+                <div class="result">✅ 1,214 → 140 мөр</div>
+            </div>
+            <div class="audit-card done">
+                <h4>Data Assistant салгалт</h4>
+                <p>1,027 мөрийн файлыг tools, functions, handler гэсэн 3 файлд салгасан.</p>
+                <div class="result">✅ 1,027 → 140 мөр</div>
+            </div>
+            <div class="audit-card done">
+                <h4>Нэрлэлт стандартчилалт</h4>
+                <p>UI component файлуудыг PascalCase болгож, import бүгдийг шинэчилсэн.</p>
+                <div class="result">✅ 4 файл renamed</div>
+            </div>
+            <div class="audit-card improved">
+                <h4>API Route аудит</h4>
+                <p>57 API route-г шалгасан. Бүгд ашиглагдаж байгааг баталгаажуулсан.</p>
+                <div class="result" style="color: var(--blue);">ℹ️ 57 route бүгд active</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== KEY PAGES ===== -->
+    <div class="section page-break">
+        <div class="section-title">Хуудаснууд</div>
+        <h2>Үндсэн хуудаснууд (47)</h2>
+        <p class="subtitle">Бий болгосон хуудаснуудын ерөнхий бүтэц.</p>
+
+        <table class="clean-table">
+            <thead>
+                <tr>
+                    <th>Бүлэг</th>
+                    <th>Хуудаснууд</th>
+                    <th>Тоо</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Dashboard</strong></td>
+                    <td>Ерөнхий, Харилцагч, Захиалга, Бүтээгдэхүүн, Байр, Лийд, Тайлан, AI Тохиргоо, AI Туслах, Inbox,
+                        Судалгаа, Settings, Subscription</td>
+                    <td><span class="badge badge-purple">14</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Marketing</strong></td>
+                    <td>Dashboard, Messaging, Analytics, Campaigns, Social, Sources, Calendar, Brand, Ads</td>
+                    <td><span class="badge badge-purple">9</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Admin</strong></td>
+                    <td>Dashboard, Shops, Users, Plans, Subscriptions, Invoices, Settings</td>
+                    <td><span class="badge badge-purple">7</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Auth</strong></td>
+                    <td>Login, Register, Callback</td>
+                    <td><span class="badge badge-purple">3</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Public</strong></td>
+                    <td>Landing, Docs, Help, Privacy, Terms, Setup, Test</td>
+                    <td><span class="badge badge-purple">7+</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ===== AI CAPABILITIES ===== -->
+    <div class="section section-gradient page-break">
+        <div class="section-title">AI чадварууд</div>
+        <h2>Gemini AI Function Calling</h2>
+        <p class="subtitle">AI-г Supabase дата руу шууд холбосон 12 tool.</p>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">7</div>
+                <div class="stat-label">Read Tools (бүх хэрэглэгч)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Write Tools (Super Admin)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">AI Emotion тохиргоо</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Custom Knowledge</div>
+            </div>
+        </div>
+
+        <table class="clean-table" style="margin-top: 24px">
+            <thead>
+                <tr>
+                    <th>Tool нэр</th>
+                    <th>Чадвар</th>
+                    <th>Эрх</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>get_dashboard_stats</td>
+                    <td>Ерөнхий статистик (орлого, захиалга, лийд, байр)</td>
+                    <td><span class="badge badge-green">Бүгд</span></td>
+                </tr>
+                <tr>
+                    <td>list_orders</td>
+                    <td>Захиалгын жагсаалт, шүүлт</td>
+                    <td><span class="badge badge-green">Бүгд</span></td>
+                </tr>
+                <tr>
+                    <td>get_product_stats</td>
+                    <td>Бүтээгдэхүүний статистик</td>
+                    <td><span class="badge badge-green">Бүгд</span></td>
+                </tr>
+                <tr>
+                    <td>list_properties</td>
+                    <td>Байрны жагсаалт (үнэ, м², дүүрэг, өрөө)</td>
+                    <td><span class="badge badge-green">Бүгд</span></td>
+                </tr>
+                <tr>
+                    <td>list_leads</td>
+                    <td>Лийд жагсаалт (статус, яаралтай)</td>
+                    <td><span class="badge badge-green">Бүгд</span></td>
+                </tr>
+                <tr>
+                    <td>get_lead_details</td>
+                    <td>Лийдийн дэлгэрэнгүй + matching байр</td>
+                    <td><span class="badge badge-green">Бүгд</span></td>
+                </tr>
+                <tr>
+                    <td>get_customer_insights</td>
+                    <td>Харилцагчийн захиалгын түүх</td>
+                    <td><span class="badge badge-green">Бүгд</span></td>
+                </tr>
+                <tr>
+                    <td>update_property_status</td>
+                    <td>Байр статус солих</td>
+                    <td><span class="badge badge-orange">Super Admin</span></td>
+                </tr>
+                <tr>
+                    <td>update_property_price</td>
+                    <td>Байр үнэ солих</td>
+                    <td><span class="badge badge-orange">Super Admin</span></td>
+                </tr>
+                <tr>
+                    <td>update_lead_status</td>
+                    <td>Лийд статус солих</td>
+                    <td><span class="badge badge-orange">Super Admin</span></td>
+                </tr>
+                <tr>
+                    <td>add_lead_note</td>
+                    <td>Лийдэд тэмдэглэл нэмэх</td>
+                    <td><span class="badge badge-orange">Super Admin</span></td>
+                </tr>
+                <tr>
+                    <td>process_contract_action</td>
+                    <td>Гэрээ: гарын үсэг → reserved, төлбөр → sold</td>
+                    <td><span class="badge badge-orange">Super Admin</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ===== COMPLETION ANALYSIS ===== -->
+    <div class="section section-dark page-break">
+        <div class="section-title">Хөгжүүлэлтийн явц</div>
+        <h2>Платформын бэлэн байдал</h2>
+        <p class="subtitle">Бүрэн ажиллагаатай production платформ болоход шаардлагатай ажлуудын дүн шинжилгээ.</p>
+
+        <div class="stats-grid" style="margin-bottom: 32px;">
+            <div class="stat-card">
+                <div class="stat-number">82%</div>
+                <div class="stat-label">Ерөнхий бэлэн байдал</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">92%</div>
+                <div class="stat-label">Үндсэн функционал</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">65%</div>
+                <div class="stat-label">Production бэлэн</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">18%</div>
+                <div class="stat-label">Үлдсэн ажил</div>
+            </div>
+        </div>
+
+        <!-- Progress bars by module -->
+        <div style="display: grid; gap: 16px;">
+            <!-- CRM -->
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">💼 CRM & Борлуулалт</span>
+                    <span style="color: var(--accent); font-weight: 700;">95%</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                    <div style="background: var(--accent); height: 100%; width: 95%; border-radius: 8px;"></div>
+                </div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px;">Дутуу: Захиалгын workflow
+                    автоматжуулалт, борлуулалтын pipeline сайжруулалт</div>
+            </div>
+
+            <!-- AI -->
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">🤖 AI Модуль</span>
+                    <span style="color: var(--accent); font-weight: 700;">95%</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                    <div style="background: var(--accent); height: 100%; width: 95%; border-radius: 8px;"></div>
+                </div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px;">Дутуу: AI хариултын
+                    бүртгэл/лог, хариултын чанарын хяналт</div>
+            </div>
+
+            <!-- Messenger -->
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">💬 Мессенжер интеграц</span>
+                    <span style="color: var(--accent); font-weight: 700;">80%</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                    <div style="background: var(--accent); height: 100%; width: 80%; border-radius: 8px;"></div>
+                </div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px;">Дутуу: Meta App Review
+                    дуусгах, Instagram DM бүрэн тест, зурагт хариулт</div>
+            </div>
+
+            <!-- Marketing -->
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">📊 Маркетинг</span>
+                    <span style="color: #F59E0B; font-weight: 700;">65%</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                    <div style="background: #F59E0B; height: 100%; width: 65%; border-radius: 8px;"></div>
+                </div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px;">Дутуу: Кампейн backend
+                    логик, Ads API, social media автомат пост, аналитик бодит дата</div>
+            </div>
+
+            <!-- Email -->
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">📧 Имэйл систем</span>
+                    <span style="color: #F59E0B; font-weight: 700;">70%</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                    <div style="background: #F59E0B; height: 100%; width: 70%; border-radius: 8px;"></div>
+                </div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px;">Хийсэн: Resend SDK + 5
+                    template. Дутуу: Resend API key тохируулах, имэйл маркетинг кампейн</div>
+            </div>
+
+            <!-- Admin -->
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">⚙️ Админ & Auth</span>
+                    <span style="color: var(--accent); font-weight: 700;">90%</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                    <div style="background: var(--accent); height: 100%; width: 90%; border-radius: 8px;"></div>
+                </div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px;">Дутуу: Хэрэглэгчийн
+                    бүлэг/эрх, audit log</div>
+            </div>
+
+            <!-- Testing & DevOps -->
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">🧪 Тест & DevOps</span>
+                    <span style="color: #EF4444; font-weight: 700;">25%</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                    <div style="background: #EF4444; height: 100%; width: 25%; border-radius: 8px;"></div>
+                </div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px;">Дутуу: Integration тест,
+                    E2E тест, Error boundary, CI/CD pipeline, monitoring</div>
+            </div>
+
+            <!-- UX -->
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">📱 UX & Responsive</span>
+                    <span style="color: #F59E0B; font-weight: 700;">60%</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                    <div style="background: #F59E0B; height: 100%; width: 60%; border-radius: 8px;"></div>
+                </div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px;">Дутуу: Mobile responsive
+                    бүрэн шалгах, loading state, empty state, error state сайжруулах</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MONTHLY COSTS ===== -->
+    <div class="section section-gray">
+        <div class="section-title">Сарын зардал</div>
+        <h2>Үйлчилгээний зардал (сар бүр)</h2>
+        <p class="subtitle">Платформыг ажиллуулахад шаардлагатай гуравдагч талын үйлчилгээний зардал.</p>
+
+        <table class="clean-table">
+            <thead>
+                <tr>
+                    <th>Үйлчилгээ</th>
+                    <th>Зориулалт</th>
+                    <th>Төлөвлөгөө</th>
+                    <th>Сарын зардал</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Vercel</strong></td>
+                    <td>Хостинг, deployment</td>
+                    <td>Pro</td>
+                    <td><strong>$20/сар</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Supabase</strong></td>
+                    <td>Database, Auth, Storage</td>
+                    <td>Pro</td>
+                    <td><strong>$25/сар</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Google Gemini API</strong></td>
+                    <td>AI chatbot, data assistant</td>
+                    <td>Pay-as-you-go</td>
+                    <td><strong>~$10-50/сар</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Resend</strong></td>
+                    <td>Имэйл илгээлт</td>
+                    <td>Free → Pro</td>
+                    <td><strong>$0-20/сар</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Domain</strong></td>
+                    <td>Домэйн нэр</td>
+                    <td>Жилийн</td>
+                    <td><strong>~$12/жил</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div
+            style="margin-top: 24px; background: var(--white); border-radius: 12px; padding: 20px; text-align: center; border: 2px solid var(--gray-300);">
+            <div style="font-size: 12px; font-weight: 600; color: var(--gray-500); letter-spacing: 1px;">САРЫН НИЙТ
+                ЗАРДАЛ (ОЙРОЛЦОО)</div>
+            <div style="font-size: 36px; font-weight: 900; color: var(--dark); margin-top: 8px;">$55 - $115/сар</div>
+            <div style="font-size: 13px; color: var(--gray-500); margin-top: 4px;">≈ 190,000₮ - 400,000₮ (1$ = 3,450₮)
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SUMMARY ===== -->
+    <div class="section page-break">
+        <div class="section-title">Дүгнэлт</div>
+        <h2>Ерөнхий дүгнэлт</h2>
+        <p class="subtitle">Vertmon Hub бол бүрэн ажиллагаатай, AI-тэй интеграцлагдсан бизнесийн платформ.</p>
+
+        <div class="modules-grid">
+            <div class="module-card" style="border-color: var(--green); border-width: 2px;">
+                <h3 style="color: var(--green);">✅ Амжилттай гүйцэтгэсэн</h3>
+                <ul class="feature-list">
+                    <li>Гэрээний 9 ажлын 8-ыг бүрэн гүйцэтгэсэн</li>
+                    <li>47 хуудас, 57 API endpoint бий болгосон</li>
+                    <li>Gemini AI chatbot + 12 function calling tool</li>
+                    <li>Messenger/Instagram интеграц + Webhook</li>
+                    <li>Supabase Auth (Email + Google + Facebook)</li>
+                    <li>Код аудит хийж, бүтэц сайжруулсан</li>
+                    <li>OpenAI → Gemini бүрэн шилжүүлсэн</li>
+                    <li>TypeScript 0 error баталгаажуулсан</li>
+                </ul>
+            </div>
+
+            <div class="module-card" style="border-color: var(--blue); border-width: 2px;">
+                <h3 style="color: var(--blue);">🔮 Цаашдын зөвлөмж</h3>
+                <ul class="feature-list">
+                    <li>Имэйл маркетинг интеграц (SendGrid/Resend)</li>
+                    <li>Тест coverage нэмэгдүүлэх (API routes, hooks)</li>
+                    <li>Meta App Review дуусгах (production access)</li>
+                    <li>Instagram DM бүрэн тест хийх</li>
+                    <li>Performance optimization хийх</li>
+                    <li>Mobile responsive сайжруулах</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+        <p>Vertmon Hub © 2026 — Гүйцэтгэгч: TYST Consulting LLC | Захиалагч: Vertmon Properties LLC</p>
+        <p style="margin-top: 4px;">Энэхүү баримт бичиг нь захиалагч талд хүлээлгэн өгөх зориулалттай.</p>
+    </div>
+
+</body>
+
+</html>

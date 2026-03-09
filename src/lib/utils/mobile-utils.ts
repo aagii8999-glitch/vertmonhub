@@ -1,5 +1,5 @@
 /**
- * Mobile utility functions for SmartHub
+ * Mobile utility functions for Vertmon Hub
  */
 
 // Device detection

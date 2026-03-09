@@ -1,0 +1,340 @@
+{
+    "source": "moncon.mn / mandalatower.mn / mandalagarden.mn",
+    "scraped_at": "2026-03-09T18:05:00+08:00",
+    "company": {
+        "name": "Монкон Групп ХХК",
+        "website": "https://moncon.mn",
+        "phone": "7533-0000",
+        "email": "sales@mandalatower.mn"
+    },
+    "projects": [
+        {
+            "name": "365 Мандала Тауэр",
+            "type": "apartment",
+            "description": "Өндөр зэрэглэлийн орон сууцны хос цамхагийн нэг. Испани, Монгол архитекторуудын ур ухаан шингэсэн, инженерингийн тэргүүлэх шийдэл бүхий өндөр зэрэглэлийн орон сууц.",
+            "address": "Хан-Уул дүүрэг, Чингисийн өргөн чөлөө",
+            "district": "Хан-Уул",
+            "city": "Улаанбаатар",
+            "total_area_sqm": 32087,
+            "total_units": 105,
+            "floors": 25,
+            "website": "https://mandalatower.mn/365",
+            "amenities": [
+                "elevator",
+                "parking_underground",
+                "security_24h",
+                "cctv",
+                "lobby",
+                "gym",
+                "pool",
+                "ventilation",
+                "fiber_internet",
+                "generator"
+            ],
+            "smart_home": "G4 System (агааржуулалт, хөшиг, гэрэлтүүлэг, ус алдалт мэдрэгч, камер, утсаар удирдлага)",
+            "nearby": [
+                {
+                    "name": "Hobby School of Ulaanbaatar",
+                    "distance": "1.2км",
+                    "type": "school"
+                },
+                {
+                    "name": "Олонлог Академи",
+                    "distance": "600м",
+                    "type": "school"
+                },
+                {
+                    "name": "Home Plaza",
+                    "distance": "600м",
+                    "type": "mall"
+                },
+                {
+                    "name": "Оргил Супермаркет",
+                    "distance": "400м",
+                    "type": "mall"
+                },
+                {
+                    "name": "Park Od Mall",
+                    "distance": "700м",
+                    "type": "mall"
+                },
+                {
+                    "name": "Үндэсний Цэцэрлэгт Хүрээлэн",
+                    "distance": "850м",
+                    "type": "park"
+                },
+                {
+                    "name": "ISU - International School of UB",
+                    "distance": "1.1км",
+                    "type": "school"
+                },
+                {
+                    "name": "Орчлон Олон Улсын Сургууль",
+                    "distance": "800м",
+                    "type": "school"
+                }
+            ],
+            "units": [
+                {
+                    "code": "E08",
+                    "rooms": 3,
+                    "size_sqm": 132.60,
+                    "floors_available": "5-18 давхарт",
+                    "view_direction": "Баруун, Хойшоо",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/401050"
+                },
+                {
+                    "code": "E09",
+                    "rooms": 4,
+                    "size_sqm": 181.70,
+                    "floors_available": "5-18 давхарт",
+                    "view_direction": "Зүүн, Хойшоо",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/401071"
+                },
+                {
+                    "code": "E11",
+                    "rooms": 5,
+                    "size_sqm": 253.69,
+                    "floors_available": "19-24 давхарт",
+                    "view_direction": "Урагшаа, Баруун",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/401076"
+                },
+                {
+                    "code": "E01",
+                    "rooms": 3,
+                    "size_sqm": 120.00,
+                    "floors_available": "5-18 давхарт",
+                    "view_direction": "Урагшаа",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/401022"
+                },
+                {
+                    "code": "E02",
+                    "rooms": 3,
+                    "size_sqm": 115.00,
+                    "floors_available": "5-18 давхарт",
+                    "view_direction": "Баруун",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/401002"
+                },
+                {
+                    "code": "E03",
+                    "rooms": 4,
+                    "size_sqm": 165.00,
+                    "floors_available": "5-18 давхарт",
+                    "view_direction": "Урагшаа, Зүүн",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/393157"
+                },
+                {
+                    "code": "E04",
+                    "rooms": 4,
+                    "size_sqm": 175.00,
+                    "floors_available": "5-18 давхарт",
+                    "view_direction": "Зүүн",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/401634"
+                },
+                {
+                    "code": "E05",
+                    "rooms": 5,
+                    "size_sqm": 230.00,
+                    "floors_available": "19-24 давхарт",
+                    "view_direction": "Урагшаа, Баруун",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/401037"
+                },
+                {
+                    "code": "E06",
+                    "rooms": 5,
+                    "size_sqm": 245.00,
+                    "floors_available": "19-24 давхарт",
+                    "view_direction": "Баруун",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/400722"
+                }
+            ]
+        },
+        {
+            "name": "360 Мандала Тауэр",
+            "type": "apartment",
+            "description": "Өндөр зэрэглэлийн орон сууцны хос цамхагийн нэг. BMS систем, навчин хэлбэртэй барилга, дэлхийн жишиг аюулгүй байдлын стандарт. Нисдэг тэрэгний зогсоолтой.",
+            "address": "Хан-Уул дүүрэг, Чингисийн өргөн чөлөө",
+            "district": "Хан-Уул",
+            "city": "Улаанбаатар",
+            "total_area_sqm": 32088,
+            "total_units": 105,
+            "floors": 27,
+            "website": "https://mandalatower.mn/360",
+            "amenities": [
+                "elevator",
+                "parking_underground",
+                "security_24h",
+                "cctv",
+                "lobby",
+                "gym",
+                "pool",
+                "ventilation",
+                "fiber_internet",
+                "generator"
+            ],
+            "smart_home": "G4 System",
+            "units": [
+                {
+                    "code": "C18",
+                    "rooms": 5,
+                    "type": "duplex",
+                    "size_sqm": 370.82,
+                    "floors_available": "24, 25 давхарт",
+                    "view_direction": "Хойш, Баруун хойш",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/409474"
+                },
+                {
+                    "code": "C01",
+                    "rooms": 5,
+                    "type": "duplex",
+                    "size_sqm": 350.00,
+                    "floors_available": "24, 25 давхарт",
+                    "view_direction": "Урагшаа",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/409375"
+                },
+                {
+                    "code": "C10",
+                    "rooms": 3,
+                    "size_sqm": 128.00,
+                    "floors_available": "5-23 давхарт",
+                    "view_direction": "Урагшаа",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/409455"
+                },
+                {
+                    "code": "C11",
+                    "rooms": 3,
+                    "size_sqm": 135.00,
+                    "floors_available": "5-23 давхарт",
+                    "view_direction": "Баруун",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/405563"
+                },
+                {
+                    "code": "C12",
+                    "rooms": 4,
+                    "size_sqm": 168.00,
+                    "floors_available": "5-23 давхарт",
+                    "view_direction": "Зүүн, Урагшаа",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/405620"
+                },
+                {
+                    "code": "C13",
+                    "rooms": 4,
+                    "size_sqm": 172.00,
+                    "floors_available": "5-23 давхарт",
+                    "view_direction": "Хойшоо",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/405619"
+                },
+                {
+                    "code": "C14",
+                    "rooms": 4,
+                    "size_sqm": 185.00,
+                    "floors_available": "5-23 давхарт",
+                    "view_direction": "Баруун, Урагшаа",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/405618"
+                },
+                {
+                    "code": "C15",
+                    "rooms": 5,
+                    "size_sqm": 248.00,
+                    "floors_available": "19-23 давхарт",
+                    "view_direction": "Урагшаа, Зүүн",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/405617"
+                },
+                {
+                    "code": "C16",
+                    "rooms": 5,
+                    "size_sqm": 260.00,
+                    "floors_available": "19-23 давхарт",
+                    "view_direction": "Баруун",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/405616"
+                },
+                {
+                    "code": "C17",
+                    "rooms": 5,
+                    "size_sqm": 265.00,
+                    "floors_available": "19-23 давхарт",
+                    "view_direction": "Урагшаа, Хойшоо",
+                    "status": "available",
+                    "url": "https://mandalatower.mn/product/395308"
+                }
+            ]
+        },
+        {
+            "name": "Мандала Гарден",
+            "type": "apartment",
+            "description": "Цогц төлөвлөлттэй анхны хороолол. Zoo Garden, Water Garden, Forest Garden гэсэн 3 бүсээс бүрдэнэ. Мандала Гарден нь Монголын анхны цогцолбор хороолол.",
+            "address": "Хан-Уул дүүрэг, 23-р хороо, Яармаг, Арцатын ам",
+            "district": "Хан-Уул",
+            "city": "Улаанбаатар",
+            "website": "https://mandalagarden.mn",
+            "phone": "+976 75758000",
+            "email": "info@mandalagarden.mn",
+            "amenities": [
+                "elevator",
+                "parking_underground",
+                "parking_outdoor",
+                "security_24h",
+                "cctv",
+                "garden",
+                "playground"
+            ],
+            "blocks": [
+                {
+                    "name": "Zoo Garden",
+                    "description": "Амьтны хүрээлэнгийн ойролцоо байрлалтай блок",
+                    "url": "https://mandalagarden.mn/zoo-garden"
+                },
+                {
+                    "name": "Water Garden",
+                    "description": "Усан орчинтой блок",
+                    "url": "https://mandalagarden.mn/water-garden"
+                },
+                {
+                    "name": "Forest Garden",
+                    "description": "Ойн орчинтой блок",
+                    "url": "https://mandalagarden.mn"
+                }
+            ]
+        },
+        {
+            "name": "Мандала Таун",
+            "type": "apartment",
+            "description": "Дэвжих амьдралын үндэс...",
+            "district": "Хан-Уул",
+            "city": "Улаанбаатар",
+            "website": "https://moncon.mn"
+        }
+    ],
+    "facilities_shared": {
+        "365_360_mandala_tower": [
+            "Хурлын өрөө (Онлайн/Оффлайн)",
+            "Community Space (тайз, том дэлгэц, террас, гал тогоо)",
+            "Фитнесс Заал (3-р давхарт)",
+            "Усан Бассейн",
+            "Террас (байгалийн үзэмжтэй)",
+            "Тоглоомын өрөө (хүүхдэд зориулсан)",
+            "Нисдэг Тэрэгний Зогсоол (дээвэр)",
+            "ERV + AC систем (4 улирал цэвэр агаар)",
+            "BMS систем (барилгын бүх удирдлага)",
+            "G4 Smart Home (утсаар удирдах)"
+        ]
+    }
+}

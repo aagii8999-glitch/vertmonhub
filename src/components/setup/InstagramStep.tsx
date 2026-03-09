@@ -217,7 +217,7 @@ export function InstagramStep({
                                     <li>
                                         Webhook URL:
                                         <code className="bg-white px-2 py-0.5 rounded text-xs border border-purple-200 select-all ml-1">
-                                            https://smarthub-opal.vercel.app/api/webhook
+                                            https://vertmonhub.vercel.app/api/webhook
                                         </code>
                                     </li>
                                     <li>Webhook fields: <code className="bg-white px-1 py-0.5 rounded text-xs border border-purple-200">messages</code> subscribe хийнэ</li>

@@ -42,7 +42,7 @@ export function useOrders(dateRange?: { from: Date | undefined; to: Date | undef
 
             const res = await fetch(`/api/dashboard/orders?${params.toString()}`, {
                 headers: {
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 }
             });
             if (!res.ok) throw new Error('Failed to fetch orders');

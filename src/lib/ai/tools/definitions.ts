@@ -1,255 +1,142 @@
 /**
  * AI Tool Definitions for Vertmon Hub
  * Real Estate Platform AI Function Calling Tools
+ * Now using Gemini format (SchemaType)
  */
 
-import OpenAI from 'openai';
+import { SchemaType } from '@google/generative-ai';
 
 /**
- * All available AI tools for function calling
+ * All available AI tools for Gemini function calling
  */
-export const AI_TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const GEMINI_TOOLS: any[] = [
     // ============================================
     // REAL ESTATE TOOLS
     // ============================================
     {
-        type: 'function',
-        function: {
-            name: 'search_properties',
-            description: 'Хэрэглэгчийн хүсэлтээр үл хөдлөх хөрөнгө хайх. Үнэ, хэмжээ, өрөөний тоо, байршил зэргээр шүүж болно.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    type: {
-                        type: 'string',
-                        enum: ['apartment', 'house', 'office', 'land', 'commercial'],
-                        description: 'Үл хөдлөхийн төрөл'
-                    },
-                    min_price: {
-                        type: 'number',
-                        description: 'Хамгийн бага үнэ (MNT)'
-                    },
-                    max_price: {
-                        type: 'number',
-                        description: 'Хамгийн их үнэ (MNT)'
-                    },
-                    rooms: {
-                        type: 'number',
-                        description: 'Өрөөний тоо'
-                    },
-                    district: {
-                        type: 'string',
-                        description: 'Дүүрэг/Байршил (ЧД, БЗД, СХД, ХУД гэх мэт)'
-                    },
-                    min_size: {
-                        type: 'number',
-                        description: 'Хамгийн бага талбай (м²)'
-                    },
-                    max_size: {
-                        type: 'number',
-                        description: 'Хамгийн их талбай (м²)'
-                    },
-                    limit: {
-                        type: 'number',
-                        description: 'Хэдэн үр дүн харуулах (default: 5)'
-                    }
+        name: 'search_properties',
+        description: 'Хэрэглэгчийн хүсэлтээр үл хөдлөх хөрөнгө хайх. Үнэ, хэмжээ, өрөөний тоо, байршил зэргээр шүүж болно.',
+        parameters: {
+            type: SchemaType.OBJECT,
+            properties: {
+                type: {
+                    type: SchemaType.STRING,
+                    enum: ['apartment', 'house', 'office', 'land', 'commercial'],
+                    description: 'Үл хөдлөхийн төрөл'
                 },
-                required: []
+                min_price: { type: SchemaType.NUMBER, description: 'Доод үнэ (MNT)' },
+                max_price: { type: SchemaType.NUMBER, description: 'Дээд үнэ (MNT)' },
+                rooms: { type: SchemaType.NUMBER, description: 'Өрөөний тоо' },
+                district: { type: SchemaType.STRING, description: 'Дүүрэг/байршил' },
+                min_size: { type: SchemaType.NUMBER, description: 'Доод хэмжээ (м²)' },
+                max_size: { type: SchemaType.NUMBER, description: 'Дээд хэмжээ (м²)' },
+                limit: { type: SchemaType.NUMBER, description: 'Хэдэн үр дүн харуулах (default: 5)' }
             }
         }
     },
     {
-        type: 'function',
-        function: {
-            name: 'show_property_images',
-            description: 'Тодорхой үл хөдлөхийн зураг харуулах. Хэрэглэгч зураг үзэхийг хүссэн үед.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    property_id: {
-                        type: 'string',
-                        description: 'Үл хөдлөхийн ID'
-                    },
-                    property_name: {
-                        type: 'string',
-                        description: 'Үл хөдлөхийн нэр (ID байхгүй бол)'
-                    }
-                },
-                required: []
+        name: 'show_property_images',
+        description: 'Тодорхой үл хөдлөхийн зураг харуулах.',
+        parameters: {
+            type: SchemaType.OBJECT,
+            properties: {
+                property_id: { type: SchemaType.STRING, description: 'Үл хөдлөхийн ID' },
+                property_name: { type: SchemaType.STRING, description: 'Үл хөдлөхийн нэр (ID байхгүй бол)' }
             }
         }
     },
     {
-        type: 'function',
-        function: {
-            name: 'calculate_loan',
-            description: 'Ипотекийн зээлийн сарын төлбөр тооцоолох. Хэрэглэгч зээлийн тооцоо асуухад ашиглана.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    amount: {
-                        type: 'number',
-                        description: 'Зээлийн дүн (MNT)'
-                    },
-                    rate: {
-                        type: 'number',
-                        description: 'Жилийн хүү (%, жишээ: 12.5)'
-                    },
-                    years: {
-                        type: 'number',
-                        description: 'Зээлийн хугацаа (жил)'
-                    },
-                    down_payment: {
-                        type: 'number',
-                        description: 'Урьдчилгаа төлбөр (MNT, optional)'
-                    }
-                },
-                required: ['amount', 'years']
-            }
+        name: 'calculate_loan',
+        description: 'Орон сууцны зээлийн тооцоолол. Сарын төлбөр, нийт дүн тооцох.',
+        parameters: {
+            type: SchemaType.OBJECT,
+            properties: {
+                amount: { type: SchemaType.NUMBER, description: 'Зээлийн хэмжээ (MNT)' },
+                rate: { type: SchemaType.NUMBER, description: 'Жилийн хүү (%, default: 12)' },
+                years: { type: SchemaType.NUMBER, description: 'Зээлийн хугацаа (жил)' },
+                down_payment: { type: SchemaType.NUMBER, description: 'Урьдчилгаа төлбөр (MNT, optional)' }
+            },
+            required: ['amount', 'years']
         }
     },
     {
-        type: 'function',
-        function: {
-            name: 'schedule_viewing',
-            description: 'Үл хөдлөх үзэх уулзалт товлох. Хэрэглэгч үзлэг хийхийг хүссэн үед.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    property_id: {
-                        type: 'string',
-                        description: 'Үл хөдлөхийн ID'
-                    },
-                    property_name: {
-                        type: 'string',
-                        description: 'Үл хөдлөхийн нэр (ID байхгүй бол)'
-                    },
-                    preferred_date: {
-                        type: 'string',
-                        description: 'Хүссэн огноо (YYYY-MM-DD эсвэл "маргааш", "ирэх долоо хоногт")'
-                    },
-                    preferred_time: {
-                        type: 'string',
-                        description: 'Хүссэн цаг (10:00, өглөө, үдээс хойш гэх мэт)'
-                    },
-                    customer_phone: {
-                        type: 'string',
-                        description: 'Хэрэглэгчийн утас'
-                    }
-                },
-                required: ['property_name']
-            }
+        name: 'schedule_viewing',
+        description: 'Үл хөдлөх үзэх уулзалт товлох. Хэрэглэгч үзлэг хийхийг хүссэн үед.',
+        parameters: {
+            type: SchemaType.OBJECT,
+            properties: {
+                property_id: { type: SchemaType.STRING, description: 'Үл хөдлөхийн ID' },
+                property_name: { type: SchemaType.STRING, description: 'Үл хөдлөхийн нэр' },
+                preferred_date: { type: SchemaType.STRING, description: 'Хүссэн огноо (YYYY-MM-DD)' },
+                preferred_time: { type: SchemaType.STRING, description: 'Хүссэн цаг' },
+                customer_phone: { type: SchemaType.STRING, description: 'Хэрэглэгчийн утас' }
+            },
+            required: ['property_name']
         }
     },
     {
-        type: 'function',
-        function: {
-            name: 'create_lead',
-            description: 'Шинэ lead/сонирхогч үүсгэх. Хэрэглэгч үл хөдлөхийн талаар сонирхол илэрхийлэхэд автоматаар үүсгэнэ.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    property_id: {
-                        type: 'string',
-                        description: 'Сонирхсон үл хөдлөхийн ID'
-                    },
-                    budget_min: {
-                        type: 'number',
-                        description: 'Төсвийн доод хязгаар'
-                    },
-                    budget_max: {
-                        type: 'number',
-                        description: 'Төсвийн дээд хязгаар'
-                    },
-                    preferred_type: {
-                        type: 'string',
-                        enum: ['apartment', 'house', 'office', 'land', 'commercial'],
-                        description: 'Хүссэн төрөл'
-                    },
-                    preferred_district: {
-                        type: 'string',
-                        description: 'Хүссэн байршил'
-                    },
-                    preferred_rooms: {
-                        type: 'number',
-                        description: 'Хүссэн өрөөний тоо'
-                    },
-                    notes: {
-                        type: 'string',
-                        description: 'Нэмэлт тэмдэглэл'
-                    }
+        name: 'create_lead',
+        description: 'Шинэ lead/сонирхогч үүсгэх. Хэрэглэгч үл хөдлөхийн талаар сонирхол илэрхийлэхэд автоматаар үүсгэнэ.',
+        parameters: {
+            type: SchemaType.OBJECT,
+            properties: {
+                property_id: { type: SchemaType.STRING, description: 'Сонирхсон үл хөдлөхийн ID' },
+                budget_min: { type: SchemaType.NUMBER, description: 'Төсвийн доод хязгаар (MNT)' },
+                budget_max: { type: SchemaType.NUMBER, description: 'Төсвийн дээд хязгаар (MNT)' },
+                preferred_type: {
+                    type: SchemaType.STRING,
+                    enum: ['apartment', 'house', 'office', 'land', 'commercial'],
+                    description: 'Сонирхсон төрөл'
                 },
-                required: []
+                preferred_district: { type: SchemaType.STRING, description: 'Сонирхсон байршил' },
+                preferred_rooms: { type: SchemaType.NUMBER, description: 'Хүссэн өрөөний тоо' },
+                notes: { type: SchemaType.STRING, description: 'Нэмэлт тэмдэглэл' }
             }
         }
     },
     // ============================================
-    // GENERAL TOOLS (Keep from original)
+    // GENERAL TOOLS
     // ============================================
     {
-        type: 'function',
-        function: {
-            name: 'collect_contact_info',
-            description: 'Хэрэглэгчийн холбоо барих мэдээлэл хадгалах. Утас, имэйл, хаяг өгөхөд ашиглана.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    phone: {
-                        type: 'string',
-                        description: 'Утасны дугаар (8 оронтой)'
-                    },
-                    email: {
-                        type: 'string',
-                        description: 'Имэйл хаяг'
-                    },
-                    name: {
-                        type: 'string',
-                        description: 'Хэрэглэгчийн нэр'
-                    }
-                },
-                required: []
+        name: 'collect_contact_info',
+        description: 'Хэрэглэгчийн холбоо барих мэдээлэл цуглуулах. Утас, имэйл, нэр.',
+        parameters: {
+            type: SchemaType.OBJECT,
+            properties: {
+                phone: { type: SchemaType.STRING, description: 'Утасны дугаар' },
+                email: { type: SchemaType.STRING, description: 'Имэйл хаяг' },
+                name: { type: SchemaType.STRING, description: 'Хэрэглэгчийн нэр' }
             }
         }
     },
     {
-        type: 'function',
-        function: {
-            name: 'request_human_support',
-            description: 'Хүнтэй холбогдохыг хүссэн үед. Оператор, менежер, хүн гэх мэт.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    reason: {
-                        type: 'string',
-                        description: 'Шалтгаан'
-                    }
-                },
-                required: ['reason']
-            }
+        name: 'request_human_support',
+        description: 'Хүнтэй холбогдохыг хүссэн үед. Оператор, менежер, хүн гэх мэт.',
+        parameters: {
+            type: SchemaType.OBJECT,
+            properties: {
+                reason: { type: SchemaType.STRING, description: 'Хүсэлтийн шалтгаан' }
+            },
+            required: ['reason']
         }
     },
     {
-        type: 'function',
-        function: {
-            name: 'remember_preference',
-            description: 'Хэрэглэгчийн сонголтыг санах. Төсөв, байршил, өрөөний тоо гэх мэт.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    key: {
-                        type: 'string',
-                        description: 'Сонголтын төрөл (budget, location, rooms, type)'
-                    },
-                    value: {
-                        type: 'string',
-                        description: 'Санах утга'
-                    }
-                },
-                required: ['key', 'value']
-            }
+        name: 'remember_preference',
+        description: 'Хэрэглэгчийн сонголт, давуу талыг санах.',
+        parameters: {
+            type: SchemaType.OBJECT,
+            properties: {
+                key: { type: SchemaType.STRING, description: 'Санах түлхүүр' },
+                value: { type: SchemaType.STRING, description: 'Санах утга' }
+            },
+            required: ['key', 'value']
         }
     }
 ];
+
+// Keep backward compat alias
+export const AI_TOOLS = GEMINI_TOOLS;
 
 // ============================================
 // TOOL ARGUMENT INTERFACES

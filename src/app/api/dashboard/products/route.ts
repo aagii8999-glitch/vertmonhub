@@ -71,7 +71,8 @@ export async function POST(request: Request) {
         available_days: validData.availableDays,
         start_time: validData.startTime,
         end_time: validData.endTime,
-        max_bookings_per_day: validData.maxBookingsPerDay
+        max_bookings_per_day: validData.maxBookingsPerDay,
+        conditions: validData.conditions
       }])
       .select()
       .single();
@@ -138,6 +139,7 @@ export async function PATCH(request: Request) {
     if (validData.startTime !== undefined) dbUpdates.start_time = validData.startTime;
     if (validData.endTime !== undefined) dbUpdates.end_time = validData.endTime;
     if (validData.maxBookingsPerDay !== undefined) dbUpdates.max_bookings_per_day = validData.maxBookingsPerDay;
+    if (validData.conditions !== undefined) dbUpdates.conditions = validData.conditions;
 
     const { data, error } = await supabase
       .from('products')

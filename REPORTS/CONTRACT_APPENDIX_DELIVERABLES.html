@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гэрээний Хавсралт - Vertmon Hub</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #1a1a2e;
+            background: #fff;
+            padding: 60px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        
+        @media print {
+            body {
+                padding: 40px;
+            }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 3px solid #1a1a2e;
+        }
+        
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+        }
+        
+        .header .subtitle {
+            font-size: 16px;
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 36px;
+            font-size: 13px;
+            color: #555;
+        }
+        
+        .meta-info .left, .meta-info .right {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .meta-info strong {
+            color: #1a1a2e;
+        }
+        
+        .section {
+            margin-bottom: 36px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-number {
+            background: #1a1a2e;
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+        
+        thead th {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        thead th:first-child {
+            width: 50px;
+            text-align: center;
+            border-radius: 6px 0 0 0;
+        }
+        
+        thead th:nth-child(2) {
+            width: 240px;
+        }
+        
+        thead th:last-child {
+            border-radius: 0 6px 0 0;
+        }
+        
+        tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: 13px;
+        }
+        
+        tbody td:first-child {
+            text-align: center;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        
+        tbody td:nth-child(2) {
+            font-weight: 500;
+        }
+        
+        tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        tbody tr:hover {
+            background: #f0f1f3;
+        }
+        
+        tbody tr:last-child td:first-child {
+            border-radius: 0 0 0 6px;
+        }
+        
+        tbody tr:last-child td:last-child {
+            border-radius: 0 0 6px 0;
+        }
+        
+        .summary-box {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin: 32px 0;
+        }
+        
+        .summary-box .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        
+        .summary-box .row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 15px;
+            padding-top: 12px;
+        }
+        
+        .signature-section {
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .signature-block {
+            width: 45%;
+        }
+        
+        .signature-block .label {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+        }
+        
+        .signature-line {
+            border-bottom: 1px solid #333;
+            height: 50px;
+            margin-bottom: 6px;
+        }
+        
+        .signature-block .sub-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .footer-note {
+            margin-top: 40px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>ГЭРЭЭНИЙ ХАВСРАЛТ</h1>
+        <div class="subtitle">Гүйцэтгэх ажлуудын жагсаалт</div>
+    </div>
+    
+    <div class="meta-info">
+        <div class="left">
+            <div><strong>Платформ:</strong> Vertmon Hub</div>
+            <div><strong>Хувилбар:</strong> 1.0</div>
+        </div>
+        <div class="right">
+            <div><strong>Огноо:</strong> 2026 оны 2-р сарын 16</div>
+            <div><strong>Баримтын дугаар:</strong> VH-APP-001</div>
+        </div>
+    </div>
+
+    <!-- Section 1: CRM Module -->
+    <div class="section">
+        <div class="section-title">
+            <span class="section-number">1</span>
+            Борлуулалтын модуль (CRM)
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Гүйцэтгэх ажил</th>
+                    <th>Тайлбар</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Database бэлдэх</td>
+                    <td>Системийн үндсэн өгөгдлийн сангийн бүтэц боловсруулах</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Data синк хийх</td>
+                    <td>Өгөгдөл импорт, синк тохируулах</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Өгөгдөл ангилах (Sort)</td>
+                    <td>Харилцагч, борлуулалтын мэдээлэл ангилах логик</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Бүтээгдэхүүний цэс үүсгэх</td>
+                    <td>Бүтээгдэхүүн/үйлчилгээ бүртгэлийн модуль</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Data аналитик хийх</td>
+                    <td>Борлуулалтын дата анализ, тайлангийн суурь бэлтгэх</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Section 2: Marketing Module -->
+    <div class="section">
+        <div class="section-title">
+            <span class="section-number">2</span>
+            Маркетингийн модуль
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Гүйцэтгэх ажил</th>
+                    <th>Тайлбар</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>AI Agent үүсгэх</td>
+                    <td>AI туслах / chatbot суурь хөгжүүлэлт</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>IF (Automation) холбох</td>
+                    <td>Автомат workflow, trigger тохируулах</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Facebook апп холболт</td>
+                    <td>Facebook мэдээлэл татах интеграц</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Имэйл платформ холболт</td>
+                    <td>Мэйл маркетинг систем интеграц</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-box">
+        <div class="row">
+            <span>Борлуулалтын модуль (CRM)</span>
+            <span>5 ажил</span>
+        </div>
+        <div class="row">
+            <span>Маркетингийн модуль</span>
+            <span>4 ажил</span>
+        </div>
+        <div class="row">
+            <span>Нийт гүйцэтгэх ажил</span>
+            <span>9 ажил</span>
+        </div>
+    </div>
+
+    <!-- Signatures -->
+    <div class="signature-section">
+        <div class="signature-block">
+            <div class="label">Захиалагч:</div>
+            <div class="signature-line"></div>
+            <div class="sub-label">/Нэр, гарын үсэг/</div>
+        </div>
+        <div class="signature-block">
+            <div class="label">Гүйцэтгэгч:</div>
+            <div class="signature-line"></div>
+            <div class="sub-label">/Нэр, гарын үсэг/</div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        Энэхүү хавсралт нь гэрээний салшгүй хэсэг болно.
+    </div>
+
+</body>
+</html>

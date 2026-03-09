@@ -12,11 +12,18 @@ export {
     type RouterResponse,
 } from './AIRouter';
 
-// Plan configuration
+// AI Configuration (simplified — single config, no plans)
 export {
-    type PlanType,
     type AIProvider,
     type AIModel,
+    type AIConfig,
+    AI_CONFIG,
+    getAIConfig,
+    isToolEnabled,
+    getEnabledTools,
+    MODEL_DISPLAY_NAME,
+    // Legacy compatibility
+    type PlanType,
     type PlanAIConfig,
     PLAN_CONFIGS,
     getPlanConfig,
@@ -27,13 +34,6 @@ export {
     MODEL_DISPLAY_NAMES,
     PLAN_DISPLAY_NAMES,
 } from './config/plans';
-
-// Legacy exports (for backward compatibility)
-export {
-    generateChatResponse,
-    analyzeProductImage,
-    parseProductDataWithAI,
-} from './openai';
 
 // Services
 export { buildSystemPrompt } from './services/PromptService';

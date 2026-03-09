@@ -34,6 +34,8 @@ export interface Product {
     start_time: string | null;
     end_time: string | null;
     max_bookings_per_day: number | null;
+    // Dynamic Product Conditions
+    conditions?: { title: string, content: string }[];
 }
 
 interface ProductsResponse {
@@ -46,7 +48,7 @@ export function useProducts() {
         queryFn: async (): Promise<Product[]> => {
             const res = await fetch('/api/dashboard/products', {
                 headers: {
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 }
             });
             if (!res.ok) throw new Error('Failed to fetch products');
@@ -65,7 +67,7 @@ export function useCreateProduct() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 },
                 body: JSON.stringify(productData),
             });
@@ -90,7 +92,7 @@ export function useUpdateProduct() {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 },
                 body: JSON.stringify(productData),
             });
@@ -114,7 +116,7 @@ export function useDeleteProduct() {
             const res = await fetch(`/api/dashboard/products?id=${productId}`, {
                 method: 'DELETE',
                 headers: {
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 }
             });
             if (!res.ok) throw new Error('Failed to delete product');

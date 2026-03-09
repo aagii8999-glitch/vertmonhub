@@ -1,68 +1,87 @@
-# SmartHub 🚀
+# Vertmon Hub 🏢
 
-**AI-powered Facebook Messenger Sales Assistant**
+**AI-Powered Real Estate Sales & CRM Platform**
 
-> [!IMPORTANT]
-> **Production Ready** - Core features are fully functional. Payment integration and invoice generation recommended before launch.
-
-SmartHub нь жижиг, дунд бизнесүүдэд зориулсан ухаалаг борлуулалтын туслах систем юм. Facebook Messenger-ээр автоматаар захиалга авч, харилцагчтай харилцаж, борлуулалтын статистикийг харуулдаг.
+> Vertmon компанийн үл хөдлөх хөрөнгийн борлуулалт, CRM, маркетингийн дотоод удирдлагын платформ.
 
 ---
 
 ## ✨ Онцлог
 
-### 🤖 AI Чат Boть
-- **OpenAI GPT-4o** ашигласан ухаалаг харилцаа (Function Calling дэмжигдсэн)
-- Автоматаар бүтээгдэхүүний мэдээлэл өгөх
-- Захиалга автоматаар бүртгэх (AI Tools: create_order, add_to_cart, check_stock)
-- Харилцагчийн асуултад хариулах
+### 🤖 AI Борлуулагч
+- **Gemini 3 Pro** (Google) ашигласан ухаалаг харилцаа
+- 8 AI tool: байр хайх, зээлийн тооцоо, үзлэг товлох, lead үүсгэх
+- Харилцагчийн санах ой (Memory) — өмнөх сонирхлыг санаж ажиллана
 - Зураг таних (Vision API)
+- Монгол хэлний бүрэн дэмжлэг
 
-### 📊 Dashboard
-- Real-time статистик (өнөөдрийн захиалга, орлого, харилцагч)
-- Захиалга удирдах (pending → confirmed → shipped → delivered)
-- Бүтээгдэхүүн удирдах (CRUD)
-- Харилцагчийн мэдээлэл (VIP статус автоматаар)
-- Чат түүх харах
+### 🏠 Үл Хөдлөх Хөрөнгө
+- Байр, орон сууц, оффис, газрын бүртгэл
+- Төсөл, байршил, м.кв, давхар, өрөөний тоо
+- Зураг, виртуал тур, видео холбоос
+- Статус удирдлага (available / reserved / sold / rented)
 
-### 💾 Database
-- Supabase PostgreSQL
-- Auto-triggers (customer stats, VIP status)
-- Бодит цаг хугацаанд sync
+### 📋 CRM & Leads
+- Lead удирдлага (new → contacted → viewing → negotiating → closed)
+- Үзлэгийн бүртгэл (property viewings)
+- AI-аар lead scoring, talking points
+- HubSpot integration бэлтгэл
 
-### 🎨 Modern UI
-- Next.js 15 + React 19
-- Tailwind CSS
-- Responsive design
-- Сайхан gradient, animations
+### 📊 Dashboard (11 модуль)
+- Борлуулалтын статистик, графикууд
+- Харилцагчийн удирдлага (VIP автомат)
+- Захиалга, бүтээгдэхүүний CRUD
+- Тайлан, экспорт
+- Санал асуулга (Surveys)
+- AI тохиргоо (instructions, emotion, knowledge base)
+- **Role-Based Access (дүрээр хандалт хязгаарлана)**
+
+### 📈 Маркетинг (8 хуудас)
+- Кампанит ажил, зар сурталчилгаа
+- Сошиал медиа удирдлага
+- Мессеж, имэйл маркетинг
+- Бренд тохиргоо, хуанли
+
+### 🔔 Мэдэгдэл & Чат
+- Facebook Messenger webhook
+- Push notification (Web Push)
+- Бодит цагийн мэдэгдэл (Realtime)
+- Inbox — бүх ярилцлагыг нэг дороос
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Техникийн Стек
 
-- **Frontend:** Next.js 16, React 19, TypeScript
-- **Styling:** Tailwind CSS v4
-- **Database:** Supabase (PostgreSQL)
-- **AI:** OpenAI GPT-4o (Function Calling)
-- **Messenger:** Facebook Graph API
-- **Testing:** Vitest, React Testing Library
-- **Deployment:** Vercel
+| Технологи | Хувилбар | Зориулалт |
+|-----------|----------|-----------|
+| Next.js | 16.1 | Web framework (App Router) |
+| React | 19.2 | UI library |
+| TypeScript | 5.x | Type safety |
+| Supabase | SSR + Auth | Database + Auth + Storage |
+| TailwindCSS | v4 | Styling |
+| TanStack Query | v5 | Data fetching & caching |
+| Recharts | v3.7 | Charts & graphs |
+| Sentry | v10 | Error monitoring |
+| Resend | v6.7 | Email sending |
+| Zod | v4 | Schema validation |
+| Playwright | v1.58 | E2E testing |
+| Vitest | v4 | Unit testing |
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Clone & Install
+### 1. Install
 
 ```bash
 git clone <your-repo>
-cd smarthub
+cd vertmonhub
 npm install
 ```
 
 ### 2. Environment Setup
 
-`.env.local` файл үүсгэж дараах мэдээллийг нэмнэ:
+`.env.local` файл үүсгэх (`.env.local.example`-ыг жишиг болгох):
 
 ```bash
 # Supabase
@@ -70,160 +89,170 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
+# AI
+GEMINI_API_KEY=your_gemini_api_key
+
 # Facebook
+FACEBOOK_APP_ID=your_app_id
+FACEBOOK_APP_SECRET=your_app_secret
 FACEBOOK_PAGE_ACCESS_TOKEN=your_token
 FACEBOOK_VERIFY_TOKEN=your_verify_token
-FACEBOOK_APP_SECRET=your_app_secret
+FACEBOOK_PAGE_ID=your_page_id
 
-# OpenAI API
-OPENAI_API_KEY=your_openai_api_key
+# Sentry (optional)
+NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
 ```
 
 ### 3. Database Setup
 
-Дэлгэрэнгүй заавар: [SETUP_GUIDE.md](./SETUP_GUIDE.md)
+```bash
+# Supabase дээр project үүсгэсний дараа:
+# SQL Editor → supabase/vertmonhub_complete_setup.sql ажиллуулах
+# Дараа нь migrations/ дотор байгаа файлуудыг дарааллаар ажиллуулах
+```
 
-1. Supabase дээр project үүсгэх
-2. SQL Editor дээр `supabase/migrations/001_initial_schema.sql` ажиллуулах
-3. Demo өгөгдөл автоматаар үүснэ
-
-### 4. Run Development Server
+### 4. Run
 
 ```bash
 npm run dev
+# → http://localhost:3001
 ```
-
-[http://localhost:3000/dashboard](http://localhost:3000/dashboard) дээр орно
 
 ---
 
-## 📁 Project Structure
+## 📁 Төслийн Бүтэц
 
 ```
-smarthub/
+vertmonhub/
 ├── src/
 │   ├── app/
-│   │   ├── api/              # API routes
-│   │   │   ├── chat/         # Messenger webhook
-│   │   │   └── dashboard/    # Dashboard APIs
-│   │   ├── dashboard/        # Dashboard pages
-│   │   │   ├── page.tsx      # Main dashboard
-│   │   │   ├── products/     # Products page
-│   │   │   ├── customers/    # Customers page
-│   │   │   └── orders/       # Orders page
-│   │   └── odoo/             # Landing page
-│   ├── components/           # React components
-│   │   ├── dashboard/        # Dashboard components
-│   │   └── ui/               # Reusable UI components
-│   ├── lib/                  # Utilities
-│   │   ├── ai/               # Gemini AI integration
-│   │   ├── facebook/         # Messenger API
-│   │   └── supabase.ts       # Database client
-│   └── types/                # TypeScript types
+│   │   ├── dashboard/         # 14 модуль (leads, properties, viewings, contracts, ...)
+│   │   ├── api/               # 23 API route бүлэг
+│   │   ├── marketing/         # Маркетинг (8 хуудас)
+│   │   ├── admin/             # Админ панел
+│   │   └── auth/              # Нэвтрэх
+│   ├── components/            # UI компонентууд (63 файл)
+│   │   ├── dashboard/         # Dashboard-д зориулсан
+│   │   ├── cart/              # Сагсны систем
+│   │   ├── chat/              # Чат компонент
+│   │   └── ui/                # Дахин ашиглах UI (Button, Card, Badge...)
+│   ├── contexts/              # AuthContext (хэрэглэгч + role)
+│   ├── hooks/                 # React Query hooks (10)
+│   ├── lib/
+│   │   ├── ai/                # AI систем (30 файл)
+│   │   │   ├── AIRouter.ts    # AI чиглүүлэгч
+│   │   │   ├── gemini.ts      # Google Gemini интеграц
+│   │   │   ├── tools/         # 8 AI tool
+│   │   │   └── config/        # AI config (Gemini 3 Pro)
+│   │   ├── rbac.ts            # Дүрд суурилсан хандалт (RBAC)
+│   │   ├── services/          # Backend services (5)
+│   │   ├── webhook/           # FB/IG webhook
+│   │   └── utils/             # Utility functions
+│   ├── types/                 # TypeScript types
+│   └── middleware.ts          # Auth + Rate limiting middleware
 ├── supabase/
-│   └── migrations/           # Database schema
-└── public/                   # Static files
+│   ├── migrations/            # 52 migration файл
+│   └── vertmonhub_complete_setup.sql
+├── e2e/                       # Playwright тестүүд (8)
+├── docs/                      # Баримт бичгүүд
+│   ├── API_DOCUMENTATION.md
+│   ├── DEPLOYMENT.md
+│   ├── SETUP_GUIDE.md
+│   └── FRONTEND_DEVELOPER_GUIDE.md
+├── REPORTS/                   # Гэрээний тайлангууд
+└── scripts/                   # Utility скриптүүд
 ```
 
 ---
 
-## 🎯 Features Roadmap
+## 🗄️ Өгөгдлийн Сан (13+ хүснэгт)
 
-### ✅ Production Ready
-- [x] Dashboard UI
-- [x] Database schema  
-- [x] API routes
-- [x] Products CRUD
-- [x] Orders management
-- [x] Customers list with CRM
-- [x] VIP auto-detection
-- [x] Real-time stats
-- [x] **Facebook Messenger integration**
-- [x] **AI chatbot (Gemini + OpenAI)**
-- [x] **Webhook handling**
-- [x] **Auto stock management**
-
-### 📋 Recommended Next Steps
-- [ ] **Payment integration** (QPay, SocialPay)
-- [ ] **Invoice generation**
-- [ ] **Email notifications**
-- [ ] Analytics charts
-- [ ] Export to Excel
-- [ ] Multi-shop support
-- [ ] Mobile app
-
+| Хүснэгт | Тайлбар |
+|---------|---------|
+| `shops` | Компани / дэлгүүр (AI тохиргоо, FB/IG холболт) |
+| `properties` | Үл хөдлөх хөрөнгө (type, price, size, location, GPS) |
+| `leads` | Борлуулалтын lead (status pipeline, budget, preferences) |
+| `property_viewings` | Үзлэгийн бүртгэл |
+| `customers` | Харилцагчид (VIP, tags, order history) |
+| `orders` | Захиалга |
+| `order_items` | Захиалгын задаргаа |
+| `products` | Бүтээгдэхүүн |
+| `chat_history` | AI чат түүх |
+| `ai_memory` | AI санах ой (хэрэглэгчийн preference) |
+| `user_roles` | Ажилчдын дүр (admin, sales_manager, marketing, viewer) |
+| `admins` | Админ хэрэглэгчид |
 
 ---
 
-## 📊 Database Schema
+## 🤖 AI Тохиргоо
 
-### Tables
-
-**shops** - Дэлгүүрүүд
-- id, name, facebook_page_id, owner_name, phone
-
-**products** - Бүтээгдэхүүнүүд
-- id, shop_id, name, description, price, stock, is_active
-
-**customers** - Харилцагчид
-- id, shop_id, name, phone, address, total_orders, total_spent, is_vip
-
-**orders** - Захиалгууд
-- id, shop_id, customer_id, status, total_amount, delivery_address
-
-**order_items** - Захиалгын бараа
-- id, order_id, product_id, quantity, unit_price
-
-**chat_history** - Чат түүх
-- id, shop_id, customer_id, message, response, intent
+**Model:** Gemini 3 Pro (Google) — бүх ажилчдад бүрэн хандалт  
+**Max Tokens:** 1,500  
+**Features:** Tool calling, Vision, Memory, Sales Intelligence  
+**Backend model:** `gemini-2.5-flash` (Google API)
 
 ---
 
-## 🔐 Security
+## 🔐 Ажилчдын Дүр (RBAC)
 
-- Environment variables хамгаалалттай
-- Supabase Row Level Security (RLS) ашиглах боломжтой
-- Service role key server-side only
-- API routes protected
-
----
-
-## 📱 Demo
-
-**Demo дэлгүүр:** Demo Дэлгүүр
-- 5 бүтээгдэхүүн
-- 4 харилцагч (2 VIP)
-- Бодит статистик
+| Дүр | Тайлбар | Хандалт |
+|------|---------|--------|
+| `admin` | Админ | Бүх модуль, засах/устгах эрх, админ панел |
+| `sales_manager` | Борлуулалтын менежер | Properties, Leads, Customers, Orders, AI Assistant, Reports |
+| `marketing` | Маркетинг | Marketing, Surveys, Reports, AI Assistant, AI Settings |
+| `viewer` | Зөвхөн харагч | Dashboard (зөвхөн унших), Reports |
 
 ---
 
-## 🤝 Contributing
+## 🧪 Тест
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+```bash
+# Unit тест
+npm run test
+
+# Type шалгалт
+npm run typecheck
+
+# E2E тест
+npx playwright test
+
+# Lint
+npm run lint
+```
 
 ---
 
-## 📄 License
+## 📦 Deploy
+
+Vercel дээр deploy хийнэ. Дэлгэрэнгүй: [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
+
+```bash
+npm run build
+```
+
+---
+
+## 🔐 Аюулгүй Байдал
+
+- Supabase Row Level Security (RLS) бүрэн хэрэгжсэн
+- **Role-Based Access Control (RBAC)** — `user_roles` хүснэгтээр
+- Server-side service role key хамгаалалт
+- Auth middleware бүх API route-д
+- Sentry error tracking
+- Environment variables хамгаалалт
+
+---
+
+## 📄 Лиценз
 
 MIT License
 
 ---
 
-## 📞 Support
+## 📞 Холбоо Барих
 
 Асуулт, санал байвал issue үүсгэнэ үү.
 
 ---
 
-## 🙏 Credits
-
-Built with ❤️ using:
-- [Next.js](https://nextjs.org)
-- [Supabase](https://supabase.com)
-- [Google Gemini](https://ai.google.dev)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Lucide Icons](https://lucide.dev)
-
----
-
-**Happy Selling! 🎉**
+Built with ❤️ using [Next.js](https://nextjs.org) · [Supabase](https://supabase.com) · [Google Gemini](https://ai.google.dev) · [Tailwind CSS](https://tailwindcss.com)

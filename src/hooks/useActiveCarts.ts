@@ -28,11 +28,11 @@ export interface ActiveCart {
 async function fetchActiveCarts(): Promise<ActiveCart[]> {
     const res = await fetch('/api/dashboard/active-carts', {
         headers: {
-            'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+            'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
         }
     });
     if (!res.ok) {
-        throw new Error('Failed to fetch active carts');
+        throw new Error('Идэвхтэй сагс татахад алдаа гарлаа');
     }
     const data = await res.json();
     return data.carts || [];

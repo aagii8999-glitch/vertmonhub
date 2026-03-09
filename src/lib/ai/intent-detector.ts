@@ -7,6 +7,8 @@ export type IntentType =
     | 'GREETING'           // Мэндчилгээ
     | 'THANK_YOU'          // Баярлалаа
     | 'COMPLAINT'          // Гомдол
+    | 'PURCHASE_SIGNAL'    // Худалдан авах өндөр магадлал (Hot Lead)
+    | 'URGENT_COMPLAINT'   // Яаралтай гомдол, уурласан
     | 'GENERAL_CHAT';      // Ерөнхий яриа
 
 export interface IntentResult {
@@ -76,6 +78,21 @@ const INTENT_PATTERNS: Record<IntentType, RegExp[]> = {
         /буруу/i,
         /муу/i,
         /сэтгэл дундуур/i,
+    ],
+    PURCHASE_SIGNAL: [
+        /яг одоо авах/i,
+        /худалдан авах/i,
+        /мөнгө шилжүүлэх/i,
+        /дансаа явуулаач/i,
+        /хаана очиж авах/i,
+        /шууд авъя/i,
+    ],
+    URGENT_COMPLAINT: [
+        /шууд мөнгөө авъя/i,
+        /лугйвар/i,
+        /залилан/i,
+        /шүүхэд өгнө/i,
+        /цагдаа/i,
     ],
     GENERAL_CHAT: [],
 };

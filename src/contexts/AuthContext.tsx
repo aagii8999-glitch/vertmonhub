@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import type { User, Session } from '@supabase/supabase-js';
+import type { UserRole } from '@/lib/rbac';
 
 const isDev = process.env.NODE_ENV === 'development';
 const ACTIVE_SHOP_KEY = 'vertmonhub_active_shop_id';
@@ -36,7 +37,7 @@ export interface Shop {
 }
 
 interface AuthContextType {
-  user: { id: string; email: string; fullName: string | null } | null;
+  user: { id: string; email: string; fullName: string | null; role: UserRole } | null;
   shop: Shop | null;
   shops: Shop[];
   loading: boolean;
@@ -64,7 +65,7 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [supabase] = useState(() => createClient());
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<{ id: string; email: string; fullName: string | null } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; fullName: string | null; role: UserRole } | null>(null);
   const [shop, setShop] = useState<Shop | null>(null);
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,6 +85,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return [];
     }
   }, [session]);
+
+  // Fetch user role from user_roles table
+  const fetchUserRole = useCallback(async (userId: string): Promise<UserRole> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+
+      if (error || !data) return 'viewer'; // default role
+      return data.role as UserRole;
+    } catch {
+      return 'viewer';
+    }
+  }, [supabase]);
 
   // Set active shop (with localStorage persistence)
   const setActiveShop = useCallback((shopData: Shop | null) => {
@@ -150,13 +167,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Listen for auth state changes
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
+        const role = await fetchUserRole(session.user.id);
         setUser({
           id: session.user.id,
           email: session.user.email || '',
           fullName: session.user.user_metadata?.full_name || null,
+          role,
         });
       }
       setLoading(false);
@@ -167,10 +186,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       (_event, session) => {
         setSession(session);
         if (session?.user) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email || '',
-            fullName: session.user.user_metadata?.full_name || null,
+          fetchUserRole(session.user.id).then(role => {
+            setUser({
+              id: session.user.id,
+              email: session.user.email || '',
+              fullName: session.user.user_metadata?.full_name || null,
+              role,
+            });
           });
         } else {
           setUser(null);

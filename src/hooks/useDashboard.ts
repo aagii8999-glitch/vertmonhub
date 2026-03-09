@@ -46,7 +46,7 @@ export function useDashboard(period: 'today' | 'week' | 'month' = 'today') {
         queryFn: async (): Promise<DashboardData> => {
             const res = await fetch(`/api/dashboard/stats?period=${period}`, {
                 headers: {
-                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || ''
+                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
                 }
             });
             if (!res.ok) throw new Error('Failed to fetch dashboard data');

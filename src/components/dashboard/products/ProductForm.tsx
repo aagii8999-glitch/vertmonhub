@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Input, Textarea } from '@/components/ui/Input';
+import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
+import { Label } from '@/components/ui/Label';
 import { Upload, Box, Layers, Calendar, Plus, X, Trash2 } from 'lucide-react';
 import { Product, useCreateProduct, useUpdateProduct } from '@/hooks/useProducts';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,6 +31,9 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
     const [hasVariants, setHasVariants] = useState(product?.has_variants || false);
     const [optionGroups, setOptionGroups] = useState<{ name: string, values: string[] }[]>([]);
     const [variants, setVariants] = useState<any[]>(product?.variants || []);
+
+    // Conditions State
+    const [conditions, setConditions] = useState<{ title: string, content: string }[]>(product?.conditions || []);
 
     // Initial load of variants if editing
     useEffect(() => {
@@ -145,6 +150,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                 images: imageUrl ? [imageUrl] : [],
                 has_variants: hasVariants,
                 variants: hasVariants ? variants : [],
+                conditions: conditions.filter(c => c.title.trim() !== '' || c.content.trim() !== ''),
             };
 
             if (productType === 'physical' && !hasVariants) {
@@ -216,21 +222,84 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                 </div>
 
                 <div className="flex-1 space-y-4">
-                    <Input name="name" label="Нэр" defaultValue={product?.name} required placeholder="Бүтээгдэхүүний нэр" />
+                    <div className="space-y-1">
+                        <Label htmlFor="name">Нэр</Label>
+                        <Input id="name" name="name" defaultValue={product?.name} required placeholder="Бүтээгдэхүүний нэр" />
+                    </div>
 
                     <div className={`grid gap-4 ${productType === 'physical' && !hasVariants ? 'grid-cols-3' : 'grid-cols-2'}`}>
-                        <Input name="price" label="Үнэ (₮)" type="number" defaultValue={product?.price} required placeholder="0" />
+                        <div className="space-y-1">
+                            <Label htmlFor="price">Үнэ (₮)</Label>
+                            <Input id="price" name="price" type="number" defaultValue={product?.price} required placeholder="0" />
+                        </div>
 
                         {productType === 'physical' && !hasVariants && (
-                            <Input name="stock" label="Үлдэгдэл" type="number" defaultValue={product?.stock || ''} placeholder="0" />
+                            <div className="space-y-1">
+                                <Label htmlFor="stock">Үлдэгдэл</Label>
+                                <Input id="stock" name="stock" type="number" defaultValue={product?.stock || ''} placeholder="0" />
+                            </div>
                         )}
 
-                        <Input name="discount" label="Хямдрал (%)" type="number" defaultValue={product?.discount_percent || ''} placeholder="0" />
+                        <div className="space-y-1">
+                            <Label htmlFor="discount">Хямдрал (%)</Label>
+                            <Input id="discount" name="discount" type="number" defaultValue={product?.discount_percent || ''} placeholder="0" />
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <Textarea name="description" label="Тайлбар" defaultValue={product?.description || ''} rows={3} />
+            <div className="space-y-1">
+                <Label htmlFor="description">Тайлбар</Label>
+                <Textarea id="description" name="description" defaultValue={product?.description || ''} rows={3} />
+            </div>
+
+            {/* Product Conditions (Terms) */}
+            <div className="pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-medium text-gray-900">Бүтээгдэхүүний Нөхцөл</h4>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setConditions([...conditions, { title: '', content: '' }])}>
+                        <Plus className="w-4 h-4 mr-2" /> Нөхцөл нэмэх
+                    </Button>
+                </div>
+                {conditions.length > 0 ? (
+                    <div className="space-y-3">
+                        {conditions.map((cond, idx) => (
+                            <div key={idx} className="p-4 bg-gray-50 rounded-xl border border-gray-200 relative flex gap-4">
+                                <div className="flex-1 space-y-3">
+                                    <Input
+                                        name={`cond_title_${idx}`}
+                                        placeholder="Нөхцөлийн гарчиг (Жнь: Хүргэлтийн нөхцөл)"
+                                        value={cond.title}
+                                        onChange={(e) => {
+                                            const newConds = [...conditions];
+                                            newConds[idx].title = e.target.value;
+                                            setConditions(newConds);
+                                        }}
+                                    />
+                                    <Textarea
+                                        name={`cond_content_${idx}`}
+                                        placeholder="Нөхцөлийн дэлгэрэнгүй агуулга"
+                                        rows={2}
+                                        value={cond.content}
+                                        onChange={(e) => {
+                                            const newConds = [...conditions];
+                                            newConds[idx].content = e.target.value;
+                                            setConditions(newConds);
+                                        }}
+                                    />
+                                </div>
+                                <button type="button" onClick={() => setConditions(conditions.filter((_, i) => i !== idx))} className="text-gray-400 hover:text-red-500 self-start p-1 mt-1">
+                                    <Trash2 className="w-5 h-5" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-xl text-center border border-dashed border-gray-200">
+                        Одоогоор нэмэлт нөхцөл бүртгэгдээгүй байна.
+                    </p>
+                )}
+            </div>
 
             {/* Appointment Settings (Stripped down for brevity, logic exists in original) */}
             {productType === 'appointment' && (
@@ -263,19 +332,19 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                                 <h4 className="font-medium text-gray-900">Хувилбарууд үүсгэх</h4>
                                 {optionGroups.map((group, idx) => (
                                     <div key={idx} className="flex gap-2 items-start">
-                                        <div className="w-1/3">
+                                        <div className="w-1/3 space-y-1">
+                                            {idx === 0 && <Label>Сонголтын нэр (Ж: Өнгө)</Label>}
                                             <Input
                                                 name={`option_name_${idx}`}
-                                                label={idx === 0 ? "Сонголтын нэр (Ж: Өнгө)" : ""}
                                                 value={group.name}
                                                 onChange={(e) => updateOptionGroup(idx, 'name', e.target.value)}
                                                 placeholder="Өнгө"
                                             />
                                         </div>
-                                        <div className="flex-1">
+                                        <div className="flex-1 space-y-1">
+                                            {idx === 0 && <Label>Утгууд (Таслалаар зааглана)</Label>}
                                             <Input
                                                 name={`option_values_${idx}`}
-                                                label={idx === 0 ? "Утгууд (Таслалаар зааглана)" : ""}
                                                 value={group.values.join(', ')}
                                                 onChange={(e) => updateOptionGroup(idx, 'values', e.target.value)}
                                                 placeholder="Улаан, Хар, Цагаан"
@@ -358,8 +427,14 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-4">
-                            <Input name="colors" label="Өнгө" placeholder="Улаан, Хар" defaultValue={product?.colors?.join(', ')} />
-                            <Input name="sizes" label="Хэмжээ" placeholder="S, M, L" defaultValue={product?.sizes?.join(', ')} />
+                            <div className="space-y-1">
+                                <Label htmlFor="colors">Өнгө</Label>
+                                <Input id="colors" name="colors" placeholder="Улаан, Хар" defaultValue={product?.colors?.join(', ')} />
+                            </div>
+                            <div className="space-y-1">
+                                <Label htmlFor="sizes">Хэмжээ</Label>
+                                <Input id="sizes" name="sizes" placeholder="S, M, L" defaultValue={product?.sizes?.join(', ')} />
+                            </div>
                         </div>
                     )}
                 </div>

@@ -14,7 +14,6 @@ const publicRoutes = [
     '/auth/callback',
     '/admin/login',
     '/api/webhook',
-    '/api/subscription/webhook',
     '/api/payment/webhook',
     '/privacy',
     '/terms',
@@ -25,7 +24,7 @@ const publicRoutes = [
 const aiRoutes = ['/api/chat', '/api/ai'];
 
 // Webhook routes with relaxed limits
-const webhookRoutes = ['/api/webhook', '/api/subscription/webhook', '/api/payment/webhook'];
+const webhookRoutes = ['/api/webhook', '/api/payment/webhook'];
 
 function matchesRoute(pathname: string, routes: string[]): boolean {
     return routes.some(route => pathname === route || pathname.startsWith(route + '/'));

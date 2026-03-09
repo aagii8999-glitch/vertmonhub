@@ -11,7 +11,7 @@ const resend = process.env.RESEND_API_KEY
     ? new Resend(process.env.RESEND_API_KEY)
     : null;
 
-const FROM_EMAIL = process.env.EMAIL_FROM || 'orders@smarthub.mn';
+const FROM_EMAIL = process.env.EMAIL_FROM || 'orders@vertmon.mn';
 
 interface EmailParams {
     to: string;
@@ -110,7 +110,7 @@ export async function sendOrderConfirmationEmail(params: {
             
             <div class="footer">
                 <p>${shopName}</p>
-                <p>Энэ имэйл нь SmartHub системээс автоматаар илгээгдсэн</p>
+                <p>Энэ имэйл нь Vertmon Hub системээс автоматаар илгээгдсэн</p>
             </div>
         </div>
     </div>

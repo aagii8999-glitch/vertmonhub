@@ -187,7 +187,7 @@ export function FacebookStep({
                   <li><a href="https://developers.facebook.com/apps" target="_blank" rel="noopener" className="text-blue-600 hover:underline inline-flex items-center gap-1 font-medium">Facebook Developers <ExternalLink className="w-3 h-3" /></a> руу орно</li>
                   <li>Апп үүсгээд Messenger product нэмнэ</li>
                   <li>Page Access Token авна</li>
-                  <li>Webhook URL: <code className="bg-white px-2 py-0.5 rounded text-xs border border-blue-200 select-all">https://smarthub-opal.vercel.app/api/webhook</code></li>
+                  <li>Webhook URL: <code className="bg-white px-2 py-0.5 rounded text-xs border border-blue-200 select-all">https://vertmonhub.vercel.app/api/webhook</code></li>
                 </ol>
               </div>
 

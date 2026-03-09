@@ -1,17 +1,17 @@
 /**
- * AIRouter - Routes AI requests to appropriate GPT-5 Family model
+ * AIRouter - Routes AI requests to Gemini models
  * 
  * Strategy:
- * - All plans use GPT-5 Family models
- * - Plan determines the specific model (Nano, Mini, Full)
+ * - All plans use Gemini models
+ * - Plan determines capabilities (tool calling, vision, etc.)
  */
 
-import OpenAI from 'openai';
+import { GoogleGenerativeAI, Content, SchemaType, Part } from '@google/generative-ai';
 import { logger } from '@/lib/utils/logger';
 import type { ChatContext, ChatMessage, ChatResponse, ImageAction } from '@/types/ai';
 import { buildSystemPrompt } from './services/PromptService';
 import { executeTool, ToolExecutionContext, ToolExecutionResult } from './services/ToolExecutor';
-import { AI_TOOLS, ToolName } from './tools/definitions';
+import { GEMINI_TOOLS, ToolName } from './tools/definitions';
 import {
     PlanType,
     getPlanConfig,
@@ -22,19 +22,14 @@ import {
     AIModel,
 } from './config/plans';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY!,
-    dangerouslyAllowBrowser: true, // Needed for potential edge runtime or test env
-});
+// Initialize Gemini client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 /**
- * Model mapping - GPT-5 models (when available, fallback to GPT-4o family)
+ * Model mapping - Gemini models per plan tier
  */
 const MODEL_MAPPING: Record<AIModel, string> = {
-    'gpt-5-nano': process.env.GPT5_NANO_MODEL || 'gpt-4o-mini',
-    'gpt-5-mini': process.env.GPT5_MINI_MODEL || 'gpt-4o-mini',
-    'gpt-5': process.env.GPT5_MODEL || 'gpt-4o', // Backend flagship
+    'gemini-3-pro': 'gemini-2.5-flash',
 };
 
 /**
@@ -84,16 +79,13 @@ async function retryOperation<T>(
     }
 }
 
-
-
 /**
  * Filter tools based on plan
  */
-function getToolsForPlan(plan: PlanType): typeof AI_TOOLS {
+function getToolsForPlan(plan: PlanType): any[] {
     const enabledTools = getEnabledToolsForPlan(plan);
-    return AI_TOOLS.filter((tool) => {
-        const funcTool = tool as { type: string; function: { name: string } };
-        return enabledTools.includes(funcTool.function.name as ToolName);
+    return GEMINI_TOOLS.filter((tool: any) => {
+        return enabledTools.includes(tool.name as ToolName);
     });
 }
 
@@ -136,141 +128,121 @@ export async function routeToAI(
     let quickReplies: Array<{ title: string; payload: string }> | undefined;
 
     try {
-        // Get actual model and GPT-5 display name
         const modelName = planConfig.model;
         const backendModel = MODEL_MAPPING[modelName];
 
-        logger.info(`AIRouter: Routing to GPT-5 Family [${modelName}] (Backend: ${backendModel})`);
+        logger.info(`AIRouter: Routing to Gemini [${backendModel}] (Plan: ${planType})`);
 
         // Build system prompt
         const systemPrompt = buildSystemPrompt({
             ...context,
             planFeatures: {
-                ai_model: modelName, // Pass GPT-5 name to PromptService
+                ai_model: modelName,
                 sales_intelligence: planConfig.features.salesIntelligence,
                 ai_memory: planConfig.features.memory,
                 max_tokens: planConfig.maxTokens,
             },
         });
 
-        const messages: ChatMessage[] = [
-            { role: 'system', content: systemPrompt },
-            ...previousHistory,
-            { role: 'user', content: message }
-        ];
-
         // Get tools enabled for this plan
         const planTools = planConfig.features.toolCalling
             ? getToolsForPlan(planType)
             : undefined;
 
+        // Configure Gemini model
+        const model = genAI.getGenerativeModel({
+            model: backendModel,
+            systemInstruction: systemPrompt,
+            tools: planTools && planTools.length > 0 ? [{ functionDeclarations: planTools }] : undefined,
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: planConfig.maxTokens,
+            },
+        });
+
+        // Convert history to Gemini format
+        const geminiHistory: Content[] = previousHistory
+            .filter(m => m.role && m.content && m.role !== 'system')
+            .map(m => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }] as Part[],
+            }));
+
         return await retryOperation(async () => {
-            logger.info(`Sending to ${modelName} (${backendModel})...`);
+            logger.info(`Sending to Gemini ${backendModel}...`);
 
-            const response = await openai.chat.completions.create({
-                model: backendModel,
-                messages: messages,
-                max_completion_tokens: planConfig.maxTokens,
-                tools: planTools,
-                tool_choice: planTools ? 'auto' : undefined,
-            });
+            const chat = model.startChat({ history: geminiHistory });
+            const result = await chat.sendMessage(message);
+            const response = result.response;
 
-            const responseMessage = response.choices[0]?.message;
-            let finalResponseText = responseMessage?.content || '';
+            // Check for function calls
+            const functionCalls = response.functionCalls();
+            let finalResponseText = response.text() || '';
 
-            // Handle Tool Calls
-            if (responseMessage?.tool_calls && planConfig.features.toolCalling) {
-                const toolCalls = responseMessage.tool_calls;
-                logger.info('AI triggered tool calls:', { count: toolCalls.length });
+            if (functionCalls && functionCalls.length > 0 && planConfig.features.toolCalling) {
+                logger.info('AI triggered function calls:', { count: functionCalls.length });
 
-                // Add assistant's tool call message to history
-                messages.push(responseMessage as ChatMessage);
+                const toolResults = [];
 
                 // Create tool execution context
                 const toolContext: ToolExecutionContext = {
                     shopId: context.shopId,
                     customerId: context.customerId,
                     customerName: context.customerName,
-                    properties: context.products, // Properties use same context as products
+                    properties: context.products,
                     notifySettings: context.notifySettings,
                 };
 
-                // Execute each tool call (only if enabled for plan)
-                for (const toolCall of toolCalls) {
-                    if (toolCall.type === 'function') {
-                        const functionName = toolCall.function.name as ToolName;
+                for (const fc of functionCalls) {
+                    const functionName = fc.name as ToolName;
 
-                        // Check if tool is enabled for this plan
-                        if (!isToolEnabledForPlan(functionName, planType)) {
-                            logger.warn(`Tool ${functionName} not enabled for ${planType} plan`);
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            messages.push({
-                                role: 'tool',
-                                tool_call_id: toolCall.id,
-                                content: JSON.stringify({
-                                    error: 'This feature is not available on your current plan. Please upgrade to access this feature.'
-                                })
-                            } as unknown as ChatMessage);
-                            continue;
-                        }
-
-                        const args = JSON.parse(toolCall.function.arguments);
-                        logger.info(`Executing tool: ${functionName}`, args);
-
-                        const result: ToolExecutionResult = await executeTool(
-                            functionName,
-                            args,
-                            toolContext
-                        );
-
-                        if (result.imageAction) {
-                            imageAction = result.imageAction;
-                        }
-
-                        if (result.quickReplies && result.quickReplies.length > 0) {
-                            quickReplies = result.quickReplies;
-                        }
-
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        messages.push({
-                            role: 'tool',
-                            tool_call_id: toolCall.id,
-                            content: JSON.stringify(
-                                result.success
-                                    ? { success: true, message: result.message, ...result.data }
-                                    : { error: result.error }
-                            )
-                        } as unknown as ChatMessage);
+                    // Check if tool is enabled for this plan
+                    if (!isToolEnabledForPlan(functionName, planType)) {
+                        logger.warn(`Tool ${functionName} not enabled for ${planType} plan`);
+                        toolResults.push({
+                            functionResponse: {
+                                name: fc.name,
+                                response: { error: 'This feature is not available on your current plan.' },
+                            },
+                        });
+                        continue;
                     }
-                }
 
-                // Call OpenAI again with tool results
-                const secondResponse = await openai.chat.completions.create({
-                    model: backendModel,
-                    messages: messages,
-                    max_completion_tokens: planConfig.maxTokens,
-                });
+                    const args = fc.args || {};
+                    logger.info(`Executing tool: ${functionName}`, args as Record<string, unknown>);
 
-                finalResponseText = secondResponse.choices[0]?.message?.content || '';
+                    const toolResult: ToolExecutionResult = await executeTool(
+                        functionName,
+                        args,
+                        toolContext
+                    );
 
-                if (secondResponse.usage) {
-                    logger.info('Token usage (post-tool):', {
-                        total_tokens: secondResponse.usage.total_tokens
+                    if (toolResult.imageAction) {
+                        imageAction = toolResult.imageAction;
+                    }
+
+                    if (toolResult.quickReplies && toolResult.quickReplies.length > 0) {
+                        quickReplies = toolResult.quickReplies;
+                    }
+
+                    toolResults.push({
+                        functionResponse: {
+                            name: fc.name,
+                            response: toolResult.success
+                                ? { success: true, message: toolResult.message, ...toolResult.data }
+                                : { error: toolResult.error },
+                        },
                     });
                 }
+
+                // Send tool results back to Gemini
+                const synthesisResult = await chat.sendMessage(
+                    toolResults.map(tr => ({ functionResponse: tr.functionResponse }))
+                );
+                finalResponseText = synthesisResult.response.text() || '';
             }
 
-            // Log token usage
-            const usage = response.usage;
-            if (usage) {
-                logger.info('Token usage:', {
-                    prompt_tokens: usage.prompt_tokens,
-                    completion_tokens: usage.completion_tokens,
-                    total_tokens: usage.total_tokens,
-                });
-            }
-
-            logger.success(`AIRouter response received (${planType}/${planConfig.model})`);
+            logger.success(`AIRouter response received (${planType}/Gemini)`);
 
             return {
                 text: finalResponseText,
@@ -281,7 +253,6 @@ export async function routeToAI(
                     model: planConfig.model,
                     messagesUsed: messageCount + 1,
                     messagesRemaining: limitCheck.remaining - 1,
-                    tokensUsed: usage?.total_tokens,
                 },
             };
         });
@@ -301,12 +272,12 @@ export async function routeToAI(
 }
 
 /**
- * Analyze product image using vision (plan-dependent)
+ * Analyze product image using Gemini vision (plan-dependent)
  */
 export async function analyzeProductImageWithPlan(
     imageUrl: string,
     products: Array<{ id: string; name: string; description?: string }>,
-    planType: PlanType = 'starter'
+    planType: PlanType = 'ultimate'
 ): Promise<{
     matchedProduct: string | null;
     confidence: number;
@@ -325,7 +296,7 @@ export async function analyzeProductImageWithPlan(
     }
 
     try {
-        const modelName = MODEL_MAPPING[planConfig.model];
+        const backendModel = MODEL_MAPPING[planConfig.model];
         const productList = products.map(p => `- ${p.name}: ${p.description || ''}`).join('\n');
 
         const prompt = `Та бол дэлгүүрийн ухаалаг туслах юм. Энэ зургийг шинжилж, хоёр зүйлийн аль нэг гэж ангилна уу:
@@ -344,35 +315,35 @@ ${productList}
   "receiptAmount": 0
 }`;
 
-        const response = await openai.chat.completions.create({
-            model: modelName,
-            messages: [
-                {
-                    role: 'user',
-                    content: [
-                        { type: 'text', text: prompt },
-                        { type: 'image_url', image_url: { url: imageUrl } }
-                    ]
-                }
-            ],
-            max_completion_tokens: 500,
+        const model = genAI.getGenerativeModel({
+            model: backendModel,
+            generationConfig: {
+                temperature: 0.3,
+                responseMimeType: 'application/json',
+            },
         });
 
-        const responseText = response.choices[0]?.message?.content || '';
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        // Fetch image and convert to base64 for Gemini
+        const imageResponse = await fetch(imageUrl);
+        const imageBuffer = await imageResponse.arrayBuffer();
+        const base64Image = Buffer.from(imageBuffer).toString('base64');
+        const mimeType = imageResponse.headers.get('content-type') || 'image/jpeg';
 
-        if (jsonMatch) {
-            const result = JSON.parse(jsonMatch[0]);
-            return {
-                matchedProduct: result.matchedProduct,
-                confidence: result.confidence,
-                description: result.description,
-                isReceipt: result.type === 'payment_receipt',
-                receiptAmount: result.receiptAmount
-            };
-        }
+        const result = await model.generateContent([
+            { text: prompt },
+            { inlineData: { data: base64Image, mimeType } },
+        ]);
 
-        return { matchedProduct: null, confidence: 0, description: 'Зургийг таньж чадсангүй.' };
+        const responseText = result.response.text();
+        const parsed = JSON.parse(responseText);
+
+        return {
+            matchedProduct: parsed.matchedProduct,
+            confidence: parsed.confidence,
+            description: parsed.description,
+            isReceipt: parsed.type === 'payment_receipt',
+            receiptAmount: parsed.receiptAmount,
+        };
     } catch (error) {
         logger.error('Vision Error:', { error });
         return { matchedProduct: null, confidence: 0, description: 'Зураг боловсруулахад алдаа гарлаа.' };

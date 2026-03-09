@@ -127,13 +127,25 @@ export async function parseProductFile(buffer: Buffer, fileName: string): Promis
         // 1. Get text content
         const content = await getFileContent(buffer, extension);
 
-        // 2. Process with AI
-        // We import dynamically to avoid circular dependencies if any
-        const { parseProductDataWithAI } = await import('@/lib/ai/openai');
-        const products = await parseProductDataWithAI(content, fileName);
+        // 2. Process with Gemini AI
+        const { GoogleGenerativeAI } = await import('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+        const model = genAI.getGenerativeModel({
+            model: 'gemini-2.5-flash',
+            generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+        });
+
+        const prompt = `Parse the following file content and extract products/services as JSON array.
+Each item should have: name (string), price (number), stock (number), description (string), type ("physical" or "service"), unit (string), colors (string[]), sizes (string[]).
+File: ${fileName}
+Content:
+${content}`;
+
+        const result = await model.generateContent(prompt);
+        const products: Array<{ name: string; price: number; stock: number; description: string; type: 'physical' | 'service'; colors: string[]; sizes: string[] }> = JSON.parse(result.response.text());
 
         // 3. Map to ParsedProduct interface
-        return products.map(p => ({
+        return products.map((p: { name: string; price: number; description?: string; stock?: number; type?: 'physical' | 'service'; colors?: string[]; sizes?: string[] }) => ({
             name: p.name,
             price: p.price,
             description: p.description,

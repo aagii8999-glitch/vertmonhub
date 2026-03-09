@@ -6,7 +6,7 @@
 export type PropertyType = 'apartment' | 'house' | 'office' | 'land' | 'commercial';
 
 // Property status enum
-export type PropertyStatus = 'available' | 'reserved' | 'sold' | 'rented';
+export type PropertyStatus = 'available' | 'reserved' | 'sold' | 'rented' | 'barter';
 
 // Lead status enum
 export type LeadStatus = 'new' | 'contacted' | 'viewing_scheduled' | 'offered' | 'negotiating' | 'closed_won' | 'closed_lost';
