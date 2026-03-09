@@ -7,9 +7,6 @@ import { formatTimeAgo } from '@/lib/utils/date';
 import {
     AlertTriangle,
     MessageSquare,
-    Clock,
-    Package,
-    ArrowRight,
     CheckCircle2,
     XCircle,
 } from 'lucide-react';
@@ -24,36 +21,17 @@ interface Conversation {
     isAnswered: boolean;
 }
 
-interface LowStockProduct {
-    id: string;
-    name: string;
-    stock: number;
-    images: string[];
-}
-
-interface PendingOrder {
-    id: string;
-    total_amount: number;
-    created_at: string;
-    customers: { name: string } | null;
-}
-
 interface ActionCenterProps {
     conversations: Conversation[];
-    lowStockProducts: LowStockProduct[];
-    pendingOrders: PendingOrder[];
     unansweredCount: number;
 }
 
 export function ActionCenter({
     conversations,
-    lowStockProducts,
-    pendingOrders,
     unansweredCount,
 }: ActionCenterProps) {
-    const hasIssues = unansweredCount > 0 || lowStockProducts.length > 0 || pendingOrders.length > 0;
+    const hasIssues = unansweredCount > 0;
 
-    // Calculate urgency based on time
     const getUrgencyColor = (dateString: string) => {
         const minutes = (Date.now() - new Date(dateString).getTime()) / 60000;
         if (minutes > 30) return 'text-red-500';
@@ -77,7 +55,7 @@ export function ActionCenter({
                 </CardTitle>
                 {hasIssues && (
                     <Badge variant="danger" className="text-[10px] md:text-xs">
-                        {unansweredCount + lowStockProducts.length + pendingOrders.length}
+                        {unansweredCount}
                     </Badge>
                 )}
             </CardHeader>
@@ -103,8 +81,8 @@ export function ActionCenter({
                                     >
                                         <div className="flex items-start justify-between gap-2">
                                             <div className="flex items-center gap-2 min-w-0">
-                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
-                                                    <span className="text-xs font-medium text-violet-600">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-xs font-medium text-emerald-600">
                                                         {conv.customerName.charAt(0).toUpperCase()}
                                                     </span>
                                                 </div>
@@ -118,7 +96,7 @@ export function ActionCenter({
                                                         </span>
                                                     </div>
                                                     <p className="text-xs text-muted-foreground truncate mt-0.5">
-                                                        "{conv.lastMessage}"
+                                                        &quot;{conv.lastMessage}&quot;
                                                     </p>
                                                 </div>
                                             </div>
@@ -135,88 +113,6 @@ export function ActionCenter({
                     </div>
                 )}
 
-                {/* Pending Orders */}
-                {pendingOrders.length > 0 && (
-                    <div className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-amber-500" />
-                                <span className="text-sm font-medium text-foreground">
-                                    Хүлээгдэж буй ({pendingOrders.length})
-                                </span>
-                            </div>
-                            <Link href="/dashboard/orders" className="text-xs text-primary hover:underline">
-                                Бүгдийг <ArrowRight className="w-3 h-3 inline" />
-                            </Link>
-                        </div>
-                        <div className="space-y-2">
-                            {pendingOrders.slice(0, 3).map(order => (
-                                <Link
-                                    key={order.id}
-                                    href="/dashboard/orders"
-                                    className="flex items-center justify-between p-2 rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-colors"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Package className="w-4 h-4 text-amber-600" />
-                                        <span className="text-sm text-foreground">
-                                            {order.customers?.name || 'Захиалга'}
-                                        </span>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-medium text-foreground">
-                                            ₮{Number(order.total_amount).toLocaleString()}
-                                        </p>
-                                        <p className="text-[10px] text-amber-600">
-                                            {formatTimeAgo(order.created_at)}
-                                        </p>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Low Stock */}
-                {lowStockProducts.length > 0 && (
-                    <div className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                                <Package className="w-4 h-4 text-rose-500" />
-                                <span className="text-sm font-medium text-foreground">
-                                    Нөөц багатай ({lowStockProducts.length})
-                                </span>
-                            </div>
-                            <Link href="/dashboard/products" className="text-xs text-primary hover:underline">
-                                Засах <ArrowRight className="w-3 h-3 inline" />
-                            </Link>
-                        </div>
-                        <div className="space-y-2">
-                            {lowStockProducts.slice(0, 3).map(product => (
-                                <div
-                                    key={product.id}
-                                    className="flex items-center justify-between p-2 rounded-lg bg-rose-50 border border-rose-200"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-lg bg-white border border-rose-200 flex items-center justify-center overflow-hidden">
-                                            {product.images?.[0] ? (
-                                                <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <Package className="w-4 h-4 text-rose-400" />
-                                            )}
-                                        </div>
-                                        <span className="text-sm text-foreground truncate max-w-[120px]">
-                                            {product.name}
-                                        </span>
-                                    </div>
-                                    <span className={`text-sm font-bold ${product.stock === 0 ? 'text-red-600' : 'text-rose-600'}`}>
-                                        {product.stock === 0 ? 'Дууссан' : `${product.stock} ш`}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
                 {/* Empty State */}
                 {!hasIssues && (
                     <div className="p-8 text-center">
@@ -227,7 +123,7 @@ export function ActionCenter({
                     </div>
                 )}
 
-                {/* Хариулсан харилцагчид preview */}
+                {/* Хариулсан харилцагчид */}
                 {conversations.filter(c => c.isAnswered).length > 0 && unansweredCount === 0 && (
                     <div className="p-4">
                         <div className="flex items-center gap-2 mb-3">

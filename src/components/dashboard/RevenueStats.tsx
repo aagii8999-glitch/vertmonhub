@@ -1,6 +1,6 @@
 'use client';
 
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users } from 'lucide-react';
+import { TrendingUp, TrendingDown, Building2, Users, Eye, FileText } from 'lucide-react';
 
 interface RevenueStatsProps {
     total: number;
@@ -19,31 +19,24 @@ export function RevenueStats({
     newCustomers,
     vipCustomers,
 }: RevenueStatsProps) {
-    const formatCurrency = (value: number) => {
-        if (value >= 1000000) {
-            return `₮${(value / 1000000).toFixed(1)}M`;
-        }
-        return `₮${value.toLocaleString()}`;
-    };
-
     const stats = [
         {
-            label: 'Нийт орлого',
-            value: formatCurrency(total),
-            icon: DollarSign,
+            label: 'Нийт байр',
+            value: total.toString(),
+            icon: Building2,
             growth: growth,
-            color: 'bg-green-500',
+            color: 'bg-emerald-500',
         },
         {
-            label: 'Захиалгын тоо',
+            label: 'Нийт лийд',
             value: orderCount.toString(),
-            icon: ShoppingCart,
+            icon: Users,
             color: 'bg-blue-500',
         },
         {
-            label: 'Дундаж захиалга',
-            value: formatCurrency(avgOrderValue),
-            icon: TrendingUp,
+            label: 'Үзлэгүүд',
+            value: avgOrderValue.toString(),
+            icon: Eye,
             color: 'bg-purple-500',
         },
         {

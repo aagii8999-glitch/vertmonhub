@@ -226,8 +226,8 @@ function SetupContent() {
     setStep(4);
   };
 
-  const handleProductsComplete = async (products: any[]) => {
-    const res = await fetch('/api/shop/products', {
+  const handlePropertiesComplete = async (products: any[]) => {
+    const res = await fetch('/api/shop/properties', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ products })
@@ -354,7 +354,7 @@ function SetupContent() {
             <ProductStep
               initialProducts={[]}
               onBack={() => setStep(3)}
-              onComplete={handleProductsComplete}
+              onComplete={handlePropertiesComplete}
             />
           )}
 

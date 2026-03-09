@@ -197,7 +197,7 @@ export async function POST(request: NextRequest) {
                         const previousHistory: ChatMessage[] = await getChatHistory(shop.id, customer.id);
 
                         // Map products to ensure null values are converted to undefined
-                        const mappedProducts = shop.products.map(p => ({
+                        const mappedProducts = shop.properties?.map(p => ({
                             ...p,
                             discount_percent: p.discount_percent ?? undefined,
                         }));
@@ -219,7 +219,7 @@ export async function POST(request: NextRequest) {
                                     aiInstructions: shop.ai_instructions || undefined,
                                     aiEmotion: shop.ai_emotion || 'friendly',
                                     customKnowledge: shop.custom_knowledge || undefined,
-                                    products: mappedProducts,
+                                    products: mappedProducts || [],
                                     customerName: customer.name || undefined,
                                     orderHistory: customer.total_orders || 0,
                                     faqs: aiFeatures.faqs,
@@ -257,7 +257,7 @@ export async function POST(request: NextRequest) {
                         logger.error('AI Error:', { message: errorMessage, stack: errorStack });
 
                         // Generate fallback response based on intent
-                        aiResponse = generateFallbackResponse(intent, shop.name, shop.products);
+                        aiResponse = generateFallbackResponse(intent, shop.name, shop.properties);
                     }
 
                     // Save chat history
@@ -311,31 +311,30 @@ export async function POST(request: NextRequest) {
                                 });
 
                                 // Analyze the image with shop products for matching
-                                const productsForAnalysis = shop.products.map(p => ({
+                                const productsForAnalysis = shop.properties?.map(p => ({
                                     id: p.id,
                                     name: p.name,
                                     description: p.description || undefined,
                                 }));
-                                const imageAnalysis = await analyzeProductImageWithPlan(imageUrl, productsForAnalysis, planType);
+                                const imageAnalysis = await analyzeProductImageWithPlan(imageUrl, productsForAnalysis || [], planType);
 
                                 if (imageAnalysis.matchedProduct || imageAnalysis.description) {
                                     // Try to match with shop products
                                     const description = imageAnalysis.description || '';
-                                    const matchedProducts = shop.products.filter(p =>
+                                    const matchedProducts = shop.properties?.filter(p =>
                                         description.toLowerCase().includes(p.name.toLowerCase())
                                     );
 
                                     let responseMessage: string;
-                                    if (matchedProducts.length > 0) {
-                                        const product = matchedProducts[0];
-                                        responseMessage = `Зурагнаас "${product.name}" бүтээгдэхүүнийг таньлаа! 🎯\n\n` +
-                                            `💰 Үнэ: ${product.price?.toLocaleString()}₮\n` +
-                                            `📦 Үлдэгдэл: ${product.stock} ширхэг\n\n` +
-                                            `Захиалах уу? 🛒`;
+                                    if ((matchedProducts || []).length > 0) {
+                                        const product = (matchedProducts || [])[0];
+                                        responseMessage = `Зурагнаас "${product.name}" байрыг таньлаа! 🎯\n\n` +
+                                            `💰 Үнэ: ${product.price?.toLocaleString()}₮\n\n` +
+                                            `Үзэх уу? 📋`;
                                     } else {
                                         responseMessage = `Зурагт: ${description}\n\n` +
-                                            `Энэ бүтээгдэхүүн бидний дэлгүүрт одоохондоо байхгүй байна. ` +
-                                            `Өөр бүтээгдэхүүн хайж байна уу? 🔍`;
+                                            `Энэ байр манай жагсаалтад одоохондоо байхгүй байна. ` +
+                                            `Өөр байр хайж байна уу? 🔍`;
                                     }
 
                                     await sendTextMessage({

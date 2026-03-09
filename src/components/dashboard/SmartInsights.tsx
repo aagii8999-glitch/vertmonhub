@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { TrendingUp, TrendingDown, Lightbulb, AlertTriangle, Award, Package } from 'lucide-react';
+import { TrendingUp, TrendingDown, Lightbulb, AlertTriangle, Award, Building2 } from 'lucide-react';
 
 interface SmartInsightsProps {
     bestSellers: Array<{
@@ -28,63 +28,48 @@ export function SmartInsights({ bestSellers, revenue, period }: SmartInsightsPro
     const insights = useMemo<Insight[]>(() => {
         const result: Insight[] = [];
 
-        // Revenue growth insight
+        // Growth insight
         if (revenue.growth > 20) {
             result.push({
                 type: 'success',
                 icon: <TrendingUp className="w-4 h-4" />,
-                message: `🎉 Борлуулалт ${revenue.growth}% өссөн байна! Маш сайн ажиллаж байна.`,
+                message: `🎉 Лийд ${revenue.growth}% өссөн байна! Маш сайн ажиллаж байна.`,
             });
         } else if (revenue.growth < -10) {
             result.push({
                 type: 'warning',
                 icon: <TrendingDown className="w-4 h-4" />,
-                message: `⚠️ Борлуулалт ${Math.abs(revenue.growth)}% буурсан. Хямдрал эсвэл маркетинг хийх цаг боллоо.`,
+                message: `⚠️ Лийд ${Math.abs(revenue.growth)}% буурсан. Маркетинг идэвхжүүлэх цаг боллоо.`,
             });
         }
 
-        // Best seller insights
+        // Top property insights
         if (bestSellers.length > 0) {
-            const topProduct = bestSellers[0];
-            if (topProduct.percent > 40) {
+            const topProperty = bestSellers[0];
+            if (topProperty.percent > 40) {
                 result.push({
                     type: 'info',
                     icon: <Award className="w-4 h-4" />,
-                    message: `🏆 "${topProduct.name}" нь нийт борлуулалтын ${topProduct.percent.toFixed(0)}%-ийг эзэлж байна!`,
+                    message: `🏆 "${topProperty.name}" нь хамгийн их сонирхол татсан байр!`,
                 });
-            }
-
-            // Product diversity warning
-            if (bestSellers.length >= 3) {
-                const topThreePercent = bestSellers.slice(0, 3).reduce((sum, p) => sum + p.percent, 0);
-                if (topThreePercent > 80) {
-                    result.push({
-                        type: 'tip',
-                        icon: <Lightbulb className="w-4 h-4" />,
-                        message: `💡 Топ 3 бараа ${topThreePercent.toFixed(0)}% эзэлж байна. Бусад бараагаа идэвхжүүлэхийг санал болгое.`,
-                    });
-                }
             }
         }
 
-        // Order count insights
+        // Lead count insights
         if (revenue.orderCount > 0) {
-            const avgOrderValue = revenue.total / revenue.orderCount;
-            if (avgOrderValue < 50000) {
-                result.push({
-                    type: 'tip',
-                    icon: <Package className="w-4 h-4" />,
-                    message: `💡 Дундаж захиалга ₮${avgOrderValue.toLocaleString()}. Bundle хямдрал санал болговол дундаж дүнг нэмэгдүүлж болно.`,
-                });
-            }
+            result.push({
+                type: 'tip',
+                icon: <Building2 className="w-4 h-4" />,
+                message: `💡 ${getPeriodLabel(period)} ${revenue.orderCount} лийд бүртгэгдсэн. Үзлэг товлоно уу!`,
+            });
         }
 
-        // If no insights, add a default message
+        // Default
         if (result.length === 0) {
             result.push({
                 type: 'info',
                 icon: <Lightbulb className="w-4 h-4" />,
-                message: `📊 ${getPeriodLabel(period)} борлуулалт хэвийн түвшинд байна.`,
+                message: `📊 ${getPeriodLabel(period)} идэвхжил хэвийн түвшинд байна.`,
             });
         }
 
@@ -94,9 +79,9 @@ export function SmartInsights({ bestSellers, revenue, period }: SmartInsightsPro
     if (insights.length === 0) return null;
 
     return (
-        <div className="bg-gradient-to-r from-violet-50 to-indigo-50 rounded-xl p-4 border border-violet-100">
-            <h3 className="font-semibold text-violet-900 mb-3 flex items-center gap-2">
-                <Lightbulb className="w-5 h-5 text-violet-600" />
+        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100">
+            <h3 className="font-semibold text-emerald-900 mb-3 flex items-center gap-2">
+                <Lightbulb className="w-5 h-5 text-emerald-600" />
                 Ухаалаг Зөвлөгөө
             </h3>
             <div className="space-y-2">
@@ -104,15 +89,15 @@ export function SmartInsights({ bestSellers, revenue, period }: SmartInsightsPro
                     <div
                         key={idx}
                         className={`flex items-start gap-3 p-3 rounded-lg ${insight.type === 'success' ? 'bg-green-50 text-green-800' :
-                                insight.type === 'warning' ? 'bg-orange-50 text-orange-800' :
-                                    insight.type === 'tip' ? 'bg-blue-50 text-blue-800' :
-                                        'bg-white text-gray-700'
+                            insight.type === 'warning' ? 'bg-orange-50 text-orange-800' :
+                                insight.type === 'tip' ? 'bg-blue-50 text-blue-800' :
+                                    'bg-white text-gray-700'
                             }`}
                     >
                         <span className={`mt-0.5 ${insight.type === 'success' ? 'text-green-600' :
-                                insight.type === 'warning' ? 'text-orange-600' :
-                                    insight.type === 'tip' ? 'text-blue-600' :
-                                        'text-gray-500'
+                            insight.type === 'warning' ? 'text-orange-600' :
+                                insight.type === 'tip' ? 'text-blue-600' :
+                                    'text-gray-500'
                             }`}>
                             {insight.icon}
                         </span>

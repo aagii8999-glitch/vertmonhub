@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import {
-    Search, User, Crown, Phone, Mail, ShoppingBag,
+    Search, User, Crown, Phone, Mail, 
     Tag, X, Plus, MessageSquare, Clock, ChevronDown,
     Edit2, Save, Loader2
 } from 'lucide-react';
@@ -18,7 +18,6 @@ interface Customer {
     total_spent: number;
     is_vip: boolean;
     created_at: string;
-    orders?: Array<{ id: string; status: string; total_amount: number; created_at: string }>;
     chat_history?: Array<{ message: string; response: string; created_at: string }>;
 }
 
@@ -287,11 +286,11 @@ export default function CustomersPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-sm text-gray-600">{customer.total_orders || 0}</span>
+                                            <span className="text-sm text-gray-600">{customer.total_orders || 0} харилцсан</span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <span className="font-semibold text-violet-600">
-                                                ₮{Number(customer.total_spent || 0).toLocaleString()}
+                                            <span className="font-semibold text-emerald-600">
+                                                {formatTime(customer.created_at)}
                                             </span>
                                         </td>
                                     </tr>
@@ -423,17 +422,17 @@ export default function CustomersPage() {
 
                             {/* Stats */}
                             <div className="grid grid-cols-3 gap-4">
-                                <div className="bg-violet-50 p-4 rounded-xl text-center">
-                                    <p className="text-2xl font-bold text-violet-600">
+                                <div className="bg-emerald-50 p-4 rounded-xl text-center">
+                                    <p className="text-2xl font-bold text-emerald-600">
                                         {selectedCustomer.total_orders || 0}
                                     </p>
-                                    <p className="text-sm text-gray-600">Захиалга</p>
+                                    <p className="text-sm text-gray-600">Харилцсан</p>
                                 </div>
                                 <div className="bg-green-50 p-4 rounded-xl text-center">
                                     <p className="text-2xl font-bold text-green-600">
-                                        ₮{Number(selectedCustomer.total_spent || 0).toLocaleString()}
+                                        {selectedCustomer.is_vip ? 'VIP' : 'Энгийн'}
                                     </p>
-                                    <p className="text-sm text-gray-600">Зарцуулсан</p>
+                                    <p className="text-sm text-gray-600">Төлөв</p>
                                 </div>
                                 <div className="bg-blue-50 p-4 rounded-xl text-center">
                                     <p className="text-2xl font-bold text-blue-600">

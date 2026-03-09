@@ -26,8 +26,8 @@ export interface ShopWithProducts {
     instagram_business_account_id?: string | null;
     instagram_access_token?: string | null;
     instagram_username?: string | null;
-    products: AIProduct[];
-    notify_on_order?: boolean | null;
+    properties?: any[];
+    notify_on_lead?: boolean | null;
     notify_on_contact?: boolean | null;
     notify_on_support?: boolean | null;
     notify_on_cancel?: boolean | null;
@@ -81,7 +81,7 @@ export async function getShopByPageId(pageId: string): Promise<ShopWithProducts 
 
     const { data } = await supabase
         .from('shops')
-        .select('*, products(*)')
+        .select('*, properties(*)')
         .eq('facebook_page_id', pageId)
         .eq('is_active', true)
         .single();
@@ -97,8 +97,8 @@ export async function getShopByPageId(pageId: string): Promise<ShopWithProducts 
         facebook_page_id: data.facebook_page_id,
         facebook_page_username: data.facebook_page_username,
         facebook_page_access_token: data.facebook_page_access_token,
-        products: data.products || [],
-        notify_on_order: data.notify_on_order,
+        properties: data.properties || [],
+        notify_on_lead: data.notify_on_lead,
         notify_on_contact: data.notify_on_contact,
         notify_on_support: data.notify_on_support,
         notify_on_cancel: data.notify_on_cancel,
@@ -123,7 +123,7 @@ export async function getShopByInstagramId(instagramId: string): Promise<ShopWit
 
     const { data } = await supabase
         .from('shops')
-        .select('*, products(*)')
+        .select('*, properties(*)')
         .eq('instagram_business_account_id', instagramId)
         .eq('is_active', true)
         .single();
@@ -142,8 +142,8 @@ export async function getShopByInstagramId(instagramId: string): Promise<ShopWit
         instagram_business_account_id: data.instagram_business_account_id,
         instagram_access_token: data.instagram_access_token,
         instagram_username: data.instagram_username,
-        products: data.products || [],
-        notify_on_order: data.notify_on_order,
+        properties: data.properties || [],
+        notify_on_lead: data.notify_on_lead,
         notify_on_contact: data.notify_on_contact,
         notify_on_support: data.notify_on_support,
         notify_on_cancel: data.notify_on_cancel,
@@ -476,7 +476,7 @@ function getNextMonthFirstDay(): string {
  */
 export function buildNotifySettings(shop: ShopWithProducts): NotifySettings {
     return {
-        order: shop.notify_on_order ?? true,
+        order: shop.notify_on_lead ?? true,
         contact: shop.notify_on_contact ?? true,
         support: shop.notify_on_support ?? true,
         cancel: shop.notify_on_cancel ?? true,
@@ -489,10 +489,10 @@ export function buildNotifySettings(shop: ShopWithProducts): NotifySettings {
 export function generateFallbackResponse(
     intent: IntentResult,
     shopName: string,
-    products: AIProduct[]
+    properties?: any[]
 ): string {
-    const productList = products.slice(0, 3)
-        .map(p => `${p.name} (${Number(p.price).toLocaleString()}₮)`)
+    const propertyList = (properties || []).slice(0, 3)
+        .map((p: any) => `${p.name || p.title} (${Number(p.price).toLocaleString()}₮)`)
         .join(', ');
 
     switch (intent.intent) {
@@ -500,19 +500,19 @@ export function generateFallbackResponse(
             return `Сайн байна уу! 😊 ${shopName}-д тавтай морил! Танд яаж туслах вэ?`;
         case 'PRODUCT_INQUIRY':
         case 'STOCK_CHECK':
-            return productList
-                ? `Манайд ${productList} зэрэг бүтээгдэхүүн байна! 😊 Аль нь сонирхож байна вэ?`
-                : 'Бүтээгдэхүүний мэдээлэл удахгүй орно!';
+            return propertyList
+                ? `Манайд ${propertyList} зэрэг байрууд байна! 😊 Аль нь сонирхож байна вэ?`
+                : 'Байрны мэдээлэл удахгүй орно!';
         case 'PRICE_CHECK':
-            return 'Ямар бүтээгдэхүүний үнийг мэдэхийг хүсч байна вэ? 💰';
+            return 'Ямар байрны үнийг мэдэхийг хүсч байна вэ? 💰';
         case 'ORDER_CREATE':
-            return 'Захиалга өгөхийг хүсвэл бүтээгдэхүүний нэр, тоо ширхэг, утасны дугаар, хаягаа бичнэ үү! 📦';
+            return 'Байр үзэхийг хүсвэл нэр, утас, хүссэн цагаа бичнэ үү! 📋';
         case 'ORDER_STATUS':
-            return 'Захиалгын дугаараа хэлнэ үү, би шалгаад хэлье! 🔍';
+            return 'Мэдээлэл авахын тулд нэр, утас дугаараа хэлнэ үү! 🔍';
         case 'THANK_YOU':
-            return 'Баярлалаа! Дахиад ирээрэй 😊';
+            return 'Баярлалаа! Дахиад хандаарай 😊';
         case 'COMPLAINT':
-            return 'Уучлаарай, танд тохиромжгүй байдал үүссэнд харамсаж байна. Асуудлаа дэлгэрэнгүй хэлнэ үү, бид шийдвэрлэхийг хичээнэ! 🙏';
+            return 'Уучлаарай, танд тохиромжгүй байдал үүссэнд харамсаж байна. Асуудлаа дэлгэрэнгүй хэлнэ үү 🙏';
         default:
             return 'Уучлаарай, одоо системд түр алдаа гарлаа. Удахгүй хариулах болно! 🙏';
     }
