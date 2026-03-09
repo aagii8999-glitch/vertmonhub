@@ -72,6 +72,33 @@ export async function POST(request: NextRequest) {
     // Clear the cookie after use
     cookieStore.delete('fb_pages');
 
+    // Subscribe the page to the app's webhook so messages flow through
+    try {
+      const subscribeRes = await fetch(
+        `https://graph.facebook.com/v21.0/${selectedPage.id}/subscribed_apps`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subscribed_fields: 'messages,messaging_postbacks,feed',
+            access_token: selectedPage.access_token,
+          }),
+        }
+      );
+      const subscribeData = await subscribeRes.json();
+
+      if (subscribeData.success) {
+        logger.info(`Page ${selectedPage.name} (${selectedPage.id}) subscribed to webhooks`);
+      } else {
+        logger.warn(`Failed to subscribe page ${selectedPage.id} to webhooks`, {
+          error: subscribeData.error,
+        });
+      }
+    } catch (subErr) {
+      // Non-blocking: page data is still valid even if subscription fails
+      logger.error('Webhook subscription error (non-blocking):', { error: subErr });
+    }
+
     // Return the full page data with access token
     return NextResponse.json({
       success: true,
@@ -86,3 +113,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to select page' }, { status: 500 });
   }
 }
+
