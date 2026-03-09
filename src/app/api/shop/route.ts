@@ -210,3 +210,76 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
+
+// DELETE - Delete shop and all related data
+export async function DELETE(request: NextRequest) {
+  try {
+    const userId = await getClerkUser();
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const shopId = request.headers.get('x-shop-id');
+    const supabase = supabaseAdmin();
+
+    if (!shopId) {
+      return NextResponse.json({ error: 'Shop ID required' }, { status: 400 });
+    }
+
+    // Verify ownership
+    const { data: shop } = await supabase
+      .from('shops')
+      .select('id')
+      .eq('id', shopId)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (!shop) {
+      return NextResponse.json({ error: 'Shop not found or unauthorized' }, { status: 404 });
+    }
+
+    // Delete related data that may not have CASCADE
+    const tablesToClean = [
+      'comment_automations',
+      'ai_conversations',
+      'ai_question_stats',
+      'ai_analytics',
+      'shop_faqs',
+      'shop_quick_replies',
+      'shop_slogans',
+      'pending_messages',
+      'customer_complaints',
+      'feedback',
+      'email_logs',
+      'push_subscriptions',
+      'carts',
+      'payments',
+      'usage_logs',
+      'usage_summary',
+      'invoices',
+      'subscriptions',
+    ];
+
+    for (const table of tablesToClean) {
+      await supabase.from(table).delete().eq('shop_id', shopId);
+    }
+
+    // Delete the shop (CASCADE handles: products, product_variants, customers, orders, order_items, chat_history)
+    const { error } = await supabase
+      .from('shops')
+      .delete()
+      .eq('id', shopId);
+
+    if (error) {
+      logger.error('Delete shop DB error:', { error: error.message });
+      throw error;
+    }
+
+    logger.info('Shop deleted successfully', { shopId, userId });
+    return NextResponse.json({ success: true, message: 'Shop deleted successfully' });
+  } catch (error: unknown) {
+    logger.error('Delete shop error:', { error: error instanceof Error ? error.message : String(error) });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
+  }
+}

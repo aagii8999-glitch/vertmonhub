@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Save, Store, Building2, CreditCard, Globe, LogOut, Trash2, AlertTriangle, Facebook, Instagram, Bot, User, Phone, Mail, MapPin, Clock, Loader2, Link2, Unlink } from 'lucide-react';
+import { Save, Store, CreditCard, Globe, LogOut, Trash2, AlertTriangle, Facebook, Instagram, User, Loader2, Link2, Unlink } from 'lucide-react';
 import { toast } from 'sonner';
 import { logger } from '@/lib/utils/logger';
 
@@ -8,6 +8,9 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [shop, setShop] = useState<any>(null);
+    const [deleting, setDeleting] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
     const [shopInfo, setShopInfo] = useState({ name: '', description: '', phone: '', address: '', working_hours: '' });
     const [bankInfo, setBankInfo] = useState({ bank_name: '', account_name: '', account_number: '' });
@@ -70,6 +73,28 @@ export default function SettingsPage() {
             if (platform === 'facebook') setFbConnected(false); else setIgConnected(false);
             toast.success(`${platform === 'facebook' ? 'Facebook' : 'Instagram'} салгагдлаа`);
         } catch { toast.error('Алдаа гарлаа'); }
+    }
+
+    async function deleteShop() {
+        if (deleteConfirmText !== shop?.name) {
+            toast.error('Дэлгүүрийн нэрийг зөв бичнэ үү');
+            return;
+        }
+        setDeleting(true);
+        try {
+            const res = await fetch('/api/shop', {
+                method: 'DELETE',
+                headers: { 'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || '' },
+            });
+            if (res.ok) {
+                toast.success('Дэлгүүр амжилттай устгагдлаа');
+                localStorage.removeItem('smarthub_active_shop_id');
+                window.location.href = '/dashboard';
+            } else {
+                const data = await res.json();
+                toast.error(data.error || 'Устгахад алдаа гарлаа');
+            }
+        } catch { toast.error('Устгахад алдаа гарлаа'); } finally { setDeleting(false); }
     }
 
     const inputCls = "w-full px-3 py-2 border border-white/[0.08] rounded-md text-[13px] text-foreground bg-transparent focus:outline-none focus:border-white/[0.2] transition-colors";
@@ -169,13 +194,49 @@ export default function SettingsPage() {
 
             {/* Danger Zone */}
             <div className="bg-[#0F0B2E] rounded-lg border border-red-500/20 p-6">
-                <h3 className="flex items-center gap-2 text-[14px] font-semibold text-red-600 text-red-400 tracking-[-0.02em] mb-3">
+                <h3 className="flex items-center gap-2 text-[14px] font-semibold text-red-400 tracking-[-0.02em] mb-3">
                     <AlertTriangle className="w-4 h-4" strokeWidth={1.5} />Аюултай бүс
                 </h3>
-                <p className="text-[12px] text-white/50 mb-4">Дэлгүүрээ устгах. Энэ үйлдлийг буцаах боломжгүй.</p>
-                <button className="flex items-center gap-1.5 px-4 py-2 bg-red-600 text-white rounded-md text-[12px] font-medium hover:bg-red-700 transition-colors">
-                    <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />Дэлгүүр устгах
-                </button>
+                {!showDeleteConfirm ? (
+                    <>
+                        <p className="text-[12px] text-white/50 mb-4">Дэлгүүрээ устгах. Бүх бүтээгдэхүүн, захиалга, харилцагч, чат түүх устана. Энэ үйлдлийг буцаах боломжгүй.</p>
+                        <button
+                            onClick={() => setShowDeleteConfirm(true)}
+                            className="flex items-center gap-1.5 px-4 py-2 bg-red-600 text-white rounded-md text-[12px] font-medium hover:bg-red-700 transition-colors"
+                        >
+                            <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />Дэлгүүр устгах
+                        </button>
+                    </>
+                ) : (
+                    <div className="space-y-3">
+                        <p className="text-[12px] text-red-400/80">
+                            Баталгаажуулахын тулд дэлгүүрийнхээ нэрийг бичнэ үү: <span className="font-bold text-red-400">{shop?.name}</span>
+                        </p>
+                        <input
+                            type="text"
+                            value={deleteConfirmText}
+                            onChange={(e) => setDeleteConfirmText(e.target.value)}
+                            placeholder={shop?.name || 'Дэлгүүрийн нэр'}
+                            className="w-full px-3 py-2 border border-red-500/30 rounded-md text-[13px] text-foreground bg-transparent focus:outline-none focus:border-red-500/60 transition-colors"
+                        />
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={deleteShop}
+                                disabled={deleting || deleteConfirmText !== shop?.name}
+                                className="flex items-center gap-1.5 px-4 py-2 bg-red-600 text-white rounded-md text-[12px] font-medium hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                                {deleting ? 'Устгаж байна...' : 'Устгахыг баталгаажуулах'}
+                            </button>
+                            <button
+                                onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); }}
+                                className="px-4 py-2 border border-white/[0.08] rounded-md text-[12px] font-medium text-white/60 hover:border-white/[0.15] transition-colors"
+                            >
+                                Болих
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
