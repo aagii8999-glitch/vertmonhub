@@ -103,7 +103,7 @@ export default function SettingsPage() {
                                 value={shopName}
                                 onChange={(e) => setShopName(e.target.value)}
                                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                placeholder="Syncly Shop"
+                                placeholder="Vertmon Hub Shop"
                             />
                         </div>
                         <div>
@@ -304,7 +304,7 @@ export default function SettingsPage() {
                             onChange={(e) => setWelcomeMessage(e.target.value)}
                             rows={3}
                             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
-                            placeholder="Сайн байна уу! Би Syncly-ийн AI туслах..."
+                            placeholder="Сайн байна уу! Би Vertmon Hub-ийн AI туслах..."
                         />
                     </div>
 

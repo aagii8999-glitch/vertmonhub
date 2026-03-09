@@ -1,58 +1,84 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
-
-interface DashboardStats {
-    todayOrders: number;
-    pendingOrders: number;
-    totalRevenue: number;
-    totalCustomers: number;
-}
-
-interface RecentOrder {
-    id: string;
-    status: string;
-    total_amount: number;
-    created_at: string;
-    customers: { name: string } | null;
-}
-
-interface ActiveConversation {
-    customerId: string;
-    customerName: string;
-    messageCount: number;
-    lastMessage: string;
-    lastMessageAt: string;
-    lastIntent: string | null;
-    isAnswered: boolean;
-}
-
-interface LowStockProduct {
-    id: string;
-    name: string;
-    stock: number;
-    images: string[];
-}
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface DashboardData {
-    stats: DashboardStats;
-    recentOrders: RecentOrder[];
-    activeConversations: ActiveConversation[];
-    lowStockProducts: LowStockProduct[];
-    unansweredCount: number;
+    stats: {
+        totalProperties: number;
+        totalLeads: number;
+        monthlyViewings: number;
+        pendingContracts: number;
+    };
+    recentLeads: any[];
+    upcomingViewings: any[];
 }
 
-export function useDashboard(period: 'today' | 'week' | 'month' = 'today') {
-    return useQuery({
-        queryKey: ['dashboard', period],
-        queryFn: async (): Promise<DashboardData> => {
-            const res = await fetch(`/api/dashboard/stats?period=${period}`, {
-                headers: {
-                    'x-shop-id': localStorage.getItem('vertmonhub_active_shop_id') || ''
-                }
-            });
-            if (!res.ok) throw new Error('Failed to fetch dashboard data');
-            return res.json();
+export function useDashboard(timeFilter: 'today' | 'week' | 'month' = 'today') {
+    const { shop } = useAuth();
+    const shopId = shop?.id;
+
+    return useQuery<DashboardData>({
+        queryKey: ['dashboard', shopId, timeFilter],
+        queryFn: async () => {
+            if (!shopId) {
+                return {
+                    stats: { totalProperties: 0, totalLeads: 0, monthlyViewings: 0, pendingContracts: 0 },
+                    recentLeads: [],
+                    upcomingViewings: [],
+                };
+            }
+
+            // Get date range
+            const now = new Date();
+            let fromDate: Date;
+            if (timeFilter === 'today') {
+                fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            } else if (timeFilter === 'week') {
+                fromDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            } else {
+                fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            }
+
+            const [propertiesRes, leadsRes, viewingsRes, contractsRes, recentLeadsRes, upcomingViewingsRes] = await Promise.all([
+                // Total properties
+                supabase.from('properties').select('id', { count: 'exact', head: true }).eq('shop_id', shopId),
+                // Total leads
+                supabase.from('leads').select('id', { count: 'exact', head: true }).eq('shop_id', shopId),
+                // Monthly viewings
+                supabase.from('viewings').select('id', { count: 'exact', head: true })
+                    .eq('shop_id', shopId)
+                    .gte('created_at', fromDate.toISOString()),
+                // Pending contracts
+                supabase.from('contracts').select('id', { count: 'exact', head: true })
+                    .eq('shop_id', shopId)
+                    .eq('status', 'pending'),
+                // Recent leads (latest 5)
+                supabase.from('leads').select('*')
+                    .eq('shop_id', shopId)
+                    .order('created_at', { ascending: false })
+                    .limit(5),
+                // Upcoming viewings
+                supabase.from('viewings').select('*, properties(title)')
+                    .eq('shop_id', shopId)
+                    .gte('scheduled_at', now.toISOString())
+                    .order('scheduled_at', { ascending: true })
+                    .limit(3),
+            ]);
+
+            return {
+                stats: {
+                    totalProperties: propertiesRes.count || 0,
+                    totalLeads: leadsRes.count || 0,
+                    monthlyViewings: viewingsRes.count || 0,
+                    pendingContracts: contractsRes.count || 0,
+                },
+                recentLeads: recentLeadsRes.data || [],
+                upcomingViewings: upcomingViewingsRes.data || [],
+            };
         },
-        refetchInterval: 15000, // Refetch every 15 seconds
-        staleTime: 10000, // Consider data stale after 10 seconds
+        enabled: !!shopId,
+        staleTime: 30000,
     });
 }

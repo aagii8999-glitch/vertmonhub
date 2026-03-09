@@ -54,7 +54,7 @@ const testimonials = [
     name: "Батжаргал Г.",
     role: "Clothing Store эзэмшигч",
     image: "🧑‍💼",
-    content: "Syncly-ийг ашиглаж эхэлснээс хойш борлуулалт 40%-иар өсөв. AI чатбот 24/7 захиалга авдаг болсон нь маш их хөнгөлөлт болсон.",
+    content: "Vertmon Hub-ийг ашиглаж эхэлснээс хойш борлуулалт 40%-иар өсөв. AI чатбот 24/7 захиалга авдаг болсон нь маш их хөнгөлөлт болсон.",
     rating: 5
   },
   {
@@ -76,8 +76,8 @@ const testimonials = [
 // FAQ data
 const faqs = [
   {
-    question: "Syncly хэрхэн ажилладаг вэ?",
-    answer: "Syncly таны Facebook хуудастай холбогдож, Messenger-ээр ирсэн мессежүүдэд AI ашиглан автоматаар хариулна. Бүтээгдэхүүний мэдээлэл, үнэ, захиалга авах зэрэг бүх зүйлийг автоматжуулна."
+    question: "Vertmon Hub хэрхэн ажилладаг вэ?",
+    answer: "Vertmon Hub таны Facebook хуудастай холбогдож, Messenger-ээр ирсэн мессежүүдэд AI ашиглан автоматаар хариулна. Бүтээгдэхүүний мэдээлэл, үнэ, захиалга авах зэрэг бүх зүйлийг автоматжуулна."
   },
   {
     question: "Суулгахад хэр хугацаа шаардагдах вэ?",
@@ -141,7 +141,7 @@ export default function Home() {
               <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-primary">
                 <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
               </div>
-              <span className="text-xl sm:text-2xl font-bold text-foreground">Syncly</span>
+              <span className="text-xl sm:text-2xl font-bold text-foreground">Vertmon Hub</span>
             </div>
 
             {/* Mobile menu button */}
@@ -726,7 +726,7 @@ export default function Home() {
               <h3 className="text-sm font-semibold text-foreground mb-4">Дэмжлэг</h3>
               <ul className="space-y-2">
                 <li><a href="/help" className="text-sm text-muted-foreground hover:text-foreground">Тусламж</a></li>
-                <li><a href="mailto:support@syncly.mn" className="text-sm text-muted-foreground hover:text-foreground">Холбогдох</a></li>
+                <li><a href="mailto:info@vertmon.mn" className="text-sm text-muted-foreground hover:text-foreground">Холбогдох</a></li>
                 <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground">API Docs</a></li>
               </ul>
             </div>
@@ -744,10 +744,10 @@ export default function Home() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                   <Sparkles className="h-4 w-4 text-primary-foreground" />
                 </div>
-                <span className="text-lg font-bold text-foreground">Syncly</span>
+                <span className="text-lg font-bold text-foreground">Vertmon Hub</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                &copy; 2026 Syncly. Бүх эрх хуулиар хамгаалагдсан.
+                &copy; 2026 Vertmon Hub. Бүх эрх хуулиар хамгаалагдсан.
               </p>
             </div>
           </div>

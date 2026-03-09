@@ -38,8 +38,6 @@ export const ALL_MODULES = [
     'customers',
     'inbox',
     'leads',
-    'orders',
-    'products',
     'properties',
     'reports',
     'surveys',

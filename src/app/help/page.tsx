@@ -10,7 +10,7 @@ export default function HelpPage() {
   const faqs = [
     {
       question: 'AI чатбот хэрхэн ажилладаг вэ?',
-      answer: 'Syncly AI чатбот нь таны Facebook Page-тэй холбогдож, Messenger-ээр ирсэн мессежүүдэд автоматаар хариулна. Google Gemini AI ашиглан хэрэглэгчийн асуултад зөв хариулт өгнө.'
+      answer: 'Vertmon Hub AI чатбот нь таны Facebook Page-тэй холбогдож, Messenger-ээр ирсэн мессежүүдэд автоматаар хариулна. Google Gemini AI ашиглан хэрэглэгчийн асуултад зөв хариулт өгнө.'
     },
     {
       question: 'Facebook Page-ээ хэрхэн холбох вэ?',
@@ -39,7 +39,7 @@ export default function HelpPage() {
             <HelpCircle className="w-10 h-10" />
           </div>
           <h1 className="text-4xl font-bold mb-4">Тусламж & FAQ</h1>
-          <p className="text-xl text-violet-100">Syncly ашиглахад тусламж хэрэгтэй юу?</p>
+          <p className="text-xl text-violet-100">Vertmon Hub ашиглахад тусламж хэрэгтэй юу?</p>
         </div>
       </div>
 
@@ -120,14 +120,14 @@ export default function HelpPage() {
           <p className="text-gray-600 mb-8">Бидэнтэй холбоо барина уу</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="mailto:support@syncly.mn"
+              href="mailto:info@vertmon.mn"
               className="flex items-center gap-2 px-6 py-3 bg-white rounded-xl shadow hover:shadow-lg transition-all"
             >
               <Mail className="w-5 h-5 text-violet-600" />
-              <span className="font-medium text-gray-900">support@syncly.mn</span>
+              <span className="font-medium text-gray-900">info@vertmon.mn</span>
             </a>
             <a
-              href="https://m.me/synclymn"
+              href="https://m.me/vertmonhub"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-6 py-3 bg-[#1877F2] text-white rounded-xl shadow hover:shadow-lg transition-all"

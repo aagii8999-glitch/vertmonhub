@@ -8,14 +8,13 @@ import { RevenueStats } from '@/components/dashboard/RevenueStats';
 import { SmartInsights } from '@/components/dashboard/SmartInsights';
 import { useReports } from '@/hooks/useReports';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import ProductsReport from './ProductsReport';
 import LeadsReport from './leads/page';
 import {
     RefreshCw,
     Download,
     TrendingUp,
     BarChart3,
-    ShoppingCart,
+    Building2,
 } from 'lucide-react';
 
 type Period = 'today' | 'week' | 'month' | 'year';
@@ -73,9 +72,8 @@ export default function ReportsPage() {
             </div>
 
             <Tabs defaultValue="sales" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                    <TabsTrigger value="sales">Борлуулалт & Захиалга</TabsTrigger>
-                    <TabsTrigger value="products">Бүтээгдэхүүн</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="sales">Борлуулалт</TabsTrigger>
                     <TabsTrigger value="leads">Сэжим (Leads)</TabsTrigger>
                 </TabsList>
 
@@ -137,7 +135,7 @@ export default function ReportsPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <ShoppingCart className="w-5 h-5 text-primary" />
+                                    <Building2 className="w-5 h-5 text-primary" />
                                     Захиалгын төлөв
                                 </CardTitle>
                             </CardHeader>
@@ -166,10 +164,7 @@ export default function ReportsPage() {
                     </div>
                 </TabsContent>
 
-                {/* PRODUCTS TAB */}
-                <TabsContent value="products">
-                    <ProductsReport />
-                </TabsContent>
+
 
                 {/* LEADS TAB */}
                 <TabsContent value="leads">
