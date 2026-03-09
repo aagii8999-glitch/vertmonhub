@@ -23,13 +23,19 @@ export async function POST(request: NextRequest) {
         // Get customer's Facebook ID
         const { data: customer, error: customerError } = await supabase
             .from('customers')
-            .select('facebook_id')
+            .select('facebook_id, name')
             .eq('id', customerId)
             .eq('shop_id', authShop.id)
             .single();
 
-        if (customerError || !customer?.facebook_id) {
-            return NextResponse.json({ error: 'Customer not found or no Facebook ID' }, { status: 404 });
+        if (customerError || !customer) {
+            logger.error('Customer not found for reply', { customerId, shopId: authShop.id, error: customerError?.message });
+            return NextResponse.json({ error: `Хэрэглэгч олдсонгүй (ID: ${customerId})` }, { status: 404 });
+        }
+
+        if (!customer.facebook_id) {
+            logger.error('Customer has no facebook_id', { customerId, customerName: customer.name });
+            return NextResponse.json({ error: `${customer.name || 'Хэрэглэгч'}-д Facebook ID байхгүй байна. Messenger-ээр мессеж илгээх боломжгүй.` }, { status: 400 });
         }
 
         // Get shop's Facebook page access token

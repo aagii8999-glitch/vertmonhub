@@ -348,8 +348,8 @@ export default function InboxPage() {
                                                     )}
                                                     <div
                                                         className={`max-w-[75%] rounded-xl px-3 py-2 ${msg.role === 'assistant'
-                                                                ? 'bg-blue-500/15 text-blue-200 rounded-br-sm'
-                                                                : 'bg-white/[0.06] text-white/70 rounded-bl-sm'
+                                                            ? 'bg-blue-500/15 text-blue-200 rounded-br-sm'
+                                                            : 'bg-white/[0.06] text-white/70 rounded-bl-sm'
                                                             }`}
                                                     >
                                                         <p className="text-[12px] leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
@@ -411,33 +411,42 @@ export default function InboxPage() {
 
                         {/* Reply Input — pinned at bottom */}
                         <div className="border-t border-white/[0.08] px-4 py-3 bg-[#0D0928]">
-                            <div className="max-w-2xl mx-auto flex items-center gap-2">
-                                <input
-                                    ref={inputRef}
-                                    type="text"
-                                    value={replyMessage}
-                                    onChange={(e) => setReplyMessage(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                    placeholder="Мессеж бичих... (Enter = илгээх)"
-                                    disabled={isSending}
-                                    className="flex-1 px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-lg text-[13px] text-foreground placeholder:text-white/20 focus:outline-none focus:border-blue-500/40 transition-colors disabled:opacity-50"
-                                />
-                                <button
-                                    onClick={handleSendReply}
-                                    disabled={!replyMessage.trim() || isSending}
-                                    className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:from-blue-400 hover:to-violet-400 transition-all disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
-                                >
-                                    {isSending ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                        <Send className="w-4 h-4" />
-                                    )}
-                                </button>
-                            </div>
-                            <p className="max-w-2xl mx-auto text-[10px] text-white/15 mt-1.5 flex items-center gap-1">
-                                <PauseCircle className="w-3 h-3" />
-                                Гараар хариулахад AI agent 30 мин зогсно
-                            </p>
+                            {activeCart.customer.facebookId ? (
+                                <>
+                                    <div className="max-w-2xl mx-auto flex items-center gap-2">
+                                        <input
+                                            ref={inputRef}
+                                            type="text"
+                                            value={replyMessage}
+                                            onChange={(e) => setReplyMessage(e.target.value)}
+                                            onKeyDown={handleKeyDown}
+                                            placeholder="Мессеж бичих... (Enter = илгээх)"
+                                            disabled={isSending}
+                                            className="flex-1 px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-lg text-[13px] text-foreground placeholder:text-white/20 focus:outline-none focus:border-blue-500/40 transition-colors disabled:opacity-50"
+                                        />
+                                        <button
+                                            onClick={handleSendReply}
+                                            disabled={!replyMessage.trim() || isSending}
+                                            className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-violet-500 text-white hover:from-blue-400 hover:to-violet-400 transition-all disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                                        >
+                                            {isSending ? (
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <Send className="w-4 h-4" />
+                                            )}
+                                        </button>
+                                    </div>
+                                    <p className="max-w-2xl mx-auto text-[10px] text-white/15 mt-1.5 flex items-center gap-1">
+                                        <PauseCircle className="w-3 h-3" />
+                                        Гараар хариулахад AI agent 30 мин зогсно
+                                    </p>
+                                </>
+                            ) : (
+                                <p className="max-w-2xl mx-auto text-[11px] text-amber-400/60 flex items-center gap-1.5 py-1">
+                                    <Info className="w-3.5 h-3.5 shrink-0" />
+                                    Хэрэглэгчид Facebook ID байхгүй тул мессеж илгээх боломжгүй
+                                </p>
+                            )}
                         </div>
                     </div>
                 ) : (
