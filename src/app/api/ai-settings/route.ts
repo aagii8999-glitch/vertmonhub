@@ -4,14 +4,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkUserShop } from '@/lib/auth/clerk-auth';
+import { getAuthUserShop } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { logger } from '@/lib/utils/logger';
 
 // GET - Fetch all AI settings (FAQs, Quick Replies, Slogans, Stats)
 export async function GET(request: NextRequest) {
     try {
-        const shop = await getClerkUserShop();
+        const shop = await getAuthUserShop();
 
         if (!shop) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
 // POST - Create new FAQ, Quick Reply, or Slogan
 export async function POST(request: NextRequest) {
     try {
-        const shop = await getClerkUserShop();
+        const shop = await getAuthUserShop();
 
         if (!shop) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
 // PATCH - Update FAQ, Quick Reply, or Slogan
 export async function PATCH(request: NextRequest) {
     try {
-        const shop = await getClerkUserShop();
+        const shop = await getAuthUserShop();
 
         if (!shop) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -240,7 +240,7 @@ export async function PATCH(request: NextRequest) {
 // DELETE - Remove FAQ, Quick Reply, or Slogan
 export async function DELETE(request: NextRequest) {
     try {
-        const shop = await getClerkUserShop();
+        const shop = await getAuthUserShop();
 
         if (!shop) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

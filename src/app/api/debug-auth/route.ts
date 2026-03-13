@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getAuthUser, getAuthUserShop } from '@/lib/auth/clerk-auth';
+import { getAuthUser, getAuthUserShop } from '@/lib/auth/auth';
 
 export async function GET() {
     // H7 FIX: Only allow in development

@@ -4,14 +4,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkUserShop } from '@/lib/auth/clerk-auth';
+import { getAuthUserShop } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { createQPayInvoice } from '@/lib/payment/qpay';
 import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: NextRequest) {
     try {
-        const shop = await getClerkUserShop();
+        const shop = await getAuthUserShop();
 
         if (!shop) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

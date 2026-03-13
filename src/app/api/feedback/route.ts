@@ -3,7 +3,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getAuthUser, supabaseAdmin } from '@/lib/auth/clerk-auth';
+import { getAuthUser, supabaseAdmin } from '@/lib/auth/auth';
 import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: Request) {

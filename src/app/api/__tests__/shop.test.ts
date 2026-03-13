@@ -8,8 +8,8 @@ import { NextRequest } from 'next/server';
 const mockGetClerkUser = vi.fn();
 const mockSupabaseAdmin = vi.fn();
 
-vi.mock('@/lib/auth/clerk-auth', () => ({
-    getClerkUser: () => mockGetClerkUser(),
+vi.mock('@/lib/auth/auth', () => ({
+    getAuthUser: () => mockGetClerkUser(),
     supabaseAdmin: () => mockSupabaseAdmin(),
 }));
 

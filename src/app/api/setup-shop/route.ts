@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkUser, supabaseAdmin } from '@/lib/auth/clerk-auth';
+import { getAuthUser, supabaseAdmin } from '@/lib/auth/auth';
 
 export async function GET(request: NextRequest) {
     // SEC-6: Require authentication
-    const userId = await getClerkUser();
+    const userId = await getAuthUser();
     if (!userId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

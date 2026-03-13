@@ -4,7 +4,7 @@
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getAuthUser } from '@/lib/auth/clerk-auth';
+import { getAuthUser } from '@/lib/auth/auth';
 import { headers } from 'next/headers';
 import { logger } from '@/lib/utils/logger';
 

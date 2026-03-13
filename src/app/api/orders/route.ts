@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkUserShop } from '@/lib/auth/clerk-auth';
+import { getAuthUserShop } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { updateOrderStatusSchema, parseWithErrors, createOrderSchema } from '@/lib/validations';
 import { sendOrderStatusNotification } from '@/lib/services/OrderNotificationService';
@@ -8,7 +8,7 @@ import { logger } from '@/lib/utils/logger';
 // GET all orders
 export async function GET() {
   try {
-    const authShop = await getClerkUserShop();
+    const authShop = await getAuthUserShop();
 
     if (!authShop) {
       return NextResponse.json({ orders: [] });
@@ -44,7 +44,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const authShop = await getClerkUserShop();
+    const authShop = await getAuthUserShop();
     if (!authShop) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
 // PATCH - Update order status (with Zod validation)
 export async function PATCH(request: NextRequest) {
   try {
-    const authShop = await getClerkUserShop();
+    const authShop = await getAuthUserShop();
 
     if (!authShop) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

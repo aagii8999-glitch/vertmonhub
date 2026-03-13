@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkUser, supabaseAdmin } from '@/lib/auth/clerk-auth';
+import { getAuthUser, supabaseAdmin } from '@/lib/auth/auth';
 import { getPlanTypeFromSubscription } from '@/lib/ai/AIRouter';
 import { checkShopLimit } from '@/lib/ai/config/plans';
 import { logger } from '@/lib/utils/logger';
@@ -7,7 +7,7 @@ import { logger } from '@/lib/utils/logger';
 // GET - Get user's shop
 export async function GET(request: NextRequest) {
   try {
-    const userId = await getClerkUser();
+    const userId = await getAuthUser();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 // POST - Create or update shop (upsert)
 export async function POST(request: NextRequest) {
   try {
-    const userId = await getClerkUser();
+    const userId = await getAuthUser();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
 // PATCH - Update shop
 export async function PATCH(request: NextRequest) {
   try {
-    const userId = await getClerkUser();
+    const userId = await getAuthUser();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -214,7 +214,7 @@ export async function PATCH(request: NextRequest) {
 // DELETE - Delete shop and all related data
 export async function DELETE(request: NextRequest) {
   try {
-    const userId = await getClerkUser();
+    const userId = await getAuthUser();
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

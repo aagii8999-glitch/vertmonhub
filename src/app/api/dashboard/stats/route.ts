@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkUserShop } from '@/lib/auth/clerk-auth';
+import { getAuthUserShop } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getStartOfPeriod } from '@/lib/utils/date';
 import { checkRateLimit, getRateLimitHeaders, RATE_LIMITS } from '@/lib/utils/rate-limit';
@@ -8,7 +8,7 @@ import { logger } from '@/lib/utils/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    const authShop = await getClerkUserShop();
+    const authShop = await getAuthUserShop();
 
     // Rate limiting (identify by shop ID or use IP fallback)
     const identifier = authShop?.id || request.headers.get('x-forwarded-for') || 'anonymous';
@@ -53,69 +53,97 @@ export async function GET(request: NextRequest) {
     const shopId = authShop.id;
     const periodStart = getStartOfPeriod(period);
 
-    // Захиалгууд (period-д тулгуурласан)
-    const { count: periodOrders } = await supabase
-      .from('orders')
-      .select('*', { count: 'exact', head: true })
-      .eq('shop_id', shopId)
-      .gte('created_at', periodStart.toISOString());
+    // 🚀 Бүх query-г зэрэгцүүлэн ажиллуулах (Promise.all)
+    const [
+      periodOrdersResult,
+      pendingOrdersResult,
+      allOrdersDataResult,
+      totalCustomersResult,
+      recentOrdersResult,
+      recentChatsResult,
+      lowStockResult,
+    ] = await Promise.all([
+      // Захиалгууд (period-д тулгуурласан)
+      supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('shop_id', shopId)
+        .gte('created_at', periodStart.toISOString()),
 
-    // Хүлээгдэж буй захиалгууд
-    const { count: pendingOrders } = await supabase
-      .from('orders')
-      .select('*', { count: 'exact', head: true })
-      .eq('shop_id', shopId)
-      .eq('status', 'pending');
+      // Хүлээгдэж буй захиалгууд
+      supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('shop_id', shopId)
+        .eq('status', 'pending'),
 
-    // Нийт орлого
-    const { data: allOrdersData } = await supabase
-      .from('orders')
-      .select('total_amount')
-      .eq('shop_id', shopId)
-      .in('status', ['confirmed', 'processing', 'shipped', 'delivered']);
+      // Нийт орлого
+      supabase
+        .from('orders')
+        .select('total_amount')
+        .eq('shop_id', shopId)
+        .in('status', ['confirmed', 'processing', 'shipped', 'delivered']),
 
-    const totalRevenue = allOrdersData?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+      // Нийт харилцагч
+      supabase
+        .from('customers')
+        .select('*', { count: 'exact', head: true })
+        .eq('shop_id', shopId),
 
-    // Нийт харилцагч
-    const { count: totalCustomers } = await supabase
-      .from('customers')
-      .select('*', { count: 'exact', head: true })
-      .eq('shop_id', shopId);
+      // Сүүлийн захиалгууд
+      supabase
+        .from('orders')
+        .select(`
+          id,
+          total_amount,
+          status,
+          created_at,
+          notes,
+          customers (name, phone),
+          order_items (quantity, products (name))
+        `)
+        .eq('shop_id', shopId)
+        .order('created_at', { ascending: false })
+        .limit(10),
 
-    // Сүүлийн захиалгууд
-    const { data: recentOrders } = await supabase
-      .from('orders')
-      .select(`
-        id,
-        total_amount,
-        status,
-        created_at,
-        notes,
-        customers (name, phone),
-        order_items (quantity, products (name))
-      `)
-      .eq('shop_id', shopId)
-      .order('created_at', { ascending: false })
-      .limit(10);
+      // Сүүлийн чатууд (хуучин format - backward compatibility)
+      supabase
+        .from('chat_history')
+        .select(`
+          id,
+          message,
+          response,
+          intent,
+          role,
+          created_at,
+          customer_id,
+          customers (name)
+        `)
+        .eq('shop_id', shopId)
+        .order('created_at', { ascending: false })
+        .limit(50),
 
-    // Сүүлийн чатууд (хуучин format - backward compatibility)
-    const { data: recentChats } = await supabase
-      .from('chat_history')
-      .select(`
-        id,
-        message,
-        response,
-        intent,
-        role,
-        created_at,
-        customer_id,
-        customers (name)
-      `)
-      .eq('shop_id', shopId)
-      .order('created_at', { ascending: false })
-      .limit(50);
+      // Low stock products (stock < 5)
+      supabase
+        .from('products')
+        .select('id, name, stock, images')
+        .eq('shop_id', shopId)
+        .eq('is_active', true)
+        .eq('type', 'physical')
+        .lt('stock', 5)
+        .order('stock', { ascending: true })
+        .limit(5),
+    ]);
 
-    // 🆕 Хэрэглэгчээр бүлэглэсэн харилцаанууд
+    const periodOrders = periodOrdersResult.count;
+    const pendingOrders = pendingOrdersResult.count;
+    const totalRevenue = allOrdersDataResult.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+    const totalCustomers = totalCustomersResult.count;
+    const recentOrders = recentOrdersResult.data;
+    const recentChats = recentChatsResult.data;
+    const lowStockProducts = lowStockResult.data;
+
+    // Хэрэглэгчээр бүлэглэсэн харилцаанууд
     const conversationMap = new Map<string, {
       customerId: string;
       customerName: string;
@@ -145,11 +173,10 @@ export async function GET(request: NextRequest) {
           lastMessage: chat.message || '',
           lastMessageAt: chat.created_at,
           lastIntent: chat.intent,
-          isAnswered: !isUserMessage, // answered if last message is from assistant
+          isAnswered: !isUserMessage,
         });
       } else {
         existing.messageCount++;
-        // Keep the most recent message info
         if (new Date(chat.created_at) > new Date(existing.lastMessageAt)) {
           existing.lastMessage = chat.message || '';
           existing.lastMessageAt = chat.created_at;
@@ -165,17 +192,6 @@ export async function GET(request: NextRequest) {
 
     // Хариулаагүй харилцагчийн тоо
     const unansweredCount = activeConversations.filter(c => !c.isAnswered).length;
-
-    // 🆕 Low stock products (stock < 5)
-    const { data: lowStockProducts } = await supabase
-      .from('products')
-      .select('id, name, stock, images')
-      .eq('shop_id', shopId)
-      .eq('is_active', true)
-      .eq('type', 'physical')
-      .lt('stock', 5)
-      .order('stock', { ascending: true })
-      .limit(5);
 
     return NextResponse.json({
       shop: { id: authShop.id, name: authShop.name },

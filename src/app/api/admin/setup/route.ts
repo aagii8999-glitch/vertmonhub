@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getAuthUser } from '@/lib/auth/clerk-auth';
+import { getAuthUser } from '@/lib/auth/auth';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { logger } from '@/lib/utils/logger';

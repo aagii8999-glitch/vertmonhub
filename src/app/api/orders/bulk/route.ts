@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkUserShop } from '@/lib/auth/clerk-auth';
+import { getAuthUserShop } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { z } from 'zod';
 import { logger } from '@/lib/utils/logger';
@@ -12,7 +12,7 @@ const bulkUpdateSchema = z.object({
 
 export async function POST(request: NextRequest) {
     try {
-        const authShop = await getClerkUserShop();
+        const authShop = await getAuthUserShop();
         if (!authShop) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }

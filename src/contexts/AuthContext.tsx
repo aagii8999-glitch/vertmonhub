@@ -3,39 +3,13 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 import type { User } from '@supabase/supabase-js';
+import type { Shop } from '@/types/database';
 import { logger } from '@/lib/utils/logger';
 
 const isDev = process.env.NODE_ENV === 'development';
 const ACTIVE_SHOP_KEY = 'smarthub_active_shop_id';
 
-export interface Shop {
-  id: string;
-  name: string;
-  owner_name: string | null;
-  phone: string | null;
-  facebook_page_id: string | null;
-  facebook_page_name: string | null;
-  setup_completed: boolean;
-  is_active: boolean;
-  // Bank information
-  bank_name?: string | null;
-  account_number?: string | null;
-  account_name?: string | null;
-  // AI Settings
-  description?: string | null;
-  ai_emotion?: string | null;
-  ai_instructions?: string | null;
-  is_ai_active?: boolean;
-  auto_reply?: boolean;
-  welcome_message?: string | null;
-  // Instagram Integration
-  instagram_business_account_id?: string | null;
-  instagram_access_token?: string | null;
-  instagram_username?: string | null;
-  // Subscription
-  subscription_plan?: string | null;
-  page_access_token?: string | null;
-}
+export type { Shop };
 
 interface AuthContextType {
   user: { id: string; email: string; fullName: string | null } | null;

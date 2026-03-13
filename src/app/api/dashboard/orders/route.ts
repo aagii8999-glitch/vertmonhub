@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getClerkUserShop } from '@/lib/auth/clerk-auth';
+import { getAuthUserShop } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sendOrderStatusNotification } from '@/lib/services/OrderNotificationService';
 import { logger } from '@/lib/utils/logger';
 
 export async function GET(request: Request) {
   try {
-    const authShop = await getClerkUserShop();
+    const authShop = await getAuthUserShop();
 
     if (!authShop) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const authShop = await getClerkUserShop();
+    const authShop = await getAuthUserShop();
 
     if (!authShop) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

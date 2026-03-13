@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkUserShop } from '@/lib/auth/clerk-auth';
+import { getAuthUserShop } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sendTextMessage } from '@/lib/facebook/messenger';
 import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: NextRequest) {
     try {
-        const authShop = await getClerkUserShop();
+        const authShop = await getAuthUserShop();
 
         if (!authShop) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -1,11 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkUserShop } from '@/lib/auth/clerk-auth';
+import { getAuthUserShop } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { logger } from '@/lib/utils/logger';
 
+interface ChatRecord {
+    id: string;
+    customer_id: string;
+    message: string | null;
+    response: string | null;
+    created_at: string;
+}
+
+interface CustomerRecord {
+    id: string;
+    name: string | null;
+}
+
+interface ConversationMessage {
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    created_at: string;
+}
+
+interface GroupedConversation {
+    id: string;
+    customer_name: string;
+    customer_avatar: string | null;
+    last_message: string;
+    last_message_at: string;
+    unread_count: number;
+    messages: ConversationMessage[];
+}
+
 export async function GET(request: NextRequest) {
     try {
-        const authShop = await getClerkUserShop();
+        const authShop = await getAuthUserShop();
 
         if (!authShop) {
             return NextResponse.json({ conversations: [] });
@@ -28,17 +58,17 @@ export async function GET(request: NextRequest) {
         }
 
         // Fetch customer names separately
-        const customerIds = [...new Set((conversations || []).map((c: any) => c.customer_id).filter(Boolean))];
+        const customerIds = [...new Set((conversations || []).map((c: ChatRecord) => c.customer_id).filter(Boolean))];
         const { data: customers } = customerIds.length > 0
             ? await supabase.from('customers').select('id, name').in('id', customerIds)
             : { data: [] };
 
-        const customerNameMap = new Map((customers || []).map((c: any) => [c.id, c.name]));
+        const customerNameMap = new Map((customers || []).map((c: CustomerRecord) => [c.id, c.name]));
 
         // Group messages by customer_id and get latest info
-        const customerMap = new Map<string, any>();
+        const customerMap = new Map<string, GroupedConversation>();
 
-        conversations?.forEach((chat: any) => {
+        (conversations as ChatRecord[] | null)?.forEach((chat) => {
             const customerId = chat.customer_id;
             if (!customerMap.has(customerId)) {
                 customerMap.set(customerId, {
@@ -53,7 +83,7 @@ export async function GET(request: NextRequest) {
             }
 
             // Each chat record has both user message and assistant response
-            const msgs = customerMap.get(customerId).messages;
+            const msgs = customerMap.get(customerId)!.messages;
 
             // Add user message if exists
             if (chat.message) {

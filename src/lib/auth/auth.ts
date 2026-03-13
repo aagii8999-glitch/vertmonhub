@@ -66,7 +66,3 @@ export async function getAuthUserShop() {
 
     return shops[0];
 }
-
-// Backward compatibility aliases
-export const getClerkUser = getAuthUser;
-export const getClerkUserShop = getAuthUserShop;

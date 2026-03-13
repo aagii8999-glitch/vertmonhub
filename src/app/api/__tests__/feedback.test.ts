@@ -7,7 +7,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const mockGetAuthUser = vi.fn();
 const mockSupabaseAdmin = vi.fn();
 
-vi.mock('@/lib/auth/clerk-auth', () => ({
+vi.mock('@/lib/auth/auth', () => ({
     getAuthUser: () => mockGetAuthUser(),
     supabaseAdmin: () => mockSupabaseAdmin(),
 }));

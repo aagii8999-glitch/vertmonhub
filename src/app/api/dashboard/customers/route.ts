@@ -1,11 +1,11 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { getClerkUserShop } from '@/lib/auth/clerk-auth';
+import { getAuthUserShop } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { logger } from '@/lib/utils/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    const authShop = await getClerkUserShop();
+    const authShop = await getAuthUserShop();
 
     logger.debug('[Customers API] authShop:', { shop: authShop ? { id: authShop.id, name: authShop.name } : null });
 
@@ -34,10 +34,10 @@ export async function GET(request: NextRequest) {
       query = query.or(`name.ilike.%${search}%,phone.ilike.%${search}%`);
     }
 
-    // Filter by tag - disabled until migration runs
-    // if (tag) {
-    //   query = query.contains('tags', [tag]);
-    // }
+    // Filter by tag
+    if (tag) {
+      query = query.contains('tags', [tag]);
+    }
 
     // Sort
     query = query.order(sortBy, { ascending: sortOrder, nullsFirst: false });
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
 // Update customer info
 export async function PATCH(request: NextRequest) {
   try {
-    const authShop = await getClerkUserShop();
+    const authShop = await getAuthUserShop();
 
     if (!authShop) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

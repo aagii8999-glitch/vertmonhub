@@ -7,7 +7,7 @@ import { logger } from '@/lib/utils/logger';
 import { DatabaseError, NotFoundError } from '@/types/errors';
 import type { Product } from '@/types/database';
 
-export interface ProductWithVariants extends Product {
+export interface ProductWithVariants extends Omit<Product, 'variants'> {
     variants?: Array<{
         id: string;
         color: string | null;
@@ -183,7 +183,7 @@ export class ProductService {
     /**
      * Get low stock products (stock <= threshold)
      */
-    async getLowStock(shopId: string, threshold: number = 5): Promise<Product[]> {
+    async getLowStock(shopId: string, threshold: number = 5): Promise<Partial<Product>[]> {
         const { data, error } = await this.supabase
             .from('products')
             .select('id, shop_id, name, description, price, stock, image_url, is_active, created_at, has_variants')

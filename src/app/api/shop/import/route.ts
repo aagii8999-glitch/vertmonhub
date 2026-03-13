@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClerkUserShop, supabaseAdmin } from '@/lib/auth/clerk-auth';
+import { getAuthUserShop, supabaseAdmin } from '@/lib/auth/auth';
 import { parseProductFile, ParsedProduct } from '@/lib/utils/file-parser';
 import { logger } from '@/lib/utils/logger';
 
 // POST - Import products from Excel/DOCX file
 export async function POST(request: NextRequest) {
     try {
-        const shop = await getClerkUserShop();
+        const shop = await getAuthUserShop();
 
         if (!shop) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

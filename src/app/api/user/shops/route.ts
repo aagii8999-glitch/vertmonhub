@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getClerkUser, supabaseAdmin } from '@/lib/auth/clerk-auth';
+import { getAuthUser, supabaseAdmin } from '@/lib/auth/auth';
 import { logger } from '@/lib/utils/logger';
 
 // GET /api/user/shops - Get all shops for the current user
 export async function GET() {
     try {
-        const userId = await getClerkUser();
+        const userId = await getAuthUser();
 
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -31,7 +31,7 @@ export async function GET() {
 // POST /api/user/shops - Create a new shop for the current user
 export async function POST(request: Request) {
     try {
-        const userId = await getClerkUser();
+        const userId = await getAuthUser();
 
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

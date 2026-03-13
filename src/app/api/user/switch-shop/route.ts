@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getClerkUser, supabaseAdmin } from '@/lib/auth/clerk-auth';
+import { getAuthUser, supabaseAdmin } from '@/lib/auth/auth';
 import { logger } from '@/lib/utils/logger';
 
 // POST /api/user/switch-shop - Switch active shop
 export async function POST(request: Request) {
     try {
-        const userId = await getClerkUser();
+        const userId = await getAuthUser();
 
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

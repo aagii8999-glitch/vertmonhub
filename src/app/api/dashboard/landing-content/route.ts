@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { defaultLandingContent } from '@/lib/landing/defaults';
 import type { LandingContent } from '@/lib/landing/types';
-import { getAuthUser } from '@/lib/auth/clerk-auth';
+import { getAuthUser } from '@/lib/auth/auth';
 import { logger } from '@/lib/utils/logger';
 
 // GET — Public, no auth required

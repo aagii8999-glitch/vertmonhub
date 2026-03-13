@@ -4,7 +4,7 @@
 
 import { NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/admin/auth';
-import { getAuthUser } from '@/lib/auth/clerk-auth';
+import { getAuthUser } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET() {

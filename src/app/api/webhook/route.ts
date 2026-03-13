@@ -431,7 +431,17 @@ export async function POST(request: NextRequest) {
                                     );
 
                                     if (matchedProduct) {
-                                        const sizeInfo = matchedProduct.variants ? `\n📏 ${matchedProduct.variants}` : '';
+                                        let sizeInfo = '';
+                                        if (matchedProduct.variants && Array.isArray(matchedProduct.variants)) {
+                                            const variantLabels = matchedProduct.variants
+                                                .map((v) =>
+                                                    [v.color, v.size].filter(Boolean).join(' ')
+                                                )
+                                                .filter(Boolean);
+                                            if (variantLabels.length > 0) {
+                                                sizeInfo = `\n📏 ${variantLabels.join(', ')}`;
+                                            }
+                                        }
                                         responseMessage = `🏷️ ${matchedProduct.name}\n💰 ${matchedProduct.price?.toLocaleString()}₮\n📦 ${matchedProduct.stock} ширхэг${sizeInfo}`;
                                     }
                                 }
