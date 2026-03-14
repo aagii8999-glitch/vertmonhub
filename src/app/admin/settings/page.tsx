@@ -356,7 +356,6 @@ export default function AdminSettingsPage() {
                                         {settings.ai.default_provider === 'gemini' ? (
                                             <>
                                                 <option value="gemini-3.1-flash-lite-preview">⚡ Gemini 3.1 Flash Lite (Шинэ, Хурдан)</option>
-                                                <option value="gemini-2.5-flash">🔥 Gemini 2.5 Flash (Тогтвортой)</option>
                                             </>
                                         ) : (
                                             <>
