@@ -31,7 +31,6 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
  * Model mapping - Gemini models
  */
 const MODEL_MAPPING: Record<AIModel, string> = {
-    'gemini-2.5-flash': 'gemini-2.5-flash',
     'gemini-3.1-flash-lite-preview': 'gemini-3.1-flash-lite-preview',
 };
 
@@ -146,7 +145,7 @@ export async function routeToAI(
     try {
         // Get actual model
         const modelName = planConfig.model;
-        const backendModel = MODEL_MAPPING[modelName] || 'gemini-2.5-flash';
+        const backendModel = MODEL_MAPPING[modelName] || 'gemini-3.1-flash-lite-preview';
 
         logger.info(`AIRouter: Routing to Gemini [${modelName}] (Backend: ${backendModel})`);
 
@@ -299,19 +298,25 @@ export async function routeToAI(
                     }
                 }
             } else if (!finalResponseText.trim()) {
-                // No function calls and no text - log diagnostic with raw candidate
-                const candidates = response.candidates;
-                logger.warn('Gemini returned empty (no function calls)', {
-                    candidateCount: candidates?.length,
-                    finishReason: candidates?.[0]?.finishReason,
-                    safetyRatings: candidates?.[0]?.safetyRatings?.map(r => ({ category: r.category, probability: r.probability })),
-                    partTypes: candidates?.[0]?.content?.parts?.map(p => Object.keys(p)),
-                    rawContent: JSON.stringify(candidates?.[0]?.content)?.substring(0, 500),
-                    hasThoughtPart: candidates?.[0]?.content?.parts?.some((p: unknown) => typeof p === 'object' && p !== null && 'thought' in p),
-                    promptTokens: response.usageMetadata?.promptTokenCount,
-                    candidateTokens: response.usageMetadata?.candidatesTokenCount,
-                    historyLength: geminiHistory.length,
-                });
+                // No function calls and no text — retry once
+                logger.warn('Gemini returned empty, retrying once...');
+
+                // Retry with a nudge message
+                const retryResult = await chat.sendMessage(
+                    message + '\n\n(Хэрэглэгчид заавал хариу бичнэ үү)'
+                );
+                try {
+                    finalResponseText = retryResult.response.text?.() || '';
+                } catch { /* ignore */ }
+
+                if (!finalResponseText.trim()) {
+                    logger.warn('Gemini still empty after retry', {
+                        promptTokens: response.usageMetadata?.promptTokenCount,
+                        historyLength: geminiHistory.length,
+                    });
+                } else {
+                    logger.info('Gemini retry succeeded');
+                }
             }
 
             // Log usage info
@@ -391,7 +396,7 @@ export async function analyzeProductImageWithPlan(
     try {
         // Use GeminiProvider for vision
         const { GeminiProvider } = await import('./providers/GeminiProvider');
-        const geminiVision = new GeminiProvider('gemini-2.5-flash');
+        const geminiVision = new GeminiProvider('gemini-3.1-flash-lite-preview');
 
         if (!geminiVision.isAvailable()) {
             logger.warn('Gemini not available for vision');
