@@ -370,7 +370,18 @@ export async function POST(request: NextRequest) {
                         logger.success(`[${shop.name}] AI response sent to ${senderId}`);
 
                     } catch (aiError) {
-                        logger.error('AI processing error:', { error: aiError });
+                        const errMsg = aiError instanceof Error ? aiError.message : String(aiError);
+                        const errStack = aiError instanceof Error ? aiError.stack : undefined;
+                        logger.error(`[${shop.name}] AI processing error:`, {
+                            error: errMsg,
+                            stack: errStack,
+                            senderId,
+                            userMessage: event.message?.text?.substring(0, 100),
+                        });
+                        Sentry.captureException(aiError, {
+                            tags: { shopName: shop.name, platform },
+                            extra: { senderId, userMessage: event.message?.text?.substring(0, 50) },
+                        });
                         // Send fallback response
                         const fallback = generateFallbackResponse(intent, shop.name, shop.products);
                         await sendTextMessage({
