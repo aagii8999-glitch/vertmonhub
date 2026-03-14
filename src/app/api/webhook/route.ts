@@ -174,6 +174,11 @@ export async function POST(request: NextRequest) {
             let shop: ShopWithProducts | null = null;
             if (platform === 'instagram') {
                 shop = await getShopByInstagramId(accountId);
+                // Fallback: Instagram webhook sometimes sends Page ID instead of IG Business Account ID
+                if (!shop) {
+                    logger.info(`Instagram: shop not found by IG ID ${accountId}, trying Page ID fallback...`);
+                    shop = await getShopByPageId(accountId);
+                }
             } else {
                 shop = await getShopByPageId(accountId);
             }
