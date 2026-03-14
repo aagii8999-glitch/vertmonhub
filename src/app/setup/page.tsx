@@ -264,7 +264,10 @@ function SetupContent() {
       })
     });
 
-    if (!shopRes.ok) throw new Error('Дэлгүүрийн мэдээлэл шинэчлэхэд алдаа гарлаа');
+    if (!shopRes.ok) {
+      const errData = await shopRes.json().catch(() => ({}));
+      throw new Error(errData.error || `Дэлгүүрийн мэдээлэл шинэчлэхэд алдаа гарлаа (${shopRes.status})`);
+    }
 
     await refreshShop();
     setStep(3);
