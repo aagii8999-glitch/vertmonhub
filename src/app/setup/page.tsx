@@ -512,7 +512,33 @@ function SetupContent() {
                   igBusinessAccountId: shop?.instagram_business_account_id || ''
                 }}
                 igAccounts={igAccounts}
-                onConnect={() => window.location.href = '/api/auth/instagram'}
+                onConnect={async () => {
+                  // Try auto-connect via existing Facebook Page token first
+                  if (shop?.facebook_page_id) {
+                    try {
+                      setError('');
+                      const res = await fetch('/api/dashboard/connect-instagram', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || shop?.id || ''
+                        }
+                      });
+                      const data = await res.json();
+                      if (res.ok && data.success) {
+                        await refreshShop();
+                        return; // Auto-connected!
+                      }
+                      // If auto-connect failed, fall back to OAuth
+                      logger.warn('Auto-connect failed, falling back to OAuth:', { error: data.error });
+                      setError(data.error || 'Автоматаар холбоход алдаа. OAuth ашиглаж байна...');
+                    } catch (err) {
+                      logger.error('Auto-connect error:', { error: err });
+                    }
+                  }
+                  // Fallback: Full Instagram OAuth
+                  window.location.href = '/api/auth/instagram';
+                }}
                 onSelectAccount={handleInstagramSelect}
                 onManualSave={handleManualInstagramSave}
                 onBack={() => setStep(2)}
