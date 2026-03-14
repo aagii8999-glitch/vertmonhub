@@ -39,7 +39,7 @@ interface MenuItem {
 const mainMenu: MenuItem[] = [
     { name: 'Хянах самбар', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Бүтээгдэхүүн', href: '/dashboard/products', icon: Package },
-    { name: 'Захиалга', href: '/dashboard/orders', icon: ShoppingCart },
+    { name: 'Захиалга', href: '/dashboard/orders', icon: ShoppingCart, feature: 'payment_integration' },
     { name: 'Харилцагч', href: '/dashboard/customers', icon: Users },
     { name: 'Гомдол', href: '/dashboard/complaints', icon: AlertTriangle },
 ];

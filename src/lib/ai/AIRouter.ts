@@ -233,7 +233,7 @@ export async function routeToAI(
                             functionResponse: {
                                 name: fc.name,
                                 response: {
-                                    error: 'This feature is not available on your current plan. Please upgrade to access this feature.'
+                                    error: `Энэ боломж (${functionName}) одоогийн ${planType} багцад идэвхгүй байна. Pro багц руу шилжвэл захиалга, checkout, дэлгэрэнгүй тайлан зэрэг бүх боломж нээгдэнэ! 🚀`
                                 }
                             }
                         });
