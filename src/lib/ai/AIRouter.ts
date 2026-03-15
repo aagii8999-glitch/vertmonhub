@@ -83,14 +83,38 @@ async function retryOperation<T>(
 /**
  * Convert ChatMessage history to Gemini Content format
  * Filters out empty messages that can cause Gemini to return empty responses
+ * Ensures: 1) First message is 'user' role, 2) Roles alternate (merges consecutive same-role)
  */
 function toGeminiHistory(messages: ChatMessage[]): Content[] {
-    return messages
+    const filtered = messages
         .filter(m => (m.role === 'user' || m.role === 'assistant') && m.content?.trim())
         .map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
+            role: m.role === 'assistant' ? 'model' as const : 'user' as const,
             parts: [{ text: m.content }] as Part[],
         }));
+
+    // Drop leading 'model' messages — Gemini requires first content to be 'user'
+    let startIndex = 0;
+    while (startIndex < filtered.length && filtered[startIndex].role === 'model') {
+        startIndex++;
+    }
+    const trimmed = filtered.slice(startIndex);
+
+    // Merge consecutive messages with the same role (Gemini requires alternating roles)
+    const merged: Content[] = [];
+    for (const msg of trimmed) {
+        const last = merged[merged.length - 1];
+        if (last && last.role === msg.role) {
+            // Merge text into previous message
+            const prevText = (last.parts[0] as { text: string }).text;
+            const newText = (msg.parts[0] as { text: string }).text;
+            last.parts = [{ text: prevText + '\n' + newText }];
+        } else {
+            merged.push({ ...msg });
+        }
+    }
+
+    return merged;
 }
 
 /**
