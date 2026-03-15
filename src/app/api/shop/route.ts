@@ -31,8 +31,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ shop });
   } catch (error: unknown) {
-    logger.error('Get shop error:', { error: error instanceof Error ? error.message : String(error) });
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
+    const errMsg = error instanceof Error ? error.message : (typeof error === 'object' ? JSON.stringify(error) : String(error));
+    logger.error('Get shop error:', { error: errMsg });
+    return NextResponse.json({ error: errMsg || 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -138,8 +139,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ shop });
   } catch (error: unknown) {
-    logger.error('Create shop error:', { error: error instanceof Error ? error.message : String(error) });
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
+    const errMsg = error instanceof Error ? error.message : (typeof error === 'object' ? JSON.stringify(error) : String(error));
+    logger.error('Create shop error:', { error: errMsg });
+    return NextResponse.json({ error: errMsg || 'Unknown error' }, { status: 500 });
   }
 }
 
@@ -174,6 +176,7 @@ export async function PATCH(request: NextRequest) {
     const ALLOWED_FIELDS = [
       'name', 'owner_name', 'phone', 'description',
       'ai_instructions', 'ai_emotion', 'is_ai_active',
+      'bank_name', 'account_name', 'account_number',
       'notify_on_order', 'notify_on_contact', 'notify_on_support', 'notify_on_cancel',
       'facebook_page_id', 'facebook_page_name', 'facebook_page_username',
       'facebook_page_access_token',
@@ -200,14 +203,16 @@ export async function PATCH(request: NextRequest) {
       .single();
 
     if (error) {
-      logger.error('Update shop DB error:', { error: error instanceof Error ? error.message : String(error) });
-      throw error;
+      const dbErrMsg = typeof error === 'object' && error !== null && 'message' in error ? (error as { message: string }).message : JSON.stringify(error);
+      logger.error('Update shop DB error:', { error: dbErrMsg, code: (error as { code?: string }).code, details: (error as { details?: string }).details });
+      return NextResponse.json({ error: dbErrMsg || 'DB update failed' }, { status: 500 });
     }
 
     return NextResponse.json({ shop: updatedShop });
   } catch (error: unknown) {
-    logger.error('Update shop error:', { error: error instanceof Error ? error.message : String(error) });
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
+    const errMsg = error instanceof Error ? error.message : (typeof error === 'object' ? JSON.stringify(error) : String(error));
+    logger.error('Update shop error:', { error: errMsg });
+    return NextResponse.json({ error: errMsg || 'Unknown error' }, { status: 500 });
   }
 }
 
