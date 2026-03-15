@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyWebhook, sendTextMessage, sendSenderAction } from '@/lib/facebook/messenger';
+import { verifyWebhook, sendTextMessage, sendSenderAction, sendActionsAsButtons } from '@/lib/facebook/messenger';
 import { detectIntent } from '@/lib/ai/intent-detector';
 import { shouldReplyToComment } from '@/lib/ai/comment-detector';
 import { logger } from '@/lib/utils/logger';
@@ -370,6 +370,15 @@ export async function POST(request: NextRequest) {
                         // Process product images if AI requested
                         await processAIResponse(response, senderId, accessToken);
 
+                        // Send action buttons if AI returned them
+                        if (response.actions && response.actions.length > 0) {
+                            await sendActionsAsButtons({
+                                recipientId: senderId,
+                                actions: response.actions,
+                                pageAccessToken: accessToken,
+                            });
+                        }
+
                         // Save to chat history
                         await saveChatHistory(shop.id, customer.id, userMessage, aiText, intent.intent);
                         await incrementMessageCount(customer.id);
@@ -598,6 +607,16 @@ export async function POST(request: NextRequest) {
                             });
 
                             await processAIResponse(response, senderId, accessToken);
+
+                            // Send action buttons if AI returned them
+                            if (response.actions && response.actions.length > 0) {
+                                await sendActionsAsButtons({
+                                    recipientId: senderId,
+                                    actions: response.actions,
+                                    pageAccessToken: accessToken,
+                                });
+                            }
+
                             await saveChatHistory(shop.id, customer.id, userMessage, aiText, 'POSTBACK');
                             await incrementMessageCount(customer.id);
 

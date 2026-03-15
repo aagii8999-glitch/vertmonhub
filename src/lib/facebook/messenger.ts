@@ -303,6 +303,122 @@ export async function sendImageGallery({
     return response.json();
 }
 
+/**
+ * Send a button template message (up to 3 buttons per message)
+ * Facebook Messenger API limit: max 3 buttons per button template
+ */
+export async function sendButtonTemplate({
+    recipientId,
+    text,
+    buttons,
+    pageAccessToken,
+}: {
+    recipientId: string;
+    text: string;
+    buttons: Array<{ type: 'postback' | 'web_url'; title: string; payload?: string; url?: string }>;
+    pageAccessToken: string;
+}) {
+    // Guard: FB allows max 3 buttons
+    const limitedButtons = buttons.slice(0, 3);
+
+    // Button text max 640 chars
+    const safeText = text.length > 640 ? text.substring(0, 637) + '...' : text;
+
+    const response = await fetch(`${GRAPH_API_URL}/me/messages?access_token=${pageAccessToken}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            recipient: { id: recipientId },
+            message: {
+                attachment: {
+                    type: 'template',
+                    payload: {
+                        template_type: 'button',
+                        text: safeText,
+                        buttons: limitedButtons,
+                    },
+                },
+            },
+        }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        logger.error('Facebook API error (button template):', { error });
+        throw new Error(`Failed to send button template: ${error.error?.message || 'Unknown error'}`);
+    }
+
+    return response.json();
+}
+
+/**
+ * Convert ChatActions to Messenger button template and send
+ * Groups actions into sets of 3 buttons (FB limit)
+ */
+export async function sendActionsAsButtons({
+    recipientId,
+    actions,
+    pageAccessToken,
+    fallbackText = 'Сонголтоо хийнэ үү:',
+}: {
+    recipientId: string;
+    actions: Array<{
+        type: string;
+        buttons: Array<{
+            id?: string;
+            label: string;
+            payload: string;
+            variant?: string;
+            icon?: string;
+        }>;
+        context?: Record<string, unknown>;
+    }>;
+    pageAccessToken: string;
+    fallbackText?: string;
+}) {
+    // Collect all buttons from all action groups
+    const allButtons: Array<{ type: 'postback' | 'web_url'; title: string; payload?: string; url?: string }> = [];
+
+    for (const action of actions) {
+        for (const btn of action.buttons) {
+            // Handle special OPEN_QPAY payload as web_url button
+            if (btn.payload.startsWith('OPEN_QPAY:')) {
+                const url = btn.payload.replace('OPEN_QPAY:', '');
+                allButtons.push({
+                    type: 'web_url',
+                    title: btn.label.substring(0, 20), // FB limit: 20 chars
+                    url,
+                });
+            } else {
+                allButtons.push({
+                    type: 'postback',
+                    title: btn.label.substring(0, 20), // FB limit: 20 chars
+                    payload: btn.payload,
+                });
+            }
+        }
+    }
+
+    if (allButtons.length === 0) return;
+
+    // Send in groups of 3 (FB API limit)
+    for (let i = 0; i < allButtons.length; i += 3) {
+        const chunk = allButtons.slice(i, i + 3);
+        const text = i === 0 ? fallbackText : 'Бусад сонголт:';
+
+        try {
+            await sendButtonTemplate({
+                recipientId,
+                text,
+                buttons: chunk,
+                pageAccessToken,
+            });
+        } catch (error) {
+            logger.warn('Failed to send action buttons chunk:', { error, chunkIndex: i });
+        }
+    }
+}
+
 export function verifyWebhook(
     mode: string | null,
     token: string | null,
