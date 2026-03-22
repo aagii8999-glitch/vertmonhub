@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { QueryProvider } from "@/components/providers/QueryProvider";
@@ -72,10 +73,12 @@ export default function RootLayout({
         <ServiceWorkerRegistration />
         <PWAInstallPrompt />
         <QueryProvider>
-          <AuthProvider>
-            {children}
-            <Toaster position="top-center" richColors />
-          </AuthProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              {children}
+              <Toaster position="top-center" richColors />
+            </AuthProvider>
+          </LanguageProvider>
         </QueryProvider>
       </body>
     </html>

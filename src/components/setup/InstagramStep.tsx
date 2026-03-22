@@ -5,6 +5,7 @@ import {
     Instagram, CheckCircle, ArrowLeft, ArrowRight,
     MessageSquare, ExternalLink, AlertCircle, RefreshCw
 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface InstagramAccount {
     pageId: string;
@@ -47,6 +48,7 @@ export function InstagramStep({
     const [error, setError] = useState('');
     const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
     const [retryCount, setRetryCount] = useState(0);
+    const { t } = useLanguage();
 
     // Manual fields
     const [manualUsername, setManualUsername] = useState(initialData.igUsername || '');
@@ -60,7 +62,7 @@ export function InstagramStep({
         try {
             await onSelectAccount(account);
         } catch (err: unknown) {
-            setError((err instanceof Error ? err.message : String(err)) || 'Instagram холбоход алдаа гарлаа');
+            setError((err instanceof Error ? err.message : String(err)) || t.setup.instagram.connectError);
         } finally {
             setSaving(false);
             setSelectedAccountId(null);
@@ -69,7 +71,7 @@ export function InstagramStep({
 
     const handleManualSubmit = async () => {
         if (!manualBusinessId || !manualToken || !manualUsername) {
-            setError('Бүх талбаруудыг бөглөнө үү');
+            setError(t.setup.instagram.fillAllFields);
             return;
         }
         setSaving(true);
@@ -81,7 +83,7 @@ export function InstagramStep({
                 accessToken: manualToken
             });
         } catch (err: unknown) {
-            setError((err instanceof Error ? err.message : String(err)) || 'Алдаа гарлаа');
+            setError((err instanceof Error ? err.message : String(err)) || t.common.error);
         } finally {
             setSaving(false);
         }
@@ -93,8 +95,8 @@ export function InstagramStep({
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-violet-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Instagram className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Instagram холбох</h2>
-                <p className="text-gray-500">Instagram DM чатбот идэвхжүүлэхийн тулд Business Account холбоно уу</p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">{t.setup.instagram.title}</h2>
+                <p className="text-gray-500">{t.setup.instagram.subtitle}</p>
             </div>
 
             {error && (
@@ -113,12 +115,12 @@ export function InstagramStep({
                             className="flex items-center gap-1.5 text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1.5 bg-red-100 hover:bg-red-200 rounded-lg transition-colors shrink-0"
                         >
                             <RefreshCw className="w-4 h-4" />
-                            Дахин
+                            {t.common.retry}
                         </button>
                     </div>
                     {retryCount > 0 && (
                         <p className="text-xs text-red-500 mt-2">
-                            Оролдлого: {retryCount} удаа
+                            {t.setup.facebook.attempt}: {retryCount} {t.setup.facebook.times}
                         </p>
                     )}
                 </div>
@@ -129,7 +131,7 @@ export function InstagramStep({
                     <div className="flex items-center gap-3">
                         <CheckCircle className="w-6 h-6 text-purple-500" />
                         <div>
-                            <p className="text-purple-700 font-medium">Instagram холбогдсон!</p>
+                            <p className="text-purple-700 font-medium">{t.setup.instagram.connected}</p>
                             <p className="text-sm text-purple-600 opacity-80">@{initialData.igUsername}</p>
                         </div>
                     </div>
@@ -139,7 +141,7 @@ export function InstagramStep({
             {/* Show Instagram accounts list if available from OAuth */}
             {igAccounts.length > 0 && (
                 <div className="space-y-4">
-                    <p className="text-gray-700 text-center font-medium">Instagram account сонгоно уу:</p>
+                    <p className="text-gray-700 text-center font-medium">{t.setup.instagram.selectAccount}</p>
                     <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                         {igAccounts.map((account) => (
                             <button
@@ -183,7 +185,7 @@ export function InstagramStep({
                         className="w-full py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-violet-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-3 shadow-lg shadow-purple-500/20"
                     >
                         <Instagram className="w-6 h-6" />
-                        Instagram-ээр холбох
+                        {t.setup.instagram.connectButton}
                     </button>
 
                     <div className="relative my-6">
@@ -191,26 +193,26 @@ export function InstagramStep({
                             <div className="w-full border-t border-gray-200"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-[#FAFAFA] text-gray-500">эсвэл</span>
+                            <span className="px-4 bg-[#FAFAFA] text-gray-500">{t.common.or}</span>
                         </div>
                     </div>
 
                     {/* Manual Setup (Collapsed) */}
                     <details className="group">
                         <summary className="cursor-pointer text-gray-500 hover:text-gray-700 text-sm text-center list-none font-medium transition-colors">
-                            Гараар оруулах ↓
+                            {t.common.manualEntry} ↓
                         </summary>
                         <div className="mt-4 space-y-4 pt-4 border-t border-gray-100">
                             {/* Requirements Alert */}
                             <div className="bg-amber-50 border border-blue-100 rounded-xl p-4">
                                 <h3 className="text-blue-800 font-medium mb-2 flex items-center gap-2">
                                     <AlertCircle className="w-5 h-5" />
-                                    Шаардлага
+                                    {t.setup.instagram.requirements}
                                 </h3>
                                 <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-                                    <li>Instagram Business эсвэл Creator Account байх</li>
-                                    <li>Facebook Page-тэй холбогдсон байх</li>
-                                    <li>Meta Developer аппд Instagram Messaging идэвхжүүлсэн байх</li>
+                                    <li>{t.setup.instagram.reqBusiness}</li>
+                                    <li>{t.setup.instagram.reqFbPage}</li>
+                                    <li>{t.setup.instagram.reqMessaging}</li>
                                 </ul>
                             </div>
 
@@ -218,7 +220,7 @@ export function InstagramStep({
                             <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 rounded-xl p-4">
                                 <h3 className="text-purple-700 font-medium mb-2 flex items-center gap-2">
                                     <MessageSquare className="w-5 h-5" />
-                                    Хэрхэн холбох вэ?
+                                    {t.setup.instagram.howToConnect}
                                 </h3>
                                 <ol className="text-sm text-purple-900/70 space-y-2 list-decimal list-inside">
                                     <li>
@@ -273,7 +275,7 @@ export function InstagramStep({
                                     disabled={saving || !manualBusinessId || !manualToken || !manualUsername}
                                     className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 rounded-lg text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                                 >
-                                    {saving ? 'Хадгалж байна...' : 'Гараар хадгалах'}
+                                    {saving ? t.common.saving : t.common.manualSave}
                                 </button>
                             </div>
                         </div>
@@ -287,13 +289,13 @@ export function InstagramStep({
                     className="flex-1 py-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
                 >
                     <ArrowLeft className="w-5 h-5" />
-                    Буцах
+                    {t.common.back}
                 </button>
                 <button
                     onClick={onNext}
                     className="flex-1 py-4 bg-violet-600 text-white font-semibold rounded-xl hover:bg-violet-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20"
                 >
-                    {initialData.igConnected ? 'Үргэлжлүүлэх' : 'Алгасах'}
+                    {initialData.igConnected ? t.common.next : t.common.skip}
                     <ArrowRight className="w-5 h-5" />
                 </button>
             </div>

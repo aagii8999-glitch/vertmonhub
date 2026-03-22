@@ -17,26 +17,28 @@ import {
     AlertTriangle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const primaryNavItems = [
-    { name: 'Нүүр', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Захиалга', href: '/dashboard/orders', icon: ShoppingCart },
-    { name: 'Тайлан', href: '/dashboard/reports', icon: BarChart3 },
-];
-
-const secondaryNavItems = [
-    { name: 'Бүтээгдэхүүн', href: '/dashboard/products', icon: Package },
-    { name: 'Харилцагч', href: '/dashboard/customers', icon: Users },
-    { name: 'Гомдол', href: '/dashboard/complaints', icon: AlertTriangle },
-    { name: 'Сагс', href: '/dashboard/inbox', icon: ShoppingCart },
-    { name: 'AI Тохиргоо', href: '/dashboard/ai-settings', icon: Bot },
-    { name: 'Төлбөр', href: '/dashboard/subscription', icon: CreditCard },
-    { name: 'Тохиргоо', href: '/dashboard/settings', icon: Settings },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function MobileNav() {
     const pathname = usePathname();
+    const { t } = useLanguage();
     const [showMore, setShowMore] = useState(false);
+
+    const primaryNavItems = [
+        { name: t.mobileNav.home, href: '/dashboard', icon: LayoutDashboard },
+        { name: t.mobileNav.orders, href: '/dashboard/orders', icon: ShoppingCart },
+        { name: t.mobileNav.reports, href: '/dashboard/reports', icon: BarChart3 },
+    ];
+
+    const secondaryNavItems = [
+        { name: t.sidebar.products, href: '/dashboard/products', icon: Package },
+        { name: t.sidebar.customers, href: '/dashboard/customers', icon: Users },
+        { name: t.sidebar.complaints, href: '/dashboard/complaints', icon: AlertTriangle },
+        { name: t.sidebar.cart, href: '/dashboard/inbox', icon: ShoppingCart },
+        { name: t.sidebar.aiSettings, href: '/dashboard/ai-settings', icon: Bot },
+        { name: t.setup.subscription.title, href: '/dashboard/subscription', icon: CreditCard },
+        { name: t.sidebar.settings, href: '/dashboard/settings', icon: Settings },
+    ];
 
     // Close on Escape key
     useEffect(() => {
@@ -66,10 +68,10 @@ export function MobileNav() {
                     >
                         <div className="p-2">
                             <div className="flex items-center justify-between px-4 py-3">
-                                <span className="font-bold text-foreground text-sm tracking-[-0.03em]">Бусад</span>
+                                <span className="font-bold text-foreground text-sm tracking-[-0.03em]">{t.mobileNav.more}</span>
                                 <button
                                     onClick={() => setShowMore(false)}
-                                    aria-label="Цэс хаах"
+                                    aria-label={t.mobileNav.closeMenu}
                                     className="p-2 rounded-xl hover:bg-[#151040] transition-colors"
                                 >
                                     <X className="w-4 h-4 text-white/40" />
@@ -107,7 +109,7 @@ export function MobileNav() {
             )}
 
             {/* Bottom Navigation Bar */}
-            <nav className="fixed bottom-3 left-3 right-3 z-50 block md:hidden" aria-label="Гар утасны навигаци" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+            <nav className="fixed bottom-3 left-3 right-3 z-50 block md:hidden" aria-label={t.mobileNav.mobileNavigation} style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
                 <div className="bg-[#141418]/70 backdrop-blur-2xl rounded-2xl border border-white/[0.08] shadow-lg">
                     <ul className="flex justify-around items-stretch h-[58px]">
                         {primaryNavItems.map((item) => {
@@ -145,7 +147,7 @@ export function MobileNav() {
                         <li className="flex-1">
                             <button
                                 onClick={() => setShowMore(!showMore)}
-                                aria-label="Нэмэлт цэс"
+                                aria-label={t.mobileNav.additionalMenu}
                                 aria-expanded={showMore}
                                 className={cn(
                                     'flex flex-col items-center justify-center w-full h-full gap-1 transition-all duration-200 active:scale-90',
@@ -165,7 +167,7 @@ export function MobileNav() {
                                     'text-[10px] tracking-[-0.01em]',
                                     (showMore || isMoreActive) ? 'font-bold text-blue-600 text-blue-400' : 'font-medium'
                                 )}>
-                                    Бусад
+                                    {t.mobileNav.more}
                                 </span>
                             </button>
                         </li>

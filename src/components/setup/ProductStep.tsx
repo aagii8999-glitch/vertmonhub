@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProductImportModal } from './ProductImportModal';
 import { logger } from '@/lib/utils/logger';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Product {
   name: string;
@@ -27,6 +28,7 @@ interface ProductStepProps {
 
 export function ProductStep({ initialProducts, onBack, onComplete }: ProductStepProps) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [products, setProducts] = useState<Product[]>(
     initialProducts.length > 0
       ? initialProducts.map(p => ({
@@ -141,7 +143,7 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
   };
 
   const uploadImage = async (file: File) => {
-    if (!user) throw new Error("Нэвтрээгүй байна");
+    if (!user) throw new Error(t.setup.products.notLoggedIn);
 
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random()}.${fileExt}`;
@@ -204,8 +206,8 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
         <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Package className="w-8 h-8 text-emerald-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Бүтээгдэхүүн & Үйлчилгээ</h2>
-        <p className="text-gray-500">Та өөрийн бараа эсвэл үйлчилгээгээ бүртгүүлээрэй</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">{t.setup.products.title}</h2>
+        <p className="text-gray-500">{t.setup.products.subtitle}</p>
       </div>
 
       {error && (
@@ -227,7 +229,7 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
                     : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                 >
-                  <Box className="w-3.5 h-3.5" /> Бараа
+                  <Box className="w-3.5 h-3.5" /> {t.setup.products.physical}
                 </button>
                 <button
                   onClick={() => updateProduct(index, 'type', 'service')}
@@ -236,7 +238,7 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
                     : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                 >
-                  <Layers className="w-3.5 h-3.5" /> Үйлчилгээ
+                  <Layers className="w-3.5 h-3.5" /> {t.setup.products.service}
                 </button>
               </div>
 
@@ -273,14 +275,14 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
                     type="text"
                     value={product.name}
                     onChange={(e) => updateProduct(index, 'name', e.target.value)}
-                    placeholder={product.type === 'physical' ? "Барааны нэр" : "Үйлчилгээний нэр"}
+                    placeholder={product.type === 'physical' ? t.setup.products.productName : t.setup.products.serviceName}
                     className="px-3 py-2 bg-white shadow-sm border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                   <input
                     type="number"
                     value={product.price}
                     onChange={(e) => updateProduct(index, 'price', e.target.value)}
-                    placeholder="Үнэ (₮)"
+                    placeholder={t.setup.products.price}
                     className="px-3 py-2 bg-white shadow-sm border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
@@ -291,7 +293,7 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
                       type="number"
                       value={product.stock}
                       onChange={(e) => updateProduct(index, 'stock', e.target.value)}
-                      placeholder="Үлдэгдэл"
+                      placeholder={t.setup.products.stock}
                       className="px-3 py-2 bg-white shadow-sm border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                     />
                   )}
@@ -299,7 +301,7 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
                     type="text"
                     value={product.description}
                     onChange={(e) => updateProduct(index, 'description', e.target.value)}
-                    placeholder="Тайлбар"
+                    placeholder={t.setup.products.description}
                     className={`px-3 py-2 bg-white shadow-sm border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${product.type === 'service' ? 'col-span-2' : ''}`}
                   />
                 </div>
@@ -308,22 +310,22 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
 
             <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-200">
               <div>
-                <label className="text-xs text-gray-500 mb-1 block font-medium">Өнгө / Хувилбар</label>
+                <label className="text-xs text-gray-500 mb-1 block font-medium">{t.setup.products.colors}</label>
                 <input
                   type="text"
                   value={product.colors}
                   onChange={(e) => updateProduct(index, 'colors', e.target.value)}
-                  placeholder="Улаан, Хар..."
+                  placeholder={t.setup.products.colorsPlaceholder}
                   className="w-full px-3 py-2 bg-white shadow-sm border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm focus:border-transparent transition-all"
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-500 mb-1 block font-medium">Хэмжээ / Хугацаа</label>
+                <label className="text-xs text-gray-500 mb-1 block font-medium">{t.setup.products.sizes}</label>
                 <input
                   type="text"
                   value={product.sizes}
                   onChange={(e) => updateProduct(index, 'sizes', e.target.value)}
-                  placeholder={product.type === 'physical' ? "S, M, L..." : "1 цаг, 1 сар..."}
+                  placeholder={product.type === 'physical' ? t.setup.products.sizesPhysical : t.setup.products.sizesService}
                   className="w-full px-3 py-2 bg-white shadow-sm border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm focus:border-transparent transition-all"
                 />
               </div>
@@ -339,7 +341,7 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
           onClick={addProduct}
           className="flex-1 py-3 border-2 border-dashed border-gray-300 text-gray-500 rounded-xl hover:border-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 font-medium"
         >
-          <Plus className="w-5 h-5" /> Нэмэх
+          <Plus className="w-5 h-5" /> {t.common.add}
         </button>
         <button
           onClick={() => setShowImportModal(true)}
@@ -406,7 +408,7 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
           className="flex-1 py-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
         >
           <ArrowLeft className="w-5 h-5" />
-          Буцах
+          {t.common.back}
         </button>
         <button
           onClick={handleComplete}
@@ -416,12 +418,12 @@ export function ProductStep({ initialProducts, onBack, onComplete }: ProductStep
           {saving ? (
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              {uploading ? 'Зураг хуулж байна...' : 'Хадгалж байна...'}
+              {uploading ? t.setup.products.uploadingImages : t.common.saving}
             </div>
           ) : (
             <>
               <Check className="w-5 h-5" />
-              Дуусгах
+              {t.common.finish}
             </>
           )}
         </button>

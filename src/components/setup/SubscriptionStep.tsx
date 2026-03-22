@@ -7,6 +7,7 @@ import {
     Crown, Rocket, Building2, Sparkles,
     CreditCard, X, Loader2, ArrowRight
 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
 interface Plan {
@@ -45,6 +46,7 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
     const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [subscribing, setSubscribing] = useState(false);
+    const { t } = useLanguage();
 
     // Fetch plans
     useEffect(() => {
@@ -74,12 +76,12 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
         if (Array.isArray(features)) return features;
 
         const featureLabels: Record<string, { icon: string; label: string; showValue?: boolean }> = {
-            ai_enabled: { icon: '🤖', label: 'AI идэвхтэй' },
-            cart_system: { icon: '🛒', label: 'Сагсны систем' },
-            crm_analytics: { icon: '📊', label: 'CRM аналитик' },
-            max_messages: { icon: '💬', label: 'мессеж/сар', showValue: true },
-            max_products: { icon: '📦', label: 'бүтээгдэхүүн', showValue: true },
-            priority_support: { icon: '⭐', label: 'Тусламж' },
+            ai_enabled: { icon: '🤖', label: t.features.aiEnabled },
+            cart_system: { icon: '🛒', label: t.features.cartSystem },
+            crm_analytics: { icon: '📊', label: t.features.crmAnalytics },
+            max_messages: { icon: '💬', label: t.features.messagesPerMonth, showValue: true },
+            max_products: { icon: '📦', label: t.features.productCount, showValue: true },
+            priority_support: { icon: '⭐', label: t.features.prioritySupport },
         };
 
         const featureStrings: string[] = [];
@@ -91,7 +93,7 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                 featureStrings.push(`${config.icon} ${config.label}`);
             } else if (typeof value === 'number' && value !== 0 && config.showValue) {
                 if (value === -1) {
-                    featureStrings.push(`${config.icon} Хязгааргүй ${config.label}`);
+                    featureStrings.push(`${config.icon} ${t.features.unlimited} ${config.label}`);
                 } else {
                     featureStrings.push(`${config.icon} ${value.toLocaleString()} ${config.label}`);
                 }
@@ -147,14 +149,14 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                 <div className="w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-violet-500/30">
                     <CreditCard className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Төлөвлөгөө сонгох</h2>
-                <p className="text-gray-500 mt-2">Танд тохирсон төлөвлөгөөг сонгоорой</p>
+                <h2 className="text-2xl font-bold text-gray-900">{t.setup.subscription.title}</h2>
+                <p className="text-gray-500 mt-2">{t.setup.subscription.subtitle}</p>
             </div>
 
             {/* Billing Toggle */}
             <div className="flex items-center justify-center gap-4">
                 <span className={`text-sm font-medium ${billingPeriod === 'monthly' ? 'text-gray-900' : 'text-gray-500'}`}>
-                    Сараар
+                    {t.setup.subscription.monthly}
                 </span>
                 <button
                     onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
@@ -166,8 +168,8 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                     />
                 </button>
                 <span className={`text-sm font-medium ${billingPeriod === 'yearly' ? 'text-gray-900' : 'text-gray-500'}`}>
-                    Жилээр
-                    <span className="ml-2 text-xs text-green-600 font-semibold">2 сар үнэгүй</span>
+                    {t.setup.subscription.yearly}
+                    <span className="ml-2 text-xs text-green-600 font-semibold">{t.setup.subscription.freeMonths}</span>
                 </span>
             </div>
 
@@ -192,7 +194,7 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                                 <div className="absolute -top-3 left-4">
                                     <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-3 py-1 text-xs font-semibold text-white">
                                         <Sparkles className="w-3 h-3" />
-                                        Санал болгох
+                                        {t.setup.subscription.recommended}
                                     </span>
                                 </div>
                             )}
@@ -215,10 +217,10 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                                             <span className="text-xl font-bold text-gray-900">
                                                 {formatCurrency(price)}
                                             </span>
-                                            <span className="text-gray-500 text-sm">/{billingPeriod === 'monthly' ? 'сар' : 'жил'}</span>
+                                            <span className="text-gray-500 text-sm">/{billingPeriod === 'monthly' ? t.setup.subscription.perMonth : t.setup.subscription.perYear}</span>
                                         </>
                                     ) : (
-                                        <span className="text-lg font-bold text-gray-900">Тохиролцоно</span>
+                                        <span className="text-lg font-bold text-gray-900">{t.setup.subscription.contactUs}</span>
                                     )}
                                 </div>
 
@@ -244,7 +246,7 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                     onClick={onSkip}
                     className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
                 >
-                    Дараа сонгох →
+                    {t.setup.subscription.chooseLater}
                 </button>
             </div>
 
@@ -259,8 +261,8 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                                     <CreditCard className="w-5 h-5 text-violet-600" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900">Төлбөр төлөх</h3>
-                                    <p className="text-sm text-gray-500">QPay-ээр төлнө үү</p>
+                                    <h3 className="text-lg font-bold text-gray-900">{t.setup.subscription.payment}</h3>
+                                    <p className="text-sm text-gray-500">{t.setup.subscription.payViaQPay}</p>
                                 </div>
                             </div>
                             <button
@@ -274,17 +276,17 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                         {/* Plan Summary */}
                         <div className="bg-gray-50 p-4 rounded-xl mb-6">
                             <div className="flex justify-between items-center mb-2">
-                                <span className="font-medium text-gray-700">Сонгосон багц:</span>
+                                <span className="font-medium text-gray-700">{t.setup.subscription.selectedPlan}</span>
                                 <span className="font-bold text-violet-700">{selected.name}</span>
                             </div>
                             <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm text-gray-600">Хугацаа:</span>
+                                <span className="text-sm text-gray-600">{t.setup.subscription.duration}</span>
                                 <span className="text-sm text-gray-900">
-                                    {billingPeriod === 'monthly' ? '1 сар' : '1 жил (2 сар үнэгүй)'}
+                                    {billingPeriod === 'monthly' ? t.setup.subscription.oneMonth : t.setup.subscription.oneYear}
                                 </span>
                             </div>
                             <div className="flex justify-between items-center pt-2 border-t border-gray-200 mt-2">
-                                <span className="font-bold text-gray-900">Нийт дүн:</span>
+                                <span className="font-bold text-gray-900">{t.setup.subscription.totalAmount}</span>
                                 <span className="font-bold text-xl text-violet-700">
                                     {formatCurrency(
                                         (billingPeriod === 'monthly' ? selected.price_monthly : selected.price_yearly) || 0
@@ -295,7 +297,7 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
 
                         {/* QR Placeholder */}
                         <div className="text-center mb-6">
-                            <p className="text-sm font-medium text-gray-700 mb-3">Банкны апп-аар уншуулна уу</p>
+                            <p className="text-sm font-medium text-gray-700 mb-3">{t.setup.subscription.scanWithBank}</p>
                             <div className="w-48 h-48 bg-gray-100 rounded-xl mx-auto flex items-center justify-center">
                                 <span className="text-gray-400 text-sm">QPay QR</span>
                             </div>
@@ -308,7 +310,7 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                                 className="flex-1"
                                 onClick={() => setShowPaymentModal(false)}
                             >
-                                Буцах
+                                {t.common.back}
                             </Button>
                             <Button
                                 className="flex-1"
@@ -318,7 +320,7 @@ export function SubscriptionStep({ onSkip, onComplete }: SubscriptionStepProps) 
                                 {subscribing ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : (
-                                    'Төлсөн'
+                                    t.setup.subscription.paid
                                 )}
                             </Button>
                         </div>

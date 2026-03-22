@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { TEMPLATES, EMOTIONS, STEPS } from '@/lib/constants/ai-setup';
 import { logger } from '@/lib/utils/logger';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AISetupStepProps {
     initialData: {
@@ -23,6 +24,7 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
     const [currentStep, setCurrentStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [fetchingFb, setFetchingFb] = useState(false);
+    const { t } = useLanguage();
 
     const [template, setTemplate] = useState('general');
     const [description, setDescription] = useState(initialData.description || '');
@@ -83,7 +85,7 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
             {/* LEFT COLUMN (Wizard Actions) -> Now stacked below */}
             <div className="w-full flex flex-col pt-2">
                 <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">AI Туслах</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{t.setup.ai.title}</h2>
                     {/* Wizard Progress */}
                     <div className="flex gap-2">
                         {STEPS.map((step, i) => (
@@ -92,7 +94,7 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
                         ))}
                     </div>
                     <p className="text-sm font-medium text-gray-500 mt-2">
-                        Алхам {currentStep + 1}: <span className="text-violet-600">{STEPS[currentStep].title}</span>
+                        {t.setup.ai.step} {currentStep + 1}: <span className="text-violet-600">{STEPS[currentStep].title}</span>
                     </p>
                 </div>
 
@@ -102,11 +104,11 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
                     {currentStep === 0 && (
                         <div className="space-y-6">
                             <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl text-sm text-blue-700">
-                                💡 Таны сонгосон загвар дээр үндэслэн AI өөрөө зааварчилгаагаа зохиох болно.
+                                {t.setup.ai.templateHint}
                             </div>
 
                             <div className="space-y-3">
-                                <label className="text-sm font-medium text-gray-900">1. Бизнесийн төрлөө сонгоно уу</label>
+                                <label className="text-sm font-medium text-gray-900">{t.setup.ai.selectBusinessType}</label>
                                 <div className="grid grid-cols-1 gap-2">
                                     {Object.entries(TEMPLATES).map(([key, t]) => (
                                         <button
@@ -129,7 +131,7 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
 
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <label className="text-sm font-medium text-gray-900">2. Дэлгүүрийн тайлбар</label>
+                                    <label className="text-sm font-medium text-gray-900">{t.setup.ai.shopDescription}</label>
                                     {fbPageId && fbPageToken && (
                                         <button
                                             onClick={fetchFacebookContext}
@@ -137,14 +139,14 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
                                             className="text-xs text-violet-600 font-medium hover:underline flex items-center gap-1"
                                         >
                                             <RefreshCw className={`w-3 h-3 ${fetchingFb ? 'animate-spin' : ''}`} />
-                                            Facebook-ээс татах
+                                            {t.setup.ai.fetchFromFb}
                                         </button>
                                     )}
                                 </div>
                                 <Textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
-                                    placeholder="Бид ямар үйл ажиллагаа явуулдаг вэ? Онцлог нь юу вэ?"
+                                    placeholder={t.setup.ai.shopDescPlaceholder}
                                     rows={4}
                                     className="bg-white resize-none"
                                 />
@@ -156,11 +158,11 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
                     {currentStep === 1 && (
                         <div className="space-y-6">
                             <div className="bg-purple-50 border border-purple-100 p-4 rounded-xl text-sm text-purple-700">
-                                🎭 AI ямар өнгө аясаар харилцахыг энд тохируулна.
+                                {t.setup.ai.personalityHint}
                             </div>
 
                             <div className="space-y-3">
-                                <label className="text-sm font-medium text-gray-900">Харилцааны хэв маяг (Emotion)</label>
+                                <label className="text-sm font-medium text-gray-900">{t.setup.ai.emotionLabel}</label>
                                 <div className="grid grid-cols-2 gap-3">
                                     {EMOTIONS.map((e) => (
                                         <button
@@ -186,13 +188,13 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
                     {currentStep === 2 && (
                         <div className="space-y-6">
                             <div className="bg-green-50 border border-green-100 p-4 rounded-xl text-sm text-green-700">
-                                ✅ Сүүлийн шалгалт! Эдгээр заавар AI-д очих болно.
+                                {t.setup.ai.reviewHint}
                             </div>
 
                             <div className="space-y-3">
-                                <label className="text-sm font-medium text-gray-900">Нарийвчилсан заавар (System Prompt)</label>
+                                <label className="text-sm font-medium text-gray-900">{t.setup.ai.systemPrompt}</label>
                                 <p className="text-xs text-gray-500">
-                                    Бидний сонголтууд дээр үндэслэн автоматаар үүссэн заавар:
+                                    {t.setup.ai.systemPromptDesc}
                                 </p>
                                 <Textarea
                                     value={instructions}
@@ -209,23 +211,23 @@ export function AISetupStep({ initialData, onSkip, onSave, fbPageId, fbPageToken
                 <div className="mt-8 flex justify-between items-center pt-6 border-t border-gray-100 bg-transparent sticky bottom-0 py-4">
                     {currentStep === 0 ? (
                         <Button variant="ghost" onClick={onSkip} className="text-gray-500 px-0 hover:bg-transparent">
-                            Алгасах
+                            {t.common.skip}
                         </Button>
                     ) : (
                         <Button variant="ghost" onClick={handleBack} className="text-gray-600 pl-0 hover:bg-transparent">
                             <ChevronLeft className="w-4 h-4 mr-1" />
-                            Буцах
+                            {t.common.back}
                         </Button>
                     )}
 
                     {currentStep < STEPS.length - 1 ? (
                         <Button onClick={handleNext} className="bg-violet-600 hover:bg-violet-700 text-white px-6">
-                            Дараах
+                            {t.common.next}
                             <ChevronRight className="w-4 h-4 ml-1" />
                         </Button>
                     ) : (
                         <Button onClick={handleSave} disabled={loading} className="bg-violet-600 hover:bg-violet-700 text-white px-8">
-                            {loading ? 'Хадгалж байна...' : 'Хадгалах & Дуусгах'}
+                            {loading ? t.common.saving : t.setup.ai.saveAndFinish}
                             {!loading && <Check className="w-4 h-4 ml-2" />}
                         </Button>
                     )}

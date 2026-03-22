@@ -23,37 +23,39 @@ import {
     MessageSquareMore,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useFeatures } from '@/hooks/useFeatures';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 // ─── Menu Config ───
 interface MenuItem {
-    name: string;
+    nameKey: string;
     href: string;
     icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
     badge?: string;
     feature?: string;
 }
 
-const mainMenu: MenuItem[] = [
-    { name: 'Хянах самбар', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Бүтээгдэхүүн', href: '/dashboard/products', icon: Package },
-    { name: 'Захиалга', href: '/dashboard/orders', icon: ShoppingCart, feature: 'payment_integration' },
-    { name: 'Харилцагч', href: '/dashboard/customers', icon: Users },
-    { name: 'Гомдол', href: '/dashboard/complaints', icon: AlertTriangle },
+const mainMenuKeys: MenuItem[] = [
+    { nameKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { nameKey: 'products', href: '/dashboard/products', icon: Package },
+    { nameKey: 'orders', href: '/dashboard/orders', icon: ShoppingCart, feature: 'payment_integration' },
+    { nameKey: 'customers', href: '/dashboard/customers', icon: Users },
+    { nameKey: 'complaints', href: '/dashboard/complaints', icon: AlertTriangle },
 ];
 
-const toolsMenu: MenuItem[] = [
-    { name: 'AI Тохиргоо', href: '/dashboard/ai-settings', icon: Bot },
-    { name: 'Comment Удирдлага', href: '/dashboard/comment-automation', icon: MessageSquareMore },
-    { name: 'Сагс', href: '/dashboard/inbox', icon: ShoppingCart, feature: 'cart_system' },
-    { name: 'Тайлан', href: '/dashboard/reports', icon: BarChart3, feature: 'crm_analytics' },
+const toolsMenuKeys: MenuItem[] = [
+    { nameKey: 'aiSettings', href: '/dashboard/ai-settings', icon: Bot },
+    { nameKey: 'commentMgmt', href: '/dashboard/comment-automation', icon: MessageSquareMore },
+    { nameKey: 'cart', href: '/dashboard/inbox', icon: ShoppingCart, feature: 'cart_system' },
+    { nameKey: 'reports', href: '/dashboard/reports', icon: BarChart3, feature: 'crm_analytics' },
 ];
 
-const bottomMenu: MenuItem[] = [
-    { name: 'Тусламж', href: '/help', icon: HelpCircle },
-    { name: 'Тохиргоо', href: '/dashboard/settings', icon: Settings },
+const bottomMenuKeys: MenuItem[] = [
+    { nameKey: 'help', href: '/help', icon: HelpCircle },
+    { nameKey: 'settings', href: '/dashboard/settings', icon: Settings },
 ];
 
 export function Sidebar() {
@@ -61,9 +63,14 @@ export function Sidebar() {
     const [mounted, setMounted] = useState(false);
     const pathname = usePathname();
     const { shop } = useAuth();
+    const { t } = useLanguage();
     const { hasFeature, isPaidPlan, plan, usage, limits } = useFeatures();
 
     useEffect(() => setMounted(true), []);
+
+    const getMenuName = (key: string) => {
+        return (t.sidebar as Record<string, string>)[key] || key;
+    };
 
     const isActive = (href: string) => {
         if (href === '/dashboard') return pathname === '/dashboard' || pathname === '/dashboard/';
@@ -85,15 +92,16 @@ export function Sidebar() {
     const renderNavItem = (item: MenuItem) => {
         const active = isActive(item.href);
         const locked = isLocked(item);
+        const name = getMenuName(item.nameKey);
 
         if (locked) {
             return (
-                <li key={item.name}>
+                <li key={item.nameKey}>
                     <button
                         onClick={() =>
-                            toast.error('Энэ боломж дээд төлөвлөгөө шааддаг', {
+                            toast.error(t.sidebar.requiresUpgrade, {
                                 action: {
-                                    label: 'Сайжруулах',
+                                    label: t.sidebar.upgrade,
                                     onClick: () => (window.location.href = '/dashboard/subscription'),
                                 },
                             })
@@ -106,7 +114,7 @@ export function Sidebar() {
                     >
                         <item.icon className="w-[18px] h-[18px] shrink-0" strokeWidth={1.5} />
                         {!collapsed && (
-                            <span className="text-[13px] font-medium truncate">{item.name}</span>
+                            <span className="text-[13px] font-medium truncate">{name}</span>
                         )}
                     </button>
                 </li>
@@ -114,7 +122,7 @@ export function Sidebar() {
         }
 
         return (
-            <li key={item.name}>
+            <li key={item.nameKey}>
                 <Link
                     href={item.href}
                     className={cn(
@@ -145,7 +153,7 @@ export function Sidebar() {
                             'text-[13px] truncate relative z-10 transition-all duration-200',
                             active ? 'font-semibold text-white' : 'font-medium'
                         )}>
-                            {item.name}
+                            {name}
                         </span>
                     )}
                     {!collapsed && item.badge && (
@@ -170,7 +178,7 @@ export function Sidebar() {
                 background: 'linear-gradient(180deg, rgba(12,12,15,0.98) 0%, rgba(8,8,12,0.99) 100%)',
             }}
             role="navigation"
-            aria-label="Үндсэн навигаци"
+            aria-label={t.sidebar.main}
         >
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-blue-500/[0.02] via-transparent to-violet-500/[0.02] pointer-events-none rounded-r-2xl" aria-hidden="true" />
@@ -196,6 +204,13 @@ export function Sidebar() {
                 )}
             </div>
 
+            {/* ─── Language Switcher ─── */}
+            {!collapsed && (
+                <div className="relative mx-4 mb-2">
+                    <LanguageSwitcher />
+                </div>
+            )}
+
             {/* ─── Chatbot Status ─── */}
             {!collapsed && shop && (
                 <div className="relative mx-4 mt-1 mb-3 px-3.5 py-3 rounded-xl bg-[#0F0B2E] border border-white/[0.08]">
@@ -206,13 +221,13 @@ export function Sidebar() {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
                                 </span>
-                                <span className="text-[12px] text-emerald-400 font-medium">Чатбот идэвхтэй</span>
+                                <span className="text-[12px] text-emerald-400 font-medium">{t.sidebar.chatbotActive}</span>
                                 <Zap className="w-3 h-3 text-emerald-400/60 ml-auto" />
                             </>
                         ) : (
                             <>
                                 <span className="h-2 w-2 rounded-full bg-blue-400/80" />
-                                <span className="text-[12px] text-blue-400/80 font-medium">FB холбогдоогүй</span>
+                                <span className="text-[12px] text-blue-400/80 font-medium">{t.sidebar.fbNotConnected}</span>
                             </>
                         )}
                     </div>
@@ -224,19 +239,19 @@ export function Sidebar() {
                 {/* Section: Main */}
                 {!collapsed && (
                     <p className="text-[10px] font-semibold text-white/25 uppercase tracking-[0.12em] px-3 mb-2 mt-2">
-                        Үндсэн
+                        {t.sidebar.main}
                     </p>
                 )}
-                <ul className="space-y-0.5">{mainMenu.map(renderNavItem)}</ul>
+                <ul className="space-y-0.5">{mainMenuKeys.map(renderNavItem)}</ul>
 
                 {/* Section: Tools */}
                 {!collapsed && (
                     <p className="text-[10px] font-semibold text-white/25 uppercase tracking-[0.12em] px-3 mb-2 mt-6">
-                        Хэрэгслүүд
+                        {t.sidebar.tools}
                     </p>
                 )}
                 {collapsed && <div className="my-4 mx-3 h-px bg-[#151040]" />}
-                <ul className="space-y-0.5">{toolsMenu.map(renderNavItem)}</ul>
+                <ul className="space-y-0.5">{toolsMenuKeys.map(renderNavItem)}</ul>
             </nav>
 
             {/* ─── Plan Card ─── */}
@@ -253,7 +268,7 @@ export function Sidebar() {
                                 </div>
                             </div>
                             <div className="mb-1.5 flex justify-between text-[11px]">
-                                <span className="text-white/40">Мессеж</span>
+                                <span className="text-white/40">{t.sidebar.messages}</span>
                                 <span className="text-white/60 tabular-nums font-medium">
                                     {msgUsage} / {msgLimit === -1 ? '∞' : msgLimit}
                                 </span>
@@ -268,7 +283,7 @@ export function Sidebar() {
                                 href="/dashboard/subscription"
                                 className="mt-3 flex items-center gap-1 text-[11px] font-medium text-blue-400/80 hover:text-blue-400 transition-colors"
                             >
-                                Удирдах <ArrowUpRight className="w-3 h-3" />
+                                {t.sidebar.manage} <ArrowUpRight className="w-3 h-3" />
                             </Link>
                         </div>
                     ) : (
@@ -278,14 +293,14 @@ export function Sidebar() {
                             <div className="relative">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Sparkles className="w-4 h-4 text-blue-400" />
-                                    <span className="text-[13px] font-bold text-white">Pro руу шилжих</span>
+                                    <span className="text-[13px] font-bold text-white">{t.sidebar.upgradeToPro}</span>
                                 </div>
                                 <p className="text-[11px] text-white/40 mb-3 leading-relaxed">
-                                    Бүх боломжийг нээх, хязгааргүй мессеж, тайлан
+                                    {t.sidebar.upgradeDesc}
                                 </p>
                                 <Link href="/dashboard/subscription">
                                     <button className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-violet-500 text-white font-semibold rounded-lg text-[12px] hover:from-blue-400 hover:to-violet-400 transition-all duration-200 shadow-[0_2px_12px_rgba(245,158,11,0.3)]">
-                                        Сайжруулах →
+                                        {t.sidebar.upgrade}
                                     </button>
                                 </Link>
                             </div>
@@ -296,7 +311,7 @@ export function Sidebar() {
 
             {/* ─── Bottom Menu ─── */}
             <div className="relative px-3 pb-4 pt-2 border-t border-white/[0.04] shrink-0">
-                <ul className="space-y-0.5">{bottomMenu.map(renderNavItem)}</ul>
+                <ul className="space-y-0.5">{bottomMenuKeys.map(renderNavItem)}</ul>
             </div>
 
             {/* ─── Collapse Toggle ─── */}
@@ -308,7 +323,7 @@ export function Sidebar() {
                     'hover:bg-[#252530] hover:border-white/[0.15] transition-all duration-200',
                     'shadow-lg'
                 )}
-                aria-label={collapsed ? 'Цэс дэлгэх' : 'Цэс хураах'}
+                aria-label={collapsed ? t.sidebar.expandMenu : t.sidebar.collapseMenu}
             >
                 <ChevronLeft
                     className={cn(

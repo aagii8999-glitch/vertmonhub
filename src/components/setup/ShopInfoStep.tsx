@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Store, ArrowRight, Building2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ShopInfoStepProps {
   initialData: {
@@ -25,6 +26,7 @@ interface ShopInfoStepProps {
 }
 
 export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoStepProps) {
+  const { t } = useLanguage();
   const [name, setName] = useState(initialData.name || '');
   const [ownerName, setOwnerName] = useState(initialData.owner_name || '');
   const [phone, setPhone] = useState(initialData.phone || '');
@@ -40,17 +42,17 @@ export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoS
     const newErrors: Record<string, string> = {};
 
     if (!name.trim()) {
-      newErrors.name = 'Дэлгүүрийн нэр оруулна уу';
+      newErrors.name = t.setup.shop.shopNameRequired;
     } else if (name.length < 2) {
-      newErrors.name = 'Хамгийн багадаа 2 тэмдэгт байх ёстой';
+      newErrors.name = t.setup.shop.shopNameMin;
     }
 
     if (phone && !/^[0-9]{8}$/.test(phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Утасны дугаар 8 оронтой байх ёстой';
+      newErrors.phone = t.setup.shop.phoneError;
     }
 
     if (accountNumber && !/^[0-9]{8,16}$/.test(accountNumber.replace(/\s/g, ''))) {
-      newErrors.accountNumber = 'Дансны дугаар зөв биш байна';
+      newErrors.accountNumber = t.setup.shop.accountNumberError;
     }
 
     setErrors(newErrors);
@@ -59,7 +61,7 @@ export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoS
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.error('Мэдээлэл дутуу байна');
+      toast.error(t.setup.shop.formIncomplete);
       return;
     }
 
@@ -74,10 +76,10 @@ export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoS
         account_number: accountNumber,
         account_name: accountName
       });
-      toast.success('Амжилттай хадгаллаа!');
+      toast.success(t.setup.shop.savedSuccess);
     } catch (err: unknown) {
-      setError((err instanceof Error ? err.message : String(err)) || 'Алдаа гарлаа');
-      toast.error((err instanceof Error ? err.message : String(err)) || 'Алдаа гарлаа');
+      setError((err instanceof Error ? err.message : String(err)) || t.common.error);
+      toast.error((err instanceof Error ? err.message : String(err)) || t.common.error);
     } finally {
       setSaving(false);
     }
@@ -89,8 +91,8 @@ export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoS
         <div className="w-12 h-12 bg-violet-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
           <Store className="w-6 h-6 text-violet-600" />
         </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1.5">Дэлгүүрийн мэдээлэл</h2>
-        <p className="text-sm text-gray-500">Таны дэлгүүрийн үндсэн мэдээлэл</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-1.5">{t.setup.shop.title}</h2>
+        <p className="text-sm text-gray-500">{t.setup.shop.subtitle}</p>
       </div>
 
       {error && (
@@ -101,12 +103,12 @@ export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoS
 
       <div className="space-y-3 shrink-0">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1.5">Дэлгүүрийн нэр *</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1.5">{t.setup.shop.shopName} *</label>
           <input
             type="text"
             value={name}
             onChange={(e) => { setName(e.target.value); setErrors(prev => ({ ...prev, name: '' })); onPreviewUpdate?.({ name: e.target.value }); }}
-            placeholder="Жишээ: Миний дэлгүүр"
+            placeholder={t.setup.shop.shopNamePlaceholder}
             className={`w-full px-4 py-2.5 bg-white border rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm ${errors.name ? 'border-red-400 focus:ring-red-500' : 'border-gray-200'}`}
           />
           {errors.name && (
@@ -117,18 +119,18 @@ export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoS
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1.5">Эзэмшигчийн нэр</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1.5">{t.setup.shop.ownerName}</label>
           <input
             type="text"
             value={ownerName}
             onChange={(e) => { setOwnerName(e.target.value); onPreviewUpdate?.({ owner_name: e.target.value }); }}
-            placeholder="Таны нэр"
+            placeholder={t.setup.shop.ownerNamePlaceholder}
             className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1.5">Утасны дугаар</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1.5">{t.setup.shop.phone}</label>
           <input
             type="tel"
             value={phone}
@@ -146,22 +148,22 @@ export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoS
         <div className="pt-3 border-t border-gray-100 shrink-0">
           <div className="flex items-center gap-2 mb-3">
             <Building2 className="w-4 h-4 text-violet-600" />
-            <h3 className="text-base font-semibold text-gray-900">Дансны мэдээлэл</h3>
-            <span className="text-[11px] text-gray-500">(Заавал биш)</span>
+            <h3 className="text-base font-semibold text-gray-900">{t.setup.shop.bankInfo}</h3>
+            <span className="text-[11px] text-gray-500">({t.common.optional})</span>
           </div>
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">Банкны нэр</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">{t.setup.shop.bankName}</label>
               <input
                 type="text"
                 value={bankName}
                 onChange={(e) => { setBankName(e.target.value); onPreviewUpdate?.({ bank_name: e.target.value }); }}
-                placeholder="Хаан банк"
+                placeholder={t.setup.shop.bankNamePlaceholder}
                 className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">Дансны дугаар</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">{t.setup.shop.accountNumber}</label>
               <input
                 type="text"
                 value={accountNumber}
@@ -171,12 +173,12 @@ export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoS
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">Дансны нэр</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">{t.setup.shop.accountName}</label>
               <input
                 type="text"
                 value={accountName}
                 onChange={(e) => setAccountName(e.target.value)}
-                placeholder="Эзэмшигчийн нэр"
+                placeholder={t.setup.shop.accountNamePlaceholder}
                 className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all shadow-sm"
               />
             </div>
@@ -194,7 +196,7 @@ export function ShopInfoStep({ initialData, onNext, onPreviewUpdate }: ShopInfoS
             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
           ) : (
             <>
-              Үргэлжлүүлэх
+              {t.common.next}
               <ArrowRight className="w-5 h-5" />
             </>
           )}

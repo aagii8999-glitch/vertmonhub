@@ -1,23 +1,24 @@
 'use client';
 
-import { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
-function LoginForm() {
+export default function LoginPage() {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const redirectUrl = searchParams.get('redirect_url') || '/dashboard';
     const supabase = createSupabaseBrowserClient();
+    const { t } = useLanguage();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleEmailLogin = async (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setLoading(true);
@@ -28,12 +29,10 @@ function LoginForm() {
         });
 
         if (error) {
-            setError(error.message === 'Invalid login credentials'
-                ? 'Имэйл эсвэл нууц үг буруу байна'
-                : error.message);
+            setError(t.auth.invalidCredentials);
             setLoading(false);
         } else {
-            router.push(redirectUrl);
+            router.push('/dashboard');
             router.refresh();
         }
     };
@@ -43,8 +42,10 @@ function LoginForm() {
         const { error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
-                redirectTo: `${window.location.origin}/auth/callback?redirect_url=${encodeURIComponent(redirectUrl)}`,
-                ...(provider === 'facebook' && { scopes: 'public_profile' }),
+                redirectTo: `${window.location.origin}/auth/callback`,
+                ...(provider === 'facebook' && {
+                    scopes: 'pages_show_list,pages_messaging,pages_read_engagement,pages_manage_metadata',
+                }),
             },
         });
         if (error) {
@@ -55,6 +56,11 @@ function LoginForm() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 px-4">
             <div className="w-full max-w-md">
+                {/* Language Switcher */}
+                <div className="flex justify-end mb-4">
+                    <LanguageSwitcherLight />
+                </div>
+
                 <div className="text-center mb-8">
                     <Image
                         src="/logo.png"
@@ -67,7 +73,7 @@ function LoginForm() {
                         Syncly
                     </h1>
                     <p className="text-muted-foreground">
-                        AI платформ руу нэвтрэх
+                        {t.auth.loginSubtitle}
                     </p>
                 </div>
 
@@ -84,7 +90,7 @@ function LoginForm() {
                                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                             </svg>
-                            Google-ээр нэвтрэх
+                            {t.auth.loginWithGoogle}
                         </button>
 
                         <button
@@ -94,7 +100,7 @@ function LoginForm() {
                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                             </svg>
-                            Facebook-ээр нэвтрэх
+                            {t.auth.loginWithFacebook}
                         </button>
                     </div>
 
@@ -103,15 +109,15 @@ function LoginForm() {
                             <div className="w-full border-t border-border"></div>
                         </div>
                         <div className="relative flex justify-center text-xs">
-                            <span className="px-2 bg-card text-muted-foreground">эсвэл</span>
+                            <span className="px-2 bg-card text-muted-foreground">{t.common.or}</span>
                         </div>
                     </div>
 
                     {/* Email/Password Form */}
-                    <form onSubmit={handleEmailLogin} className="space-y-4">
+                    <form onSubmit={handleLogin} className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Имэйл
+                                {t.auth.email}
                             </label>
                             <input
                                 type="email"
@@ -124,14 +130,14 @@ function LoginForm() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Нууц үг
+                                {t.auth.password}
                             </label>
                             <input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                                placeholder="••••••••"
+                                placeholder={t.auth.passwordPlaceholder}
                                 required
                             />
                         </div>
@@ -147,30 +153,18 @@ function LoginForm() {
                             disabled={loading}
                             className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm transition-colors disabled:opacity-50"
                         >
-                            {loading ? 'Нэвтэрч байна...' : 'Нэвтрэх'}
+                            {loading ? t.auth.loggingIn : t.auth.login}
                         </button>
                     </form>
 
                     <p className="text-center text-sm text-muted-foreground">
-                        Бүртгэл байхгүй юу?{' '}
+                        {t.auth.noAccount}{' '}
                         <Link href="/auth/register" className="text-primary hover:text-primary/80 font-medium">
-                            Бүртгүүлэх
+                            {t.auth.register}
                         </Link>
                     </p>
                 </div>
             </div>
         </div>
-    );
-}
-
-export default function LoginPage() {
-    return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
-            </div>
-        }>
-            <LoginForm />
-        </Suspense>
     );
 }

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { LogOut, Settings, ChevronDown, Search, Command } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { NotificationButton } from '@/components/NotificationButton';
 import { ShopSwitcher } from '@/components/dashboard/ShopSwitcher';
 import { useFeatures } from '@/hooks/useFeatures';
@@ -12,26 +13,13 @@ import { Avatar } from '@/components/ui/Avatar';
 import { cn } from '@/lib/utils';
 import { logger } from '@/lib/utils/logger';
 
-const pageTitles: Record<string, string> = {
-    '/dashboard': '',
-    '/dashboard/orders': 'Захиалга',
-    '/dashboard/products': 'Бүтээгдэхүүн',
-    '/dashboard/customers': 'Харилцагч',
-    '/dashboard/reports': 'Тайлан',
-    '/dashboard/settings': 'Тохиргоо',
-    '/dashboard/inbox': 'Идэвхтэй Сагс',
-    '/dashboard/ai-settings': 'AI Тохиргоо',
-    '/dashboard/subscription': 'Төлбөр & Эрх',
-    '/dashboard/complaints': 'Гомдол',
-};
-
-function getGreeting(): string {
+function getGreeting(t: any): string {
     const hour = new Date().getHours();
-    if (hour < 6) return '🌙 Сайхан шөнө';
-    if (hour < 12) return '☀️ Өглөөний мэнд';
-    if (hour < 17) return '🌤️ Өдрийн мэнд';
-    if (hour < 21) return '🌅 Оройн мэнд';
-    return '🌙 Сайхан шөнө';
+    if (hour < 6) return t.header.goodNight;
+    if (hour < 12) return t.header.goodMorning;
+    if (hour < 17) return t.header.goodAfternoon;
+    if (hour < 21) return t.header.goodEvening;
+    return t.header.goodNight;
 }
 
 export function Header() {
@@ -39,6 +27,7 @@ export function Header() {
     const pathname = usePathname();
     const supabase = createSupabaseBrowserClient();
     const { user, shop, shops } = useAuth();
+    const { t } = useLanguage();
     const { limits } = useFeatures();
     const [showDropdown, setShowDropdown] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
@@ -83,6 +72,7 @@ export function Header() {
     const firstName = fullName.split(' ')[0];
     const displayEmail = user?.email || '';
 
+    const pageTitles = t.header.pageTitles;
     const path = pathname || '';
     const matchedKey = Object.keys(pageTitles)
         .filter((k) => k !== '/dashboard')
@@ -100,8 +90,8 @@ export function Header() {
                     {isDashboardRoot ? (
                         <div>
                             <h1 className="text-[15px] font-bold text-foreground truncate tracking-[-0.03em]">
-                                <span className="hidden sm:inline">{getGreeting()}, {firstName}</span>
-                                <span className="sm:hidden">{getGreeting()}</span>
+                                <span className="hidden sm:inline">{getGreeting(t)}, {firstName}</span>
+                                <span className="sm:hidden">{getGreeting(t)}</span>
                             </h1>
                             {shop && (
                                 <p className="text-[11px] text-white/35 truncate hidden sm:block tracking-[-0.01em] mt-0.5">
@@ -112,7 +102,7 @@ export function Header() {
                     ) : (
                         <div className="flex items-center gap-2">
                             <h1 className="text-[15px] font-bold text-foreground tracking-[-0.03em]">
-                                {(matchedKey && pageTitles[matchedKey]) || 'Хянах самбар'}
+                                {(matchedKey && pageTitles[matchedKey]) || t.header.fallbackTitle}
                             </h1>
                         </div>
                     )}
@@ -136,7 +126,7 @@ export function Header() {
                     <div ref={dropdownRef} className="relative">
                         <button
                             onClick={() => setShowDropdown(!showDropdown)}
-                            aria-label="Хэрэглэгчийн цэс"
+                            aria-label={t.header.userMenu}
                             aria-expanded={showDropdown}
                             aria-haspopup="true"
                             className={cn(
@@ -178,20 +168,20 @@ export function Header() {
                                             setShowDropdown(false);
                                             router.push('/dashboard/settings');
                                         }}
-                                        aria-label="Тохиргоо хуудас руу очих"
+                                        aria-label={t.header.goToSettings}
                                         className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] text-foreground hover:bg-[#151040] rounded-xl transition-colors"
                                     >
                                         <Settings className="w-4 h-4 text-white/30" strokeWidth={1.5} />
-                                        Тохиргоо
+                                        {t.sidebar.settings}
                                     </button>
                                     <button
                                         onClick={handleLogout}
                                         disabled={loggingOut}
-                                        aria-label="Системээс гарах"
+                                        aria-label={t.header.logoutSystem}
                                         className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] text-red-500 hover:bg-red-900/10 rounded-xl transition-colors"
                                     >
                                         <LogOut className="w-4 h-4" strokeWidth={1.5} />
-                                        {loggingOut ? 'Гарч байна...' : 'Гарах'}
+                                        {loggingOut ? t.auth.loggingOut : t.auth.logout}
                                     </button>
                                 </div>
                             </div>

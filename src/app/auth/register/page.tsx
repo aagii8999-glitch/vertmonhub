@@ -5,10 +5,13 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
 export default function RegisterPage() {
     const router = useRouter();
     const supabase = createSupabaseBrowserClient();
+    const { t } = useLanguage();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -23,7 +26,7 @@ export default function RegisterPage() {
         setLoading(true);
 
         if (password.length < 6) {
-            setError('Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой');
+            setError(t.auth.passwordMinLength);
             setLoading(false);
             return;
         }
@@ -41,7 +44,7 @@ export default function RegisterPage() {
 
         if (error) {
             setError(error.message === 'User already registered'
-                ? 'Энэ имэйл аль хэдийн бүртгэлтэй байна'
+                ? t.auth.alreadyRegistered
                 : error.message);
             setLoading(false);
         } else {
@@ -69,13 +72,12 @@ export default function RegisterPage() {
                 <div className="w-full max-w-md text-center">
                     <div className="bg-card border border-border rounded-2xl shadow-xl p-8">
                         <div className="text-5xl mb-4">📧</div>
-                        <h2 className="text-xl font-bold text-foreground mb-2">Имэйлээ шалгана уу!</h2>
+                        <h2 className="text-xl font-bold text-foreground mb-2">{t.auth.checkEmail}</h2>
                         <p className="text-muted-foreground text-sm mb-4">
-                            Бид <strong>{email}</strong> руу баталгаажуулах линк илгээлээ.
-                            Линк дээр дарж бүртгэлээ баталгаажуулна уу.
+                            <strong>{email}</strong> {t.auth.checkEmailDesc}
                         </p>
                         <Link href="/auth/login" className="text-primary hover:text-primary/80 font-medium text-sm">
-                            Нэвтрэх хуудас руу буцах
+                            {t.auth.backToLogin}
                         </Link>
                     </div>
                 </div>
@@ -86,6 +88,11 @@ export default function RegisterPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 px-4">
             <div className="w-full max-w-md">
+                {/* Language Switcher */}
+                <div className="flex justify-end mb-4">
+                    <LanguageSwitcherLight />
+                </div>
+
                 <div className="text-center mb-8">
                     <Image
                         src="/logo.png"
@@ -98,7 +105,7 @@ export default function RegisterPage() {
                         Syncly
                     </h1>
                     <p className="text-muted-foreground">
-                        Шинэ бүртгэл үүсгэх
+                        {t.auth.registerSubtitle}
                     </p>
                 </div>
 
@@ -115,7 +122,7 @@ export default function RegisterPage() {
                                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                             </svg>
-                            Google-ээр бүртгүүлэх
+                            {t.auth.registerWithGoogle}
                         </button>
 
                         <button
@@ -125,7 +132,7 @@ export default function RegisterPage() {
                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                             </svg>
-                            Facebook-ээр бүртгүүлэх
+                            {t.auth.registerWithFacebook}
                         </button>
                     </div>
 
@@ -134,7 +141,7 @@ export default function RegisterPage() {
                             <div className="w-full border-t border-border"></div>
                         </div>
                         <div className="relative flex justify-center text-xs">
-                            <span className="px-2 bg-card text-muted-foreground">эсвэл</span>
+                            <span className="px-2 bg-card text-muted-foreground">{t.common.or}</span>
                         </div>
                     </div>
 
@@ -142,20 +149,20 @@ export default function RegisterPage() {
                     <form onSubmit={handleSignUp} className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Нэр
+                                {t.auth.fullName}
                             </label>
                             <input
                                 type="text"
                                 value={fullName}
                                 onChange={(e) => setFullName(e.target.value)}
                                 className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                                placeholder="Таны бүтэн нэр"
+                                placeholder={t.auth.fullNamePlaceholder}
                                 required
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Имэйл
+                                {t.auth.email}
                             </label>
                             <input
                                 type="email"
@@ -168,14 +175,14 @@ export default function RegisterPage() {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1.5">
-                                Нууц үг
+                                {t.auth.password}
                             </label>
                             <input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                                placeholder="6+ тэмдэгт"
+                                placeholder={t.auth.passwordPlaceholder}
                                 required
                                 minLength={6}
                             />
@@ -192,14 +199,14 @@ export default function RegisterPage() {
                             disabled={loading}
                             className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm transition-colors disabled:opacity-50"
                         >
-                            {loading ? 'Бүртгэж байна...' : 'Бүртгүүлэх'}
+                            {loading ? t.auth.registering : t.auth.register}
                         </button>
                     </form>
 
                     <p className="text-center text-sm text-muted-foreground">
-                        Бүртгэлтэй юу?{' '}
+                        {t.auth.hasAccount}{' '}
                         <Link href="/auth/login" className="text-primary hover:text-primary/80 font-medium">
-                            Нэвтрэх
+                            {t.auth.login}
                         </Link>
                     </p>
                 </div>

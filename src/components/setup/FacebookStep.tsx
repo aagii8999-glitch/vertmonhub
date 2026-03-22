@@ -5,6 +5,7 @@ import {
   Facebook, CheckCircle, ArrowLeft, ArrowRight,
   MessageSquare, ExternalLink, Package, RefreshCw
 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FacebookPage {
   id: string;
@@ -40,6 +41,7 @@ export function FacebookStep({
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [fbLoading, setFbLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const { t } = useLanguage();
 
   // Manual fields
   const [manualPageName, setManualPageName] = useState(initialData.fbPageName || '');
@@ -103,8 +105,8 @@ export function FacebookStep({
         <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Facebook className="w-8 h-8 text-blue-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Facebook Page холбох</h2>
-        <p className="text-gray-500">Messenger чатбот идэвхжүүлэхийн тулд Page холбоно уу</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">{t.setup.facebook.title}</h2>
+        <p className="text-gray-500">{t.setup.facebook.subtitle}</p>
       </div>
 
       {error && (
@@ -120,7 +122,7 @@ export function FacebookStep({
               className="flex items-center gap-1.5 text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1.5 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
-              Дахин оролдох
+              {t.common.retry}
             </button>
           </div>
           {retryCount > 0 && (
@@ -136,7 +138,7 @@ export function FacebookStep({
           <div className="flex items-center gap-3">
             <CheckCircle className="w-6 h-6 text-emerald-500" />
             <div>
-              <p className="text-emerald-700 font-medium">Facebook Page холбогдсон!</p>
+              <p className="text-emerald-700 font-medium">{t.setup.facebook.connected}</p>
               <p className="text-sm text-emerald-600 opacity-80">{initialData.fbPageName}</p>
             </div>
           </div>
@@ -145,7 +147,7 @@ export function FacebookStep({
 
       {fbPages.length > 0 && (
         <div className="space-y-4">
-          <p className="text-gray-700 text-center font-medium">Page сонгоно уу:</p>
+          <p className="text-gray-700 text-center font-medium">{t.setup.facebook.selectPage}</p>
           <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
             {fbPages.map((page) => (
               <button
@@ -180,7 +182,7 @@ export function FacebookStep({
             className="w-full py-4 bg-[#1877F2] hover:bg-[#166FE5] text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-3 shadow-lg shadow-blue-500/20"
           >
             <Facebook className="w-6 h-6" />
-            Facebook-ээр холбох
+            {t.setup.facebook.connectButton}
           </button>
 
           <div className="relative my-6">
@@ -188,19 +190,19 @@ export function FacebookStep({
               <div className="w-full border-t border-gray-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[#FAFAFA] text-gray-500">эсвэл</span>
+              <span className="px-4 bg-[#FAFAFA] text-gray-500">{t.common.or}</span>
             </div>
           </div>
 
           <details className="group">
             <summary className="cursor-pointer text-gray-500 hover:text-gray-700 text-sm text-center list-none font-medium transition-colors">
-              Гараар оруулах ↓
+              {t.common.manualEntry} ↓
             </summary>
             <div className="mt-4 space-y-4 pt-4 border-t border-gray-100">
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
                 <h3 className="text-blue-700 font-medium mb-2 flex items-center gap-2">
                   <MessageSquare className="w-5 h-5" />
-                  Хэрхэн холбох вэ?
+                  {t.setup.facebook.howToConnect}
                 </h3>
                 <ol className="text-sm text-blue-900/70 space-y-2 list-decimal list-inside">
                   <li><a href="https://developers.facebook.com/apps" target="_blank" rel="noopener" className="text-blue-600 hover:underline inline-flex items-center gap-1 font-medium">Facebook Developers <ExternalLink className="w-3 h-3" /></a> руу орно</li>
@@ -237,7 +239,7 @@ export function FacebookStep({
                   disabled={saving || !manualPageId || !manualToken || !manualPageName}
                   className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 rounded-lg text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
-                  {saving ? 'Хадгалж байна...' : 'Гараар хадгалах'}
+                  {saving ? t.common.saving : t.common.manualSave}
                 </button>
               </div>
             </div>
@@ -257,7 +259,7 @@ export function FacebookStep({
           onClick={onNext}
           className="flex-1 py-4 bg-violet-600 text-white font-semibold rounded-xl hover:bg-violet-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20"
         >
-          {initialData.fbConnected ? 'Үргэлжлүүлэх' : 'Алгасах'}
+          {initialData.fbConnected ? t.common.next : t.common.skip}
           <ArrowRight className="w-5 h-5" />
         </button>
       </div>
