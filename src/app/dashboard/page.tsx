@@ -10,6 +10,7 @@ import { DashboardSkeleton } from '@/components/ui/LoadingSkeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useDashboard } from '@/hooks/useDashboard';
 import { formatTimeAgo } from '@/lib/utils/date';
 import {
@@ -28,13 +29,14 @@ import {
 import { cn } from '@/lib/utils';
 
 const timeFilterOptions = [
-    { value: 'today' as const, label: 'Өнөөдөр' },
-    { value: 'week' as const, label: '7 хоног' },
-    { value: 'month' as const, label: 'Сар' },
+    { value: 'today' as const, labelKey: 'today' as const },
+    { value: 'week' as const, labelKey: 'week' as const },
+    { value: 'month' as const, labelKey: 'month' as const },
 ];
 
 export default function DashboardPage() {
     const { user, shop, loading: authLoading } = useAuth();
+    const { t } = useLanguage();
     const [timeFilter, setTimeFilter] = useState<'today' | 'week' | 'month'>('today');
 
     const { data, isLoading, refetch, isRefetching } = useDashboard(timeFilter);
@@ -53,7 +55,7 @@ export default function DashboardPage() {
         await refetch();
     };
 
-    const currentFilterLabel = timeFilterOptions.find((o) => o.value === timeFilter)?.label || 'Өнөөдөр';
+    const currentFilterLabel = t.dashboard[timeFilterOptions.find((o) => o.value === timeFilter)?.labelKey || 'today'];
 
     return (
         <PullToRefresh onRefresh={handleRefresh}>
@@ -63,7 +65,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                             <Activity className="w-3.5 h-3.5 text-emerald-500" />
-                            <span className="text-[12px] font-semibold text-emerald-600 text-emerald-400">Идэвхтэй</span>
+                            <span className="text-[12px] font-semibold text-emerald-600 text-emerald-400">{t.dashboard.active}</span>
                         </div>
                     </div>
 
@@ -84,7 +86,7 @@ export default function DashboardPage() {
                                     onClick={() => setTimeFilter(option.value)}
                                     className={timeFilter === option.value ? 'bg-blue-500/10 text-blue-600 text-blue-400 font-semibold' : ''}
                                 >
-                                    {option.label}
+                                    {t.dashboard[option.labelKey]}
                                 </DropdownItem>
                             ))}
                         </Dropdown>
@@ -93,7 +95,7 @@ export default function DashboardPage() {
                             onClick={() => refetch()}
                             disabled={isRefetching}
                             className="p-2 bg-[#0F0B2E] backdrop-blur-sm border border-white/[0.08] rounded-xl hover:border-[#4A7CE7]/30 transition-all duration-200"
-                            title="Шинэчлэх"
+                            title={t.dashboard.refresh}
                         >
                             <RefreshCw className={cn('w-3.5 h-3.5 text-white/40', isRefetching && 'animate-spin')} />
                         </button>
@@ -102,9 +104,9 @@ export default function DashboardPage() {
 
                 {/* ─── Stats Grid ─── */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                    <StatsCard title="Өнөөдөр" value={stats.todayOrders.toString()} icon={ShoppingCart} iconColor="gold" />
+                    <StatsCard title={t.dashboard.todayOrders} value={stats.todayOrders.toString()} icon={ShoppingCart} iconColor="gold" />
                     <StatsCard
-                        title="Орлого"
+                        title={t.dashboard.revenue}
                         value={
                             stats.totalRevenue >= 1000000
                                 ? `₮${(stats.totalRevenue / 1000000).toFixed(1)}M`
@@ -113,8 +115,8 @@ export default function DashboardPage() {
                         icon={TrendingUp}
                         iconColor="blue"
                     />
-                    <StatsCard title="Харилцагч" value={stats.totalCustomers.toString()} icon={Users} iconColor="purple" />
-                    <StatsCard title="Хүлээгдэж буй" value={stats.pendingOrders.toString()} icon={Clock} iconColor="warning" />
+                    <StatsCard title={t.dashboard.customers} value={stats.totalCustomers.toString()} icon={Users} iconColor="purple" />
+                    <StatsCard title={t.dashboard.pending} value={stats.pendingOrders.toString()} icon={Clock} iconColor="warning" />
                 </div>
 
                 {/* ─── Bento Grid ─── */}
@@ -128,20 +130,20 @@ export default function DashboardPage() {
                                         <Package className="w-4 h-4 text-violet-500" strokeWidth={1.5} />
                                     </div>
                                     <div>
-                                        <span className="text-[14px] font-bold text-foreground tracking-[-0.02em]">Сүүлийн захиалгууд</span>
+                                        <span className="text-[14px] font-bold text-foreground tracking-[-0.02em]">{t.dashboard.recentOrders}</span>
                                     </div>
                                 </div>
                                 <Link href="/dashboard/orders">
                                     <span className="text-[12px] text-white/40 hover:text-blue-500 transition-colors flex items-center gap-1.5 font-medium">
-                                        Бүгдийг <ArrowRight className="w-3.5 h-3.5" />
+                                        {t.dashboard.viewAll} <ArrowRight className="w-3.5 h-3.5" />
                                     </span>
                                 </Link>
                             </div>
                             <div className="divide-y divide-white/[0.06]">
                                 {recentOrders.length > 0 ? (
                                     recentOrders.slice(0, 5).map((order: any) => {
-                                        const customerName = order.customers?.name || 'Харилцагч';
-                                        const productName = order.order_items?.[0]?.products?.name || 'Бүтээгдэхүүн';
+                                        const customerName = order.customers?.name || t.dashboard.customer;
+                                        const productName = order.order_items?.[0]?.products?.name || t.dashboard.product;
                                         return (
                                             <Link
                                                 key={order.id}
@@ -171,8 +173,8 @@ export default function DashboardPage() {
                                 ) : (
                                     <EmptyState
                                         icon={<ShoppingCart className="h-6 w-6" />}
-                                        title="Захиалга байхгүй"
-                                        description="Захиалга ирсэн тохиолдолд энд харагдана"
+                                        title={t.dashboard.noOrders}
+                                        description={t.dashboard.noOrdersDesc}
                                     />
                                 )}
                             </div>

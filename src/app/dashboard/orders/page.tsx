@@ -24,18 +24,20 @@ import {
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
-
-const statusOptions = [
-  { value: 'pending', label: 'Хүлээгдэж буй', icon: Clock, color: 'bg-yellow-500' },
-  { value: 'confirmed', label: 'Баталгаажсан', icon: Check, color: 'bg-blue-500' },
-  { value: 'processing', label: 'Бэлтгэж буй', icon: Package, color: 'bg-purple-500' },
-  { value: 'shipped', label: 'Хүргэлтэд', icon: Truck, color: 'bg-indigo-500' },
-  { value: 'delivered', label: 'Хүргэгдсэн', icon: Check, color: 'bg-green-500' },
-  { value: 'cancelled', label: 'Цуцлагдсан', icon: X, color: 'bg-red-500' },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function OrdersPage() {
   const [filter, setFilter] = useState<string>('all');
+  const { t } = useLanguage();
+
+  const statusOptions = [
+    { value: 'pending', label: t.orders.statusPending, icon: Clock, color: 'bg-yellow-500' },
+    { value: 'confirmed', label: t.orders.statusConfirmed, icon: Check, color: 'bg-blue-500' },
+    { value: 'processing', label: t.orders.statusProcessing, icon: Package, color: 'bg-purple-500' },
+    { value: 'shipped', label: t.orders.statusShipped, icon: Truck, color: 'bg-indigo-500' },
+    { value: 'delivered', label: t.orders.statusDelivered, icon: Check, color: 'bg-green-500' },
+    { value: 'cancelled', label: t.orders.statusCancelled, icon: X, color: 'bg-red-500' },
+  ];
   const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined });
   const { data: orders = [], isLoading, refetch, isRefetching } = useOrders(dateRange);
   const { mutate: updateStatus } = useUpdateOrder();
@@ -66,7 +68,7 @@ export default function OrdersPage() {
     },
     {
       accessorKey: 'status',
-      header: 'Төлөв',
+      header: t.orders.status,
       cell: ({ row }) => <OrderStatusBadge status={row.original.status} />,
       filterFn: (row, _columnId, filterValue) => {
         if (filterValue === 'all') return true;
@@ -75,28 +77,28 @@ export default function OrdersPage() {
     },
     {
       id: 'products',
-      header: 'Бүтээгдэхүүн',
+      header: t.orders.products,
       cell: ({ row }) => (
         <div className="space-y-0.5">
           {row.original.order_items.slice(0, 2).map((item, idx) => (
             <p key={idx} className="text-[13px] font-medium text-foreground tracking-[-0.01em]">
-              {item.products?.name || 'Бүтээгдэхүүн'} x{item.quantity}
+              {item.products?.name || t.orders.products} x{item.quantity}
             </p>
           ))}
           {row.original.order_items.length > 2 && (
-            <p className="text-[11px] text-white/30">+{row.original.order_items.length - 2} бусад</p>
+            <p className="text-[11px] text-white/30">+{row.original.order_items.length - 2} {t.orders.others}</p>
           )}
         </div>
       ),
     },
     {
       id: 'customer',
-      header: 'Харилцагч',
+      header: t.orders.customer,
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <User className="w-3.5 h-3.5 text-white/20" strokeWidth={1.5} />
           <span className="text-[13px] text-foreground tracking-[-0.01em]">
-            {row.original.customers?.name || 'Нэргүй'}
+            {row.original.customers?.name || t.orders.anonymous}
           </span>
         </div>
       ),
@@ -108,7 +110,7 @@ export default function OrdersPage() {
           className="flex items-center gap-1 text-[11px] uppercase tracking-[0.05em] text-white/40"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Дүн
+          {t.orders.amount}
           {column.getIsSorted() === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
         </button>
       ),
@@ -125,7 +127,7 @@ export default function OrdersPage() {
           className="flex items-center gap-1 text-[11px] uppercase tracking-[0.05em] text-white/40"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Огноо
+          {t.orders.date}
           {column.getIsSorted() === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
         </button>
       ),
@@ -155,7 +157,7 @@ export default function OrdersPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-[13px] text-white/40 tracking-[-0.01em]">Ачааллаж байна...</div>
+        <div className="text-[13px] text-white/40 tracking-[-0.01em]">{t.orders.loading}</div>
       </div>
     );
   }
@@ -183,7 +185,7 @@ export default function OrdersPage() {
       {/* Date Filter */}
       <div className="flex flex-wrap gap-4 items-end bg-[#0F0B2E] p-4 rounded-lg border border-white/[0.08]">
         <div>
-          <label className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em] mb-1 block">Эхлэх огноо</label>
+          <label className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em] mb-1 block">{t.orders.startDate}</label>
           <input
             type="date"
             value={dateFromInput}
@@ -195,7 +197,7 @@ export default function OrdersPage() {
           />
         </div>
         <div>
-          <label className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em] mb-1 block">Дуусах огноо</label>
+          <label className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em] mb-1 block">{t.orders.endDate}</label>
           <input
             type="date"
             value={dateToInput}
@@ -208,7 +210,7 @@ export default function OrdersPage() {
         </div>
         {(dateRange.from || dateRange.to) && (
           <div className="flex items-center gap-2 px-3 py-1.5 bg-[#4A7CE7]/10 text-[#4A7CE7] rounded-md text-[11px] font-medium mb-0.5">
-            <span>Шүүлтүүр идэвхтэй</span>
+            <span>{t.orders.filterActive}</span>
             <button onClick={() => {
               setDateFromInput('');
               setDateToInput('');
@@ -229,7 +231,7 @@ export default function OrdersPage() {
             : 'text-white/40 hover:bg-[#0F0B2E]'
             }`}
         >
-          Бүгд ({orders.length})
+          {t.orders.all} ({orders.length})
         </button>
         {statusOptions.map((status) => {
           const count = orders.filter(o => o.status === status.value).length;
@@ -258,7 +260,7 @@ export default function OrdersPage() {
             enableRowSelection
             onBulkAction={handleBulkAction}
             bulkActions={[
-              { label: 'Төлөв өөрчлөх', value: 'status', icon: <Truck className="w-4 h-4 mr-1" /> },
+              { label: t.orders.changeStatusAction, value: 'status', icon: <Truck className="w-4 h-4 mr-1" /> },
             ]}
             pageSize={10}
           />
@@ -269,7 +271,7 @@ export default function OrdersPage() {
           {filteredOrders.length === 0 ? (
             <div className="bg-[#0F0B2E] rounded-lg border border-white/[0.08] py-12 text-center">
               <Package className="w-10 h-10 mx-auto mb-4 text-white/15" strokeWidth={1.5} />
-              <p className="text-[13px] text-white/40 tracking-[-0.01em]">Захиалга байхгүй байна</p>
+              <p className="text-[13px] text-white/40 tracking-[-0.01em]">{t.orders.noOrders}</p>
             </div>
           ) : (
             filteredOrders.map((order) => (
@@ -293,14 +295,14 @@ export default function OrdersPage() {
                       <div className="space-y-0.5">
                         {order.order_items.map((item, idx) => (
                           <p key={idx} className="font-medium text-[13px] text-foreground tracking-[-0.01em]">
-                            {item.products?.name || 'Бүтээгдэхүүн'} x{item.quantity}
+                            {item.products?.name || t.orders.products} x{item.quantity}
                           </p>
                         ))}
                       </div>
                       <div className="flex items-center gap-4 mt-3 text-[12px] text-white/40">
                         <span className="flex items-center gap-1">
                           <User className="w-3.5 h-3.5" strokeWidth={1.5} />
-                          {order.customers?.name || 'Харилцагч'}
+                          {order.customers?.name || t.orders.customer}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -325,15 +327,15 @@ export default function OrdersPage() {
           {selectedOrder ? (
             <div className="sticky top-6 bg-[#0F0B2E] rounded-lg border border-white/[0.08] overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08]">
-                <span className="text-sm font-semibold text-foreground tracking-[-0.01em]">Дэлгэрэнгүй</span>
+                <span className="text-sm font-semibold text-foreground tracking-[-0.01em]">{t.orders.details}</span>
                 <OrderStatusBadge status={selectedOrder.status} />
               </div>
               <div className="p-5 space-y-5">
                 {/* Customer Info */}
                 <div className="space-y-2">
-                  <h3 className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">Харилцагч</h3>
+                  <h3 className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">{t.orders.customerInfo}</h3>
                   <div className="bg-[#0F0B2E] rounded-md p-3 space-y-2">
-                    <p className="font-medium text-[13px] text-foreground tracking-[-0.01em]">{selectedOrder.customers?.name || 'Нэр оруулаагүй'}</p>
+                    <p className="font-medium text-[13px] text-foreground tracking-[-0.01em]">{selectedOrder.customers?.name || t.orders.noName}</p>
                     {selectedOrder.customers?.phone && (
                       <p className="text-[12px] text-white/40 flex items-center gap-2">
                         <Phone className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -357,7 +359,7 @@ export default function OrdersPage() {
 
                 {/* Order Items */}
                 <div className="space-y-2">
-                  <h3 className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">Бүтээгдэхүүн</h3>
+                  <h3 className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">{t.orders.products}</h3>
                   <div className="space-y-1.5">
                     {selectedOrder.order_items.map((item, idx) => (
                       <div key={idx} className="flex justify-between items-center bg-[#0F0B2E] rounded-md p-3">
@@ -374,7 +376,7 @@ export default function OrdersPage() {
                     ))}
                   </div>
                   <div className="border-t border-white/[0.08] pt-3 flex justify-between items-center">
-                    <span className="font-medium text-[13px] tracking-[-0.01em]">Нийт дүн:</span>
+                    <span className="font-medium text-[13px] tracking-[-0.01em]">{t.orders.totalAmount}</span>
                     <span className="text-lg font-semibold text-foreground tracking-[-0.02em]">
                       ₮{Number(selectedOrder.total_amount).toLocaleString()}
                     </span>
@@ -384,7 +386,7 @@ export default function OrdersPage() {
                 {/* Notes */}
                 {selectedOrder.notes && (
                   <div className="space-y-2">
-                    <h3 className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">Тэмдэглэл</h3>
+                    <h3 className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">{t.orders.notes}</h3>
                     <p className="text-[13px] text-white/60 bg-[#0F0B2E] rounded-md p-3 tracking-[-0.01em]">
                       {selectedOrder.notes}
                     </p>
@@ -393,7 +395,7 @@ export default function OrdersPage() {
 
                 {/* Status Update */}
                 <div className="space-y-2">
-                  <h3 className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">Статус өөрчлөх</h3>
+                  <h3 className="text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">{t.orders.changeStatus}</h3>
                   <div className="grid grid-cols-2 gap-1.5">
                     {statusOptions.map((status) => {
                       const Icon = status.icon;
@@ -422,15 +424,15 @@ export default function OrdersPage() {
 
                 {/* Timestamps */}
                 <div className="text-[11px] text-white/30 space-y-1 pt-4 border-t border-white/[0.08]">
-                  <p>Үүсгэсэн: {formatDate(selectedOrder.created_at)}</p>
-                  <p>Шинэчилсэн: {formatDate(selectedOrder.updated_at)}</p>
+                  <p>{t.orders.created} {formatDate(selectedOrder.created_at)}</p>
+                  <p>{t.orders.updated} {formatDate(selectedOrder.updated_at)}</p>
                 </div>
               </div>
             </div>
           ) : (
             <div className="bg-[#0F0B2E] rounded-lg border border-white/[0.08] py-12 text-center">
               <Package className="w-10 h-10 mx-auto mb-4 text-white/10" strokeWidth={1.5} />
-              <p className="text-[13px] text-white/40 tracking-[-0.01em]">Захиалга сонгоно уу</p>
+              <p className="text-[13px] text-white/40 tracking-[-0.01em]">{t.orders.selectOrder}</p>
             </div>
           )}
         </div>
@@ -441,7 +443,7 @@ export default function OrdersPage() {
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-[#141414] rounded-lg border border-white/[0.08] w-full max-w-md p-6 m-4">
             <h2 className="text-base font-semibold text-foreground mb-4 tracking-[-0.02em]">
-              {bulkSelectedOrders.length} захиалгын төлөв өөрчлөх
+              {bulkSelectedOrders.length} {t.orders.bulkChangeStatus}
             </h2>
             <div className="grid grid-cols-2 gap-2">
               {statusOptions.map((status) => {
@@ -462,7 +464,7 @@ export default function OrdersPage() {
               onClick={() => setShowBulkStatusModal(false)}
               className="mt-4 w-full py-2 text-[13px] text-white/40 hover:text-foreground transition-colors tracking-[-0.01em]"
             >
-              Цуцлах
+              {t.orders.cancel}
             </button>
           </div>
         </div>

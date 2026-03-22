@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductForm from '@/components/dashboard/products/ProductForm';
 import { logger } from '@/lib/utils/logger';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ProductsPage() {
     const { data: products = [], isLoading } = useProducts();
@@ -16,6 +17,7 @@ export default function ProductsPage() {
     const deleteProduct = useDeleteProduct();
     const queryClient = useQueryClient();
     const { user } = useAuth();
+    const { t } = useLanguage();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -59,7 +61,7 @@ export default function ProductsPage() {
     }, [imagePreview]);
 
     const uploadImage = async (file: File) => {
-        if (!user) throw new Error("Нэвтрээгүй байна");
+        if (!user) throw new Error(t.products.notLoggedIn);
         const formData = new FormData();
         formData.append('file', file);
         const res = await fetch('/api/dashboard/upload', { method: 'POST', body: formData });
@@ -80,7 +82,7 @@ export default function ProductsPage() {
     };
 
     async function handleDelete(id: string) {
-        if (!confirm('Устгахдаа итгэлтэй байна уу?')) return;
+        if (!confirm(t.products.confirmDelete)) return;
         try {
             await deleteProduct.mutateAsync(id);
         } catch (error: unknown) {
@@ -125,7 +127,7 @@ export default function ProductsPage() {
             if (!res.ok) {
                 setImportError(data.error || 'Import failed');
             } else {
-                alert(`${data.count} бүтээгдэхүүн импорт хийгдлээ!`);
+                alert(`${data.count} ${t.products.importSuccess}`);
                 setShowImportModal(false);
                 setImportFile(null);
                 setImportPreview([]);
@@ -175,8 +177,8 @@ export default function ProductsPage() {
                     className="px-3 py-1.5 bg-foreground text-background rounded-md hover:opacity-80 transition-opacity flex items-center gap-1.5 text-[12px] font-medium tracking-[-0.01em]"
                 >
                     <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    <span className="hidden md:inline">Шинэ нэмэх</span>
-                    <span className="md:hidden">Нэмэх</span>
+                    <span className="hidden md:inline">{t.products.addNew}</span>
+                    <span className="md:hidden">{t.products.add}</span>
                 </button>
             </div>
 
@@ -224,13 +226,13 @@ export default function ProductsPage() {
                                 </div>
                                 <div className="flex items-center gap-2 mt-2 flex-wrap">
                                     <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-[#151040] text-white/50">
-                                        {product.type === 'service' ? 'Үйлчилгээ' : product.type === 'appointment' ? 'Цаг захиалга' : 'Бараа'}
+                                        {product.type === 'service' ? t.products.service : product.type === 'appointment' ? t.products.appointment : t.products.physical}
                                     </span>
                                     {product.type === 'physical' && (() => {
                                         const available = (product.stock || 0) - (product.reserved_stock || 0);
                                         return (
                                             <span className={`text-[11px] ${available > 0 ? 'text-white/40' : 'text-red-500'}`}>
-                                                {available > 0 ? `Үлдэгдэл: ${available}` : 'Дууссан'}
+                                                {available > 0 ? `${t.products.stock}: ${available}` : t.products.outOfStock}
                                             </span>
                                         );
                                     })()}
@@ -246,12 +248,12 @@ export default function ProductsPage() {
                 <table className="w-full">
                     <thead>
                         <tr className="border-b border-white/[0.08]">
-                            <th className="text-left px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">Бүтээгдэхүүн</th>
-                            <th className="text-left px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">Төрөл</th>
-                            <th className="text-left px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">Үнэ</th>
-                            <th className="text-left px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">Үлдэгдэл</th>
-                            <th className="text-left px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">Төлөв</th>
-                            <th className="text-right px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">Үйлдэл</th>
+                            <th className="text-left px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">{t.products.productCol}</th>
+                            <th className="text-left px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">{t.products.typeCol}</th>
+                            <th className="text-left px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">{t.products.priceCol}</th>
+                            <th className="text-left px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">{t.products.stockCol}</th>
+                            <th className="text-left px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">{t.products.statusCol}</th>
+                            <th className="text-right px-5 py-3 text-[11px] font-medium text-white/40 uppercase tracking-[0.05em]">{t.products.actionCol}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/[0.04]">
@@ -259,8 +261,8 @@ export default function ProductsPage() {
                             <tr>
                                 <td colSpan={6} className="px-5 py-12 text-center">
                                     <Package className="w-10 h-10 text-white/10 mx-auto mb-3" strokeWidth={1.5} />
-                                    <p className="text-[13px] text-white/40 tracking-[-0.01em]">Бүтээгдэхүүн байхгүй</p>
-                                    <p className="text-[11px] text-white/30 mt-1">Шинэ бараа нэмэхийн тулд &quot;Шинэ нэмэх&quot; товч дарна уу</p>
+                                    <p className="text-[13px] text-white/40 tracking-[-0.01em]">{t.products.noProducts}</p>
+                                    <p className="text-[11px] text-white/30 mt-1">{t.products.noProductsHint}</p>
                                 </td>
                             </tr>
                         ) : (
@@ -285,7 +287,7 @@ export default function ProductsPage() {
                                     </td>
                                     <td className="px-5 py-3.5">
                                         <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-[#151040] text-white/50">
-                                            {product.type === 'service' ? 'Үйлчилгээ' : product.type === 'appointment' ? 'Цаг захиалга' : 'Бараа'}
+                                            {product.type === 'service' ? t.products.service : product.type === 'appointment' ? t.products.appointment : t.products.physical}
                                         </span>
                                     </td>
                                     <td className="px-5 py-3.5">
@@ -307,7 +309,7 @@ export default function ProductsPage() {
                                                 const available = (product.stock || 0) - (product.reserved_stock || 0);
                                                 return (
                                                     <p className={`font-medium text-[13px] tabular-nums ${available > 0 ? 'text-foreground' : 'text-red-500'}`}>
-                                                        {available > 0 ? `${available} ш` : 'Дууссан'}
+                                                        {available > 0 ? `${available} ${t.products.pcs}` : t.products.outOfStock}
                                                     </p>
                                                 );
                                             })()
@@ -324,7 +326,7 @@ export default function ProductsPage() {
                                         ) : (
                                             <span className="flex items-center gap-1.5 text-[11px] font-medium text-white/40">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-white/20"></span>
-                                                Идэвхгүй
+                                                {t.products.inactiveStatus}
                                             </span>
                                         )}
                                     </td>
@@ -357,7 +359,7 @@ export default function ProductsPage() {
                     <div className="bg-[#0A0220] rounded-lg border border-white/[0.08] w-full max-w-2xl p-5 m-4 relative">
                         <div className="flex items-center justify-between mb-5">
                             <h2 className="text-[15px] font-semibold text-foreground tracking-[-0.02em]">
-                                {editingProduct ? 'Засах' : 'Шинэ бүртгэл'}
+                                {editingProduct ? t.products.edit : t.products.newEntry}
                             </h2>
                             <button onClick={() => setShowModal(false)} className="p-1.5 hover:bg-[#0F0B2E] rounded-md transition-colors">
                                 <X className="w-4 h-4 text-white/30" strokeWidth={1.5} />
@@ -379,7 +381,7 @@ export default function ProductsPage() {
                     <div className="bg-[#0A0220] rounded-lg border border-white/[0.08] w-full max-w-3xl p-5 m-4 relative">
                         <div className="flex items-center justify-between mb-5">
                             <h2 className="text-[15px] font-semibold text-foreground tracking-[-0.02em]">
-                                Файлаас импорт
+                                {t.products.importFromFile}
                             </h2>
                             <button onClick={() => { setShowImportModal(false); setImportFile(null); setImportPreview([]); setImportError(null); }} className="p-1.5 hover:bg-[#0F0B2E] rounded-md transition-colors">
                                 <X className="w-4 h-4 text-white/30" strokeWidth={1.5} />
@@ -402,7 +404,7 @@ export default function ProductsPage() {
                             ) : (
                                 <>
                                     <FileSpreadsheet className="w-10 h-10 text-white/10 mx-auto mb-3" strokeWidth={1.5} />
-                                    <p className="text-[13px] text-foreground mb-1 tracking-[-0.01em]">Excel эсвэл Word файл сонгоно уу</p>
+                                    <p className="text-[13px] text-foreground mb-1 tracking-[-0.01em]">{t.products.selectFile}</p>
                                     <p className="text-[11px] text-white/30">xlsx, xls, csv, docx</p>
                                 </>
                             )}
@@ -422,16 +424,16 @@ export default function ProductsPage() {
 
                         {importPreview.length > 0 && (
                             <div className="mt-5">
-                                <h3 className="font-medium text-[13px] text-foreground mb-3 tracking-[-0.01em]">Урьдчилан харах ({importPreview.length} бүтээгдэхүүн)</h3>
+                                <h3 className="font-medium text-[13px] text-foreground mb-3 tracking-[-0.01em]">{t.products.preview} ({importPreview.length} {t.products.productCol})</h3>
                                 <div className="max-h-64 overflow-auto border border-white/[0.08] rounded-md">
                                     <table className="w-full text-[12px]">
                                         <thead>
                                             <tr className="border-b border-white/[0.08]">
-                                                <th className="text-left px-3 py-2 font-medium text-white/40 uppercase tracking-[0.05em] text-[10px]">Нэр</th>
-                                                <th className="text-left px-3 py-2 font-medium text-white/40 uppercase tracking-[0.05em] text-[10px]">Төрөл</th>
-                                                <th className="text-left px-3 py-2 font-medium text-white/40 uppercase tracking-[0.05em] text-[10px]">Үнэ</th>
-                                                <th className="text-left px-3 py-2 font-medium text-white/40 uppercase tracking-[0.05em] text-[10px]">Тоо</th>
-                                                <th className="text-left px-3 py-2 font-medium text-white/40 uppercase tracking-[0.05em] text-[10px]">Тайлбар</th>
+                                                <th className="text-left px-3 py-2 font-medium text-white/40 uppercase tracking-[0.05em] text-[10px]">{t.products.name}</th>
+                                                <th className="text-left px-3 py-2 font-medium text-white/40 uppercase tracking-[0.05em] text-[10px]">{t.products.type}</th>
+                                                <th className="text-left px-3 py-2 font-medium text-white/40 uppercase tracking-[0.05em] text-[10px]">{t.products.price}</th>
+                                                <th className="text-left px-3 py-2 font-medium text-white/40 uppercase tracking-[0.05em] text-[10px]">{t.products.quantity}</th>
+                                                <th className="text-left px-3 py-2 font-medium text-white/40 uppercase tracking-[0.05em] text-[10px]">{t.products.description}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-white/[0.04]">
@@ -440,7 +442,7 @@ export default function ProductsPage() {
                                                     <td className="px-3 py-2 text-foreground">{p.name}</td>
                                                     <td className="px-3 py-2">
                                                         <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#151040] text-white/50">
-                                                            {p.type === 'service' ? 'Үйлчилгээ' : p.type === 'appointment' ? 'Цаг захиалга' : 'Бараа'}
+                                                            {p.type === 'service' ? t.products.service : p.type === 'appointment' ? t.products.appointment : t.products.physical}
                                                         </span>
                                                     </td>
                                                     <td className="px-3 py-2 text-white/50 tabular-nums">₮{p.price?.toLocaleString()}</td>
@@ -452,16 +454,16 @@ export default function ProductsPage() {
                                     </table>
                                 </div>
                                 {importPreview.length > 10 && (
-                                    <p className="text-[11px] text-white/30 mt-2">... болон {importPreview.length - 10} бусад</p>
+                                    <p className="text-[11px] text-white/30 mt-2">... {t.products.andMore.replace('{count}', String(importPreview.length - 10))}</p>
                                 )}
                             </div>
                         )}
 
                         <div className="mt-5 p-4 bg-[#0D0928] rounded-md border border-white/[0.04]">
-                            <h4 className="font-medium text-[12px] text-foreground mb-2 tracking-[-0.01em]">Формат заавар:</h4>
+                            <h4 className="font-medium text-[12px] text-foreground mb-2 tracking-[-0.01em]">{t.products.formatGuide}</h4>
                             <ul className="text-[11px] text-white/40 space-y-1">
-                                <li><strong className="text-foreground">Excel:</strong> Нэр, Үнэ, Тоо, Тайлбар баганууд</li>
-                                <li><strong className="text-foreground">Word:</strong> &quot;Нэр - Үнэ - Тайлбар&quot; (мөр бүрт нэг бүтээгдэхүүн)</li>
+                                <li><strong className="text-foreground">Excel:</strong> {t.products.excelFormat}</li>
+                                <li><strong className="text-foreground">Word:</strong> {t.products.wordFormat}</li>
                             </ul>
                         </div>
 
@@ -471,14 +473,14 @@ export default function ProductsPage() {
                                 disabled={importing}
                                 className="px-3 py-1.5 text-[12px] font-medium border border-white/[0.08] rounded-md hover:border-white/[0.15] transition-colors text-foreground tracking-[-0.01em]"
                             >
-                                Цуцлах
+                                {t.orders.cancel}
                             </button>
                             <button
                                 onClick={handleImportConfirm}
                                 disabled={importing || importPreview.length === 0}
                                 className="px-3 py-1.5 text-[12px] font-medium bg-foreground text-background rounded-md hover:opacity-80 transition-opacity disabled:opacity-50 tracking-[-0.01em]"
                             >
-                                {importing ? 'Импорт хийж байна...' : `${importPreview.length} бүтээгдэхүүн импортлох`}
+                                {importing ? t.products.importing : `${importPreview.length} ${t.products.importProducts}`}
                             </button>
                         </div>
                     </div>

@@ -1,5 +1,6 @@
 'use client';
 import { logger } from '@/lib/utils/logger';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -27,6 +28,7 @@ export default function ReportsPage() {
     const [period, setPeriod] = useState<Period>('month');
     const [chartType, setChartType] = useState<'line' | 'bar'>('line');
     const [exporting, setExporting] = useState<string | null>(null);
+    const { t } = useLanguage();
 
     const { data, isLoading, refetch, isRefetching } = useReports(period);
 
@@ -53,10 +55,10 @@ export default function ReportsPage() {
     };
 
     const periodOptions = [
-        { value: 'today', label: 'Өнөөдөр' },
-        { value: 'week', label: '7 хоног' },
-        { value: 'month', label: 'Сар' },
-        { value: 'year', label: 'Жил' },
+        { value: 'today', label: t.dashboard.today },
+        { value: 'week', label: t.dashboard.week },
+        { value: 'month', label: t.dashboard.month },
+        { value: 'year', label: 'Year' },
     ];
 
     if (isLoading) {
@@ -130,7 +132,7 @@ export default function ReportsPage() {
                     <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.08]">
                         <div className="flex items-center gap-2">
                             <TrendingUp className="w-4 h-4 text-white/20" strokeWidth={1.5} />
-                            <span className="text-sm font-semibold text-foreground tracking-[-0.01em]">Борлуулалтын график</span>
+                            <span className="text-sm font-semibold text-foreground tracking-[-0.01em]">{t.reports.title}</span>
                         </div>
                         <div className="flex gap-0.5">
                             <button
@@ -166,7 +168,7 @@ export default function ReportsPage() {
                 <div className="bg-[#0F0B2E] rounded-lg border border-white/[0.08] overflow-hidden">
                     <div className="flex items-center gap-2 px-5 py-3.5 border-b border-white/[0.08]">
                         <ShoppingCart className="w-4 h-4 text-white/20" strokeWidth={1.5} />
-                        <span className="text-sm font-semibold text-foreground tracking-[-0.01em]">Захиалгын төлөв</span>
+                        <span className="text-sm font-semibold text-foreground tracking-[-0.01em]">{t.reports.orders}</span>
                     </div>
                     <div className="p-5 space-y-3">
                         {data && Object.entries(data.orderStatus).map(([status, count]) => (
@@ -187,7 +189,7 @@ export default function ReportsPage() {
             <div className="bg-[#0F0B2E] rounded-lg border border-white/[0.08] overflow-hidden">
                 <div className="flex items-center gap-2 px-5 py-3.5 border-b border-white/[0.08]">
                     <Trophy className="w-4 h-4 text-[#4A7CE7]" strokeWidth={1.5} />
-                    <span className="text-sm font-semibold text-foreground tracking-[-0.01em]">Эрэлттэй бүтээгдэхүүн (Top 10)</span>
+                    <span className="text-sm font-semibold text-foreground tracking-[-0.01em]">{t.reports.products} (Top 10)</span>
                 </div>
                 <div className="p-5">
                     <BestSellersTable products={data?.bestSellers || []} />
@@ -199,14 +201,14 @@ export default function ReportsPage() {
                 <div className="bg-[#0F0B2E] rounded-lg border border-white/[0.08] overflow-hidden">
                     <div className="flex items-center gap-2 px-5 py-3.5 border-b border-white/[0.08]">
                         <FileSpreadsheet className="w-4 h-4 text-white/20" strokeWidth={1.5} />
-                        <span className="text-sm font-semibold text-foreground tracking-[-0.01em]">Excel Экспорт</span>
+                        <span className="text-sm font-semibold text-foreground tracking-[-0.01em]">Excel {t.ui.export}</span>
                     </div>
                     <div className="p-5">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {[
-                                { type: 'orders' as const, label: 'Захиалгууд', desc: 'Бүх захиалгын жагсаалт', icon: ShoppingCart },
-                                { type: 'products' as const, label: 'Бүтээгдэхүүн', desc: 'Бүх барааны жагсаалт', icon: Package },
-                                { type: 'sales' as const, label: 'Борлуулалт', desc: 'Сүүлийн 30 хоногийн', icon: TrendingUp },
+                                { type: 'orders' as const, label: t.reports.orders, desc: t.reports.orders, icon: ShoppingCart },
+                                { type: 'products' as const, label: t.reports.products, desc: t.reports.products, icon: Package },
+                                { type: 'sales' as const, label: t.reports.revenue, desc: t.reports.revenue, icon: TrendingUp },
                             ].map((item) => (
                                 <button
                                     key={item.type}
@@ -232,12 +234,12 @@ export default function ReportsPage() {
 
 function translateStatus(status: string): string {
     const statusMap: Record<string, string> = {
-        pending: 'Хүлээгдэж буй',
-        confirmed: 'Баталгаажсан',
-        processing: 'Боловсруулж байна',
-        shipped: 'Хүргэлтэнд',
-        delivered: 'Хүргэгдсэн',
-        cancelled: 'Цуцлагдсан',
+        pending: 'Pending',
+        confirmed: 'Confirmed',
+        processing: 'Processing',
+        shipped: 'Shipped',
+        delivered: 'Delivered',
+        cancelled: 'Cancelled',
     };
     return statusMap[status] || status;
 }
