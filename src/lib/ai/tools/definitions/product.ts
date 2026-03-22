@@ -38,8 +38,8 @@ export const PRODUCT_TOOLS: ToolDefinition[] = [
     },
     {
         name: 'log_complaint',
-        description: 'Log customer complaint or negative feedback. Use when customer expresses dissatisfaction, says "муу", "асуудал", "гомдол", "сэтгэл дундуур".',
-        parameters: { type: 'object', properties: { complaint_type: { type: 'string', enum: ['product_quality', 'delivery', 'service', 'price', 'other'], description: 'Type of complaint' }, description: { type: 'string', description: 'Brief description of the complaint' }, severity: { type: 'string', enum: ['low', 'medium', 'high'], description: 'Severity level based on customer tone' } }, required: ['complaint_type', 'description'] }
+        description: 'Log customer complaint or negative feedback. Use when you SENSE customer dissatisfaction from context, tone, or meaning — not just specific keywords. Examples: product quality issues, delivery delays, pricing complaints, service problems, or ANY expression of unhappiness like "дахиж авахгүй", "хэрэгсэхгүй", "сэтгэл дундуур", indirect frustration, or disappointment. Also use for subtle signals like "за болоо" said in frustrated tone, repeated complaints, or customers saying they won\'t come back.',
+        parameters: { type: 'object', properties: { complaint_type: { type: 'string', enum: ['product_quality', 'delivery', 'service', 'price', 'other'], description: 'Type of complaint - choose the best match based on context' }, description: { type: 'string', description: 'Brief description of what the customer is unhappy about, written from your understanding of the situation' }, severity: { type: 'string', enum: ['low', 'medium', 'high'], description: 'Severity: high=angry/frustrated, medium=disappointed/repeated issue, low=minor mention' } }, required: ['complaint_type', 'description'] }
     },
     {
         name: 'suggest_related_products',
