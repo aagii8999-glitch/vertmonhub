@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { logger } from '@/lib/utils/logger';
-import { Search, User, Crown, Phone, Mail, Tag, X, Plus, MessageSquare, Clock, ChevronDown, Edit2, Save, Users } from 'lucide-react';
+import { Search, User, Crown, Phone, Mail, Tag, X, Plus, MessageSquare, Clock, ChevronDown, Edit2, Save, Users, Trash2 } from 'lucide-react';
 
 interface Customer {
     id: string; name: string | null; phone: string | null; email: string | null;
@@ -56,6 +56,20 @@ export default function CustomersPage() {
             await fetch('/api/dashboard/customers', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || '' }, body: JSON.stringify({ id: selectedCustomer.id, ...editForm }) });
             setEditMode(false); fetchCustomers(); fetchDetail(selectedCustomer.id);
         } catch (e) { logger.error('Хэрэглэгчийн алдаа', { error: e }); } finally { setSaving(false); }
+    }
+
+    async function deleteCustomer(id: string, name: string | null) {
+        if (!confirm(`"${name || 'Харилцагч'}" хэрэглэгчийг устгах уу? Чат түүх, сагс, гомдол бүгд устана.`)) return;
+        try {
+            const res = await fetch(`/api/dashboard/customers?id=${id}`, {
+                method: 'DELETE',
+                headers: { 'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || '' },
+            });
+            if (!res.ok) throw new Error('Failed');
+            setIsDetailOpen(false);
+            setSelectedCustomer(null);
+            fetchCustomers();
+        } catch (e) { logger.error('Устгах алдаа', { error: e }); }
     }
 
     async function addTag(cid: string, tag: string) {
@@ -147,6 +161,7 @@ export default function CustomersPage() {
                             <div className="flex items-center gap-1.5">
                                 {editMode ? <button onClick={saveCustomer} disabled={saving} className="flex items-center gap-1.5 px-3 py-1.5 bg-foreground text-background rounded-md text-[12px] font-medium hover:opacity-80 transition-opacity disabled:opacity-50"><Save className="w-3.5 h-3.5" strokeWidth={1.5} />{saving ? 'Хадгалж...' : 'Хадгалах'}</button>
                                     : <button onClick={() => setEditMode(true)} className="flex items-center gap-1.5 px-3 py-1.5 border border-white/[0.08] rounded-md text-[12px] font-medium text-foreground hover:border-white/[0.15] transition-colors"><Edit2 className="w-3.5 h-3.5" strokeWidth={1.5} />Засах</button>}
+                                <button onClick={() => deleteCustomer(selectedCustomer.id, selectedCustomer.name)} className="p-1.5 hover:bg-red-500/10 rounded-md transition-colors group" title="Устгах"><Trash2 className="w-4 h-4 text-white/20 group-hover:text-red-400" strokeWidth={1.5} /></button>
                                 <button onClick={() => { setIsDetailOpen(false); setEditMode(false); }} className="p-1.5 hover:bg-[#0F0B2E] rounded-md transition-colors"><X className="w-4 h-4 text-white/30" strokeWidth={1.5} /></button>
                             </div>
                         </div>

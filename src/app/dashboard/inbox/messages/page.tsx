@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Loader2, Send, MessageSquare, User, Bot, PauseCircle, Search, Inbox as InboxIcon, Timer, Power } from 'lucide-react';
+import { Loader2, Send, MessageSquare, User, Bot, PauseCircle, Search, Inbox as InboxIcon, Timer, Power, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ChatMessage {
@@ -67,6 +67,24 @@ export default function InboxMessagesPage() {
         );
         setChatMessages(sorted);
         setReplyMessage('');
+    };
+
+    // Delete customer
+    const handleDeleteCustomer = async (customerId: string, name: string) => {
+        if (!confirm(`"${name || 'Customer'}" хэрэглэгчийг устгах уу? Чат түүх бүгд устана.`)) return;
+        try {
+            const res = await fetch(`/api/dashboard/customers?id=${customerId}`, {
+                method: 'DELETE',
+                headers: { 'x-shop-id': shopId },
+            });
+            if (!res.ok) throw new Error('Failed');
+            setActiveId(null);
+            setChatMessages([]);
+            toast.success('Хэрэглэгч устгагдлаа');
+            fetchConversations();
+        } catch {
+            toast.error('Устгахад алдаа гарлаа');
+        }
     };
 
     // Auto-scroll
@@ -255,6 +273,15 @@ export default function InboxMessagesPage() {
                                 <p className="text-[11px] text-white/30">
                                     {chatMessages.length} {t.inbox.messages}
                                 </p>
+                            </div>
+                            <div className="ml-auto">
+                                <button
+                                    onClick={() => handleDeleteCustomer(activeConvo.id, activeConvo.customer_name)}
+                                    className="p-1.5 hover:bg-red-500/10 rounded-md transition-colors group"
+                                    title="Устгах"
+                                >
+                                    <Trash2 className="w-4 h-4 text-white/20 group-hover:text-red-400" strokeWidth={1.5} />
+                                </button>
                             </div>
                         </div>
 

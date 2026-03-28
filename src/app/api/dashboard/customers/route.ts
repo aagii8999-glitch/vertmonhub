@@ -114,3 +114,57 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to update customer' }, { status: 500 });
   }
 }
+
+// Delete customer
+export async function DELETE(request: NextRequest) {
+  try {
+    const authShop = await getAuthUserShop();
+    if (!authShop) {
+      // Fallback: x-shop-id header
+      const shopId = request.headers.get('x-shop-id');
+      if (!shopId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const shopId = authShop?.id || request.headers.get('x-shop-id')!;
+    const { searchParams } = new URL(request.url);
+    const customerId = searchParams.get('id');
+
+    if (!customerId) {
+      return NextResponse.json({ error: 'Customer ID required' }, { status: 400 });
+    }
+
+    const supabase = supabaseAdmin();
+
+    // Verify customer belongs to shop
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('id, name')
+      .eq('id', customerId)
+      .eq('shop_id', shopId)
+      .single();
+
+    if (!customer) {
+      return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+    }
+
+    // Delete related records first
+    await supabase.from('chat_history').delete().eq('customer_id', customerId);
+    await supabase.from('cart_items').delete().eq('customer_id', customerId);
+    await supabase.from('customer_complaints').delete().eq('customer_id', customerId);
+
+    // Delete customer
+    const { error } = await supabase
+      .from('customers')
+      .delete()
+      .eq('id', customerId)
+      .eq('shop_id', shopId);
+
+    if (error) throw error;
+
+    logger.info('Customer deleted', { customerId, customerName: customer.name, shopId });
+    return NextResponse.json({ success: true, message: 'Customer deleted' });
+  } catch (error: unknown) {
+    logger.error('Customer delete error:', { error });
+    return NextResponse.json({ error: 'Failed to delete customer' }, { status: 500 });
+  }
+}
