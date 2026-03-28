@@ -301,6 +301,7 @@ Located in `docs/`:
 
 Located in `skills/`:
 - `skills/brand-identity/` — Brand identity guidelines
+- `skills/code-review/` — Comprehensive code review with severity levels, security/logic/performance checks
 - `skills/creating-skills/` — How to create new skills
 - `skills/developing-ui/` — UI development patterns and standards
 

@@ -3,6 +3,9 @@ import { getAuthUserShop } from '@/lib/auth/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sendOrderStatusNotification } from '@/lib/services/OrderNotificationService';
 import { logger } from '@/lib/utils/logger';
+import { orderStatusSchema } from '@/lib/validations';
+import { z } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 
 export async function GET(request: Request) {
   try {
@@ -41,6 +44,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ orders: orders || [] });
   } catch (error: unknown) {
+    Sentry.captureException(error, { tags: { route: 'dashboard/orders', method: 'GET' } });
     logger.error('Orders API error:', { error: error });
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
   }
@@ -58,7 +62,22 @@ export async function PATCH(request: Request) {
     const shopId = authShop.id;
 
     const body = await request.json();
-    const { id, status } = body;
+
+    // Validate input with Zod
+    const updateSchema = z.object({
+      id: z.string().uuid(),
+      status: orderStatusSchema,
+    });
+
+    const parsed = updateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({
+        error: 'Invalid input',
+        details: parsed.error.issues.map(i => `${i.path.join('.')}: ${i.message}`),
+      }, { status: 400 });
+    }
+
+    const { id, status } = parsed.data;
 
     // Verify order belongs to shop and get customer_id
     const { data: existingOrder } = await supabase
@@ -110,6 +129,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ order: data });
   } catch (error: unknown) {
+    Sentry.captureException(error, { tags: { route: 'dashboard/orders', method: 'PATCH' } });
     logger.error('Order update error:', { error: error });
     return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
   }

@@ -25,9 +25,13 @@ export async function executeCreateOrder(
         .eq('id', product.id)
         .single();
 
-    const availableStock = (dbProduct?.stock || 0) - (dbProduct?.reserved_stock || 0);
-    if (!dbProduct || availableStock < quantity) {
-        return { success: false, error: `Not enough stock. Only ${availableStock} available.` };
+    if (!dbProduct) {
+        return { success: false, error: 'Бүтээгдэхүүний мэдээлэл олдсонгүй.' };
+    }
+
+    const availableStock = (dbProduct.stock || 0) - (dbProduct.reserved_stock || 0);
+    if (availableStock < quantity) {
+        return { success: false, error: `Үлдэгдэл хүрэлцэхгүй. Боломжит: ${availableStock}` };
     }
 
     if (!context.shopId || !context.customerId) {
@@ -65,6 +69,17 @@ export async function executeCreateOrder(
         }
     }
 
+    // Atomic stock reservation (prevents race conditions via SELECT ... FOR UPDATE)
+    const { data: reserved, error: reserveError } = await supabase.rpc('reserve_stock', {
+        p_product_id: product.id,
+        p_quantity: quantity,
+    });
+
+    if (reserveError || !reserved) {
+        logger.warn('Stock reservation failed:', { error: reserveError, reserved });
+        return { success: false, error: `Үлдэгдэл хүрэлцэхгүй байна. Дахин оролдоно уу.` };
+    }
+
     const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -79,11 +94,13 @@ export async function executeCreateOrder(
         .single();
 
     if (orderError) {
-        logger.error('Order creation error:', { error: orderError });
+        logger.error('Order creation error, releasing stock:', { error: orderError });
+        // Release the reserved stock since order failed
+        await supabase.rpc('reserve_stock', { p_product_id: product.id, p_quantity: -quantity });
         return { success: false, error: orderError.message };
     }
 
-    await supabase.from('order_items').insert({
+    const { error: itemError } = await supabase.from('order_items').insert({
         order_id: order.id,
         product_id: product.id,
         quantity: quantity,
@@ -92,10 +109,12 @@ export async function executeCreateOrder(
         size: size || null
     });
 
-    await supabase
-        .from('products')
-        .update({ reserved_stock: (dbProduct.reserved_stock || 0) + quantity })
-        .eq('id', product.id);
+    if (itemError) {
+        logger.error('Order item insert failed, rolling back order:', { error: itemError });
+        await supabase.from('orders').delete().eq('id', order.id);
+        await supabase.rpc('reserve_stock', { p_product_id: product.id, p_quantity: -quantity });
+        return { success: false, error: 'Захиалгын бараа нэмэхэд алдаа гарлаа. Дахин оролдоно уу.' };
+    }
 
     if (context.notifySettings?.order !== false) {
         try {

@@ -171,7 +171,11 @@ export async function executeRemoveFromCart(
         return { success: false, error: `"${product_name}" сагсанд олдсонгүй` };
     }
 
-    await supabase.from('cart_items').delete().eq('id', item.id);
+    const { error: deleteError } = await supabase.from('cart_items').delete().eq('id', item.id);
+
+    if (deleteError) {
+        return { success: false, error: 'Сагснаас хасахад алдаа гарлаа. Дахин оролдоно уу.' };
+    }
 
     return { success: true, message: `${item.name} сагснаас хасагдлаа` };
 }

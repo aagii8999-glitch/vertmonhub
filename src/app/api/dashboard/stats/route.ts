@@ -5,6 +5,7 @@ import { getStartOfPeriod } from '@/lib/utils/date';
 import { checkRateLimit, getRateLimitHeaders, RATE_LIMITS } from '@/lib/utils/rate-limit';
 import { apiError } from '@/lib/utils/api-response';
 import { logger } from '@/lib/utils/logger';
+import * as Sentry from '@sentry/nextjs';
 
 export async function GET(request: NextRequest) {
   try {
@@ -208,6 +209,7 @@ export async function GET(request: NextRequest) {
       unansweredCount,
     });
   } catch (error: unknown) {
+    Sentry.captureException(error, { tags: { route: 'dashboard/stats' } });
     logger.error('Stats API error:', { error: error });
     return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
   }

@@ -7,7 +7,7 @@
  * - Function calling via Gemini SDK's functionDeclarations
  */
 
-import { GoogleGenerativeAI, Content, Part, FunctionCall } from '@google/generative-ai';
+import { GoogleGenerativeAI, Content, Part } from '@google/generative-ai';
 import * as Sentry from '@sentry/nextjs';
 import { logger } from '@/lib/utils/logger';
 import type { ChatContext, ChatMessage, ChatResponse, ImageAction, ChatAction } from '@/types/ai';
@@ -25,6 +25,9 @@ import {
 } from './config/plans';
 
 // Initialize Gemini client
+if (!process.env.GEMINI_API_KEY) {
+    logger.warn('GEMINI_API_KEY environment variable is not set — AI features will not work');
+}
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 /**
@@ -434,7 +437,8 @@ export async function analyzeProductImageWithPlan(
         }
 
         logger.info('Using Gemini 2.5 Flash for vision analysis...');
-        const result = await geminiVision.analyzeImage(imageUrl, products as any);
+        // GeminiProvider.analyzeImage only uses id, name, description from products
+        const result = await geminiVision.analyzeImage(imageUrl, products as unknown as import('@/types/ai').AIProduct[]);
 
         logger.success('Gemini Vision analysis complete', { matched: result.matchedProduct, confidence: result.confidence });
         return result;

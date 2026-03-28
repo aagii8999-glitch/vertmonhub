@@ -13,7 +13,7 @@ export async function executeCheckOrderStatus(
     try {
         let query = supabase
             .from('orders')
-            .select('id, status, total, created_at, order_items(product_name, quantity, unit_price)')
+            .select('id, status, total_amount, created_at, order_items(product_name, quantity, unit_price)')
             .eq('shop_id', context.shopId)
             .eq('customer_id', context.customerId)
             .order('created_at', { ascending: false });
@@ -56,7 +56,7 @@ export async function executeCheckOrderStatus(
             return {
                 id: order.id.substring(0, 8).toUpperCase(),
                 status: statusLabels[order.status] || order.status,
-                total: order.total,
+                total: order.total_amount,
                 date: new Date(order.created_at).toLocaleDateString('mn-MN'),
                 items
             };

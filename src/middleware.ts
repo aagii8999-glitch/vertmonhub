@@ -82,6 +82,6 @@ export const config = {
          * - favicon.ico (favicon file)
          * - public assets
          */
-        '/((?!_next/static|_next/image|favicon.ico|api/webhook|api/payment/webhook|api/subscription/webhook|api/meta/data-deletion|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)',
+        '/((?!_next/static|_next/image|favicon.ico|api/meta/data-deletion|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)',
     ],
 };

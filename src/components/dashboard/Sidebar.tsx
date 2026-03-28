@@ -21,6 +21,7 @@ import {
     ArrowUpRight,
     Globe,
     MessageSquareMore,
+    Inbox,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -50,6 +51,7 @@ const toolsMenuKeys: MenuItem[] = [
     { nameKey: 'aiSettings', href: '/dashboard/ai-settings', icon: Bot },
     { nameKey: 'commentMgmt', href: '/dashboard/comment-automation', icon: MessageSquareMore },
     { nameKey: 'cart', href: '/dashboard/inbox', icon: ShoppingCart, feature: 'cart_system' },
+    { nameKey: 'inbox', href: '/dashboard/inbox/messages', icon: Inbox },
     { nameKey: 'reports', href: '/dashboard/reports', icon: BarChart3, feature: 'crm_analytics' },
 ];
 
