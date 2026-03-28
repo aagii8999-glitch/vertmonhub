@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Loader2, Send, MessageSquare, User, Bot, PauseCircle, Search, Inbox as InboxIcon } from 'lucide-react';
+import { Loader2, Send, MessageSquare, User, Bot, PauseCircle, Search, Inbox as InboxIcon, Timer, Power } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ChatMessage {
@@ -31,6 +31,7 @@ export default function InboxMessagesPage() {
     const [replyMessage, setReplyMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [aiPauseMode, setAiPauseMode] = useState<'pause' | 'off'>('pause');
     const chatEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -99,6 +100,7 @@ export default function InboxMessagesPage() {
                 body: JSON.stringify({
                     customerId: activeId,
                     message: messageText,
+                    aiPauseMode,
                 }),
             });
 
@@ -108,10 +110,17 @@ export default function InboxMessagesPage() {
             }
 
             toast.success(t.inbox.messageSent);
-            toast(t.inbox.aiPaused, {
-                icon: '⏸️',
-                description: t.inbox.aiPausedDesc,
-            });
+            if (aiPauseMode === 'off') {
+                toast('AI agent off', {
+                    icon: '⛔',
+                    description: 'AI is disabled for this customer until you turn it back on.',
+                });
+            } else {
+                toast(t.inbox.aiPaused, {
+                    icon: '⏸️',
+                    description: t.inbox.aiPausedDesc,
+                });
+            }
             inputRef.current?.focus();
         } catch (err: unknown) {
             toast.error(err instanceof Error ? err.message : t.inbox.sendError);
@@ -291,9 +300,30 @@ export default function InboxMessagesPage() {
 
                         {/* Reply input */}
                         <div className="px-4 py-3 border-t border-white/[0.06]">
-                            <div className="flex items-center gap-1 mb-1.5 px-1">
-                                <PauseCircle className="w-3 h-3 text-amber-500/50" />
-                                <span className="text-[10px] text-white/25">{t.inbox.manualReplyNote}</span>
+                            <div className="flex items-center gap-1.5 mb-2 px-1">
+                                <span className="text-[10px] text-white/25 mr-1">AI mode:</span>
+                                <button
+                                    onClick={() => setAiPauseMode('pause')}
+                                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all ${
+                                        aiPauseMode === 'pause'
+                                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                            : 'bg-white/[0.04] text-white/30 border border-white/[0.06] hover:bg-white/[0.08]'
+                                    }`}
+                                >
+                                    <Timer className="w-3 h-3" />
+                                    30 min pause
+                                </button>
+                                <button
+                                    onClick={() => setAiPauseMode('off')}
+                                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all ${
+                                        aiPauseMode === 'off'
+                                            ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                            : 'bg-white/[0.04] text-white/30 border border-white/[0.06] hover:bg-white/[0.08]'
+                                    }`}
+                                >
+                                    <Power className="w-3 h-3" />
+                                    AI off
+                                </button>
                             </div>
                             <div className="flex items-center gap-2">
                                 <input

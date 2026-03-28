@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { customerId, message } = await request.json();
+        const { customerId, message, aiPauseMode } = await request.json();
 
         if (!customerId || !message) {
             return NextResponse.json({ error: 'customerId and message are required' }, { status: 400 });
@@ -113,12 +113,23 @@ export async function POST(request: NextRequest) {
             logger.warn('Reply API: chat_history insert failed (non-blocking)', { error: insertError.message });
         }
 
-        // Step 6: Admin Takeover: Pause AI for 30 minutes
-        const pauseTime = new Date(Date.now() + 30 * 60 * 1000).toISOString();
-        await supabase
-            .from('customers')
-            .update({ ai_paused_until: pauseTime })
-            .eq('id', customerId);
+        // Step 6: AI Takeover control
+        if (aiPauseMode === 'off') {
+            // Permanently disable AI for this customer (until manually re-enabled)
+            const farFuture = new Date('2099-12-31T23:59:59Z').toISOString();
+            await supabase
+                .from('customers')
+                .update({ ai_paused_until: farFuture })
+                .eq('id', customerId);
+            logger.info('Reply API: AI permanently disabled for customer', { customerId });
+        } else {
+            // Default: Pause AI for 30 minutes
+            const pauseTime = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+            await supabase
+                .from('customers')
+                .update({ ai_paused_until: pauseTime })
+                .eq('id', customerId);
+        }
 
         logger.info('Reply API: Message sent successfully', { shopId, customerId });
 
