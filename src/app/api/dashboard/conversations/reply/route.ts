@@ -37,10 +37,10 @@ export async function POST(request: NextRequest) {
 
         const supabase = supabaseAdmin();
 
-        // Step 2: Get customer's Facebook ID
+        // Step 2: Get customer's Facebook ID or Instagram ID
         const { data: customer, error: customerError } = await supabase
             .from('customers')
-            .select('facebook_id, name')
+            .select('facebook_id, instagram_id, name')
             .eq('id', customerId)
             .eq('shop_id', shopId)
             .single();
@@ -50,12 +50,16 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: `Хэрэглэгч олдсонгүй (ID: ${customerId})` }, { status: 404 });
         }
 
-        if (!customer.facebook_id) {
-            logger.error('Customer has no facebook_id', { customerId, customerName: customer.name });
-            return NextResponse.json({ error: `${customer.name || 'Хэрэглэгч'}-д Facebook ID байхгүй байна. Messenger-ээр мессеж илгээх боломжгүй.` }, { status: 400 });
+        // Determine recipient: prefer facebook_id, fallback to instagram_id
+        const recipientId = customer.facebook_id || customer.instagram_id;
+        const platform = customer.facebook_id ? 'messenger' : 'instagram';
+
+        if (!recipientId) {
+            logger.error('Customer has no facebook_id or instagram_id', { customerId, customerName: customer.name });
+            return NextResponse.json({ error: `${customer.name || 'Хэрэглэгч'}-д Facebook/Instagram ID байхгүй байна.` }, { status: 400 });
         }
 
-        // Step 3: Get shop's Facebook page access token
+        // Step 3: Get shop's Facebook page access token (used for both Messenger and IG messaging)
         const { data: shop, error: shopError } = await supabase
             .from('shops')
             .select('facebook_page_access_token, name')
@@ -67,27 +71,29 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Shop not configured with Facebook' }, { status: 400 });
         }
 
-        // Step 4: Send message to Facebook Messenger
+        // Step 4: Send message via Graph API (works for both Messenger and Instagram DM)
         logger.info('Reply API: Sending message', {
             shopName: shop.name,
             customerName: customer.name,
-            recipientId: customer.facebook_id,
+            recipientId,
+            platform,
             messageLength: message.length,
         });
 
         try {
             await sendTextMessage({
-                recipientId: customer.facebook_id,
+                recipientId,
                 message: message,
                 pageAccessToken: shop.facebook_page_access_token,
             });
         } catch (sendError: unknown) {
-            // Fallback: try tagged message (bypasses 24-hour window)
+            // Fallback: try tagged message (bypasses 24-hour window, Messenger only)
             logger.warn('Reply API: Standard message failed, trying tagged message', {
                 error: sendError instanceof Error ? sendError.message : 'Unknown',
+                platform,
             });
             await sendTaggedMessage({
-                recipientId: customer.facebook_id,
+                recipientId,
                 message: message,
                 pageAccessToken: shop.facebook_page_access_token,
                 tag: 'ACCOUNT_UPDATE',
