@@ -1,10 +1,19 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Save, Store, CreditCard, Globe, LogOut, Trash2, AlertTriangle, Facebook, Instagram, User, Loader2, Link2, Unlink } from 'lucide-react';
 import { toast } from 'sonner';
 import { logger } from '@/lib/utils/logger';
 
+interface FacebookPage {
+    id: string;
+    name: string;
+    category?: string;
+}
+
 export default function SettingsPage() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [shop, setShop] = useState<any>(null);
@@ -17,14 +26,42 @@ export default function SettingsPage() {
     const [fbConnected, setFbConnected] = useState(false);
     const [igConnected, setIgConnected] = useState(false);
 
+    // Facebook page selection state
+    const [fbPages, setFbPages] = useState<FacebookPage[]>([]);
+    const [fbSelecting, setFbSelecting] = useState(false);
+
+    // Handle Facebook OAuth redirect feedback
+    useEffect(() => {
+        const fbSuccess = searchParams.get('fb_success');
+        const fbError = searchParams.get('fb_error');
+
+        if (fbSuccess) {
+            toast.success('Facebook амжилттай холбогдлоо! Page сонгоно уу.');
+            fetchFbPages();
+            // Clean URL
+            router.replace('/dashboard/settings');
+        }
+        if (fbError) {
+            const errorMessages: Record<string, string> = {
+                'csrf_validation_failed': 'Аюулгүй байдлын шалгалт амжилтгүй. Дахин оролдоно уу.',
+                'no_code': 'Facebook-аас зөвшөөрлийн код ирсэнгүй.',
+                'config_missing': 'App тохиргоо дутуу байна.',
+                'token_error': 'Access token авахад алдаа гарлаа.',
+                'pages_error': 'Facebook Pages уншихад алдаа гарлаа.',
+                'exception': 'Алдаа гарлаа, дахин оролдоно уу.',
+            };
+            toast.error(errorMessages[fbError] || `Facebook холболтын алдаа: ${fbError}`);
+            router.replace('/dashboard/settings');
+        }
+    }, [searchParams]);
+
     // Handle Instagram OAuth redirect feedback
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const igSuccess = params.get('ig_success');
-        const igError = params.get('ig_error');
+        const igSuccess = searchParams.get('ig_success');
+        const igError = searchParams.get('ig_error');
         if (igSuccess) {
             toast.success('Instagram амжилттай холбогдлоо! ✅');
-            window.history.replaceState({}, '', '/dashboard/settings');
+            router.replace('/dashboard/settings');
             fetchSettings();
         }
         if (igError) {
@@ -37,9 +74,9 @@ export default function SettingsPage() {
                 'exception': 'Алдаа гарлаа, дахин оролдоно уу',
             };
             toast.error(errorMessages[igError] || `IG холболтын алдаа: ${igError}`);
-            window.history.replaceState({}, '', '/dashboard/settings');
+            router.replace('/dashboard/settings');
         }
-    }, []);
+    }, [searchParams]);
 
     useEffect(() => { fetchSettings(); }, []);
 
@@ -58,6 +95,73 @@ export default function SettingsPage() {
         } catch (e) { logger.error('Алдаа гарлаа', { error: e }); } finally { setLoading(false); }
     }
 
+    async function fetchFbPages() {
+        try {
+            const res = await fetch('/api/auth/facebook/pages');
+            const data = await res.json();
+            if (data.pages && data.pages.length > 0) {
+                setFbPages(data.pages);
+            } else if (data.code === 'SESSION_EXPIRED') {
+                toast.error('Facebook session дууссан. Дахин холбоно уу.');
+            }
+        } catch {
+            toast.error('Facebook page-ийг татахад алдаа');
+        }
+    }
+
+    async function handleFbPageSelect(pageId: string) {
+        setFbSelecting(true);
+        try {
+            // 1. Get page data (with access token) from cookie
+            const pageRes = await fetch('/api/auth/facebook/pages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pageId }),
+            });
+            const pageData = await pageRes.json();
+
+            if (!pageRes.ok) {
+                if (pageData.code === 'SESSION_EXPIRED') {
+                    setFbPages([]);
+                    toast.error('Session дууссан. Дахин холбож байна...');
+                    setTimeout(() => {
+                        window.location.href = '/api/auth/facebook?returnTo=/dashboard/settings';
+                    }, 1500);
+                    return;
+                }
+                throw new Error(pageData.error || 'Page сонгоход алдаа');
+            }
+
+            // 2. Save to shop via PATCH
+            const shopRes = await fetch('/api/shop', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || '',
+                },
+                body: JSON.stringify({
+                    facebook_page_id: pageData.page.id,
+                    facebook_page_name: pageData.page.name,
+                    facebook_page_access_token: pageData.page.access_token,
+                }),
+            });
+
+            if (!shopRes.ok) {
+                const errData = await shopRes.json().catch(() => ({}));
+                throw new Error(errData.error || 'Дэлгүүрийн мэдээлэл хадгалахад алдаа');
+            }
+
+            setFbConnected(true);
+            setFbPages([]);
+            toast.success(`Facebook Page "${pageData.page.name}" амжилттай холбогдлоо! ✅`);
+            await fetchSettings();
+        } catch (err: unknown) {
+            toast.error((err instanceof Error ? err.message : String(err)) || 'Алдаа гарлаа');
+        } finally {
+            setFbSelecting(false);
+        }
+    }
+
     async function saveSettings(body: Record<string, unknown>) {
         setSaving(true);
         try {
@@ -69,7 +173,15 @@ export default function SettingsPage() {
 
     async function disconnectPlatform(platform: string) {
         try {
-            await fetch('/api/shop', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || '' }, body: JSON.stringify(platform === 'facebook' ? { facebook_page_id: null, facebook_page_name: null, facebook_page_access_token: null } : { instagram_business_account_id: null, instagram_account_id: null, instagram_username: null, instagram_access_token: null }) });
+            await fetch('/api/shop', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'x-shop-id': localStorage.getItem('smarthub_active_shop_id') || '' },
+                body: JSON.stringify(
+                    platform === 'facebook'
+                        ? { facebook_page_id: null, facebook_page_name: null, facebook_page_access_token: null }
+                        : { instagram_business_account_id: null, instagram_username: null, instagram_access_token: null }
+                ),
+            });
             if (platform === 'facebook') setFbConnected(false); else setIgConnected(false);
             toast.success(`${platform === 'facebook' ? 'Facebook' : 'Instagram'} салгагдлаа`);
         } catch { toast.error('Алдаа гарлаа'); }
@@ -143,15 +255,41 @@ export default function SettingsPage() {
                 <h3 className={sectionTitleCls}><Globe className="w-4 h-4 text-white/30" strokeWidth={1.5} />Платформ холболтууд</h3>
                 <div className="space-y-3">
                     {/* Facebook */}
-                    <div className="flex items-center justify-between p-4 bg-[#0D0928] rounded-md border border-white/[0.04]">
-                        <div className="flex items-center gap-3">
-                            <Facebook className="w-5 h-5 text-white/30" strokeWidth={1.5} />
-                            <div><p className="text-[13px] font-medium text-foreground">Facebook</p><p className="text-[11px] text-white/40">{fbConnected ? 'Холбогдсон' : 'Холбогдоогүй'}</p></div>
+                    <div className="p-4 bg-[#0D0928] rounded-md border border-white/[0.04]">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <Facebook className="w-5 h-5 text-white/30" strokeWidth={1.5} />
+                                <div><p className="text-[13px] font-medium text-foreground">Facebook</p><p className="text-[11px] text-white/40">{fbConnected ? 'Холбогдсон' : 'Холбогдоогүй'}</p></div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${fbConnected ? 'bg-emerald-500' : 'bg-white/10'}`} />
+                                {fbConnected ? <button onClick={() => disconnectPlatform('facebook')} className="flex items-center gap-1 px-2.5 py-1 text-[11px] text-red-500 border border-red-500/20 rounded-md hover:bg-red-500/5 transition-colors"><Unlink className="w-3 h-3" strokeWidth={1.5} />Салгах</button> : <a href="/api/auth/facebook?returnTo=/dashboard/settings" className="flex items-center gap-1 px-2.5 py-1 text-[11px] text-emerald-500 border border-emerald-500/20 rounded-md hover:bg-emerald-500/5 transition-colors"><Link2 className="w-3 h-3" strokeWidth={1.5} />Холбох</a>}
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${fbConnected ? 'bg-emerald-500' : 'bg-white/10'}`} />
-                            {fbConnected ? <button onClick={() => disconnectPlatform('facebook')} className="flex items-center gap-1 px-2.5 py-1 text-[11px] text-red-500 border border-red-500/20 rounded-md hover:bg-red-500/5 transition-colors"><Unlink className="w-3 h-3" strokeWidth={1.5} />Салгах</button> : <a href="/api/auth/facebook" className="flex items-center gap-1 px-2.5 py-1 text-[11px] text-emerald-500 border border-emerald-500/20 rounded-md hover:bg-emerald-500/5 transition-colors"><Link2 className="w-3 h-3" strokeWidth={1.5} />Холбох</a>}
-                        </div>
+
+                        {/* Page selection UI — shown after OAuth redirect */}
+                        {fbPages.length > 0 && (
+                            <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                                <p className="text-[12px] text-white/50 mb-3">Page сонгоно уу:</p>
+                                <div className="space-y-2">
+                                    {fbPages.map((page) => (
+                                        <button
+                                            key={page.id}
+                                            onClick={() => handleFbPageSelect(page.id)}
+                                            disabled={fbSelecting}
+                                            className="w-full flex items-center gap-3 p-3 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] hover:border-emerald-500/30 rounded-lg transition-all disabled:opacity-50"
+                                        >
+                                            <Facebook className="w-4 h-4 text-blue-400" strokeWidth={1.5} />
+                                            <div className="text-left flex-1">
+                                                <p className="text-[13px] font-medium text-foreground">{page.name}</p>
+                                                {page.category && <p className="text-[11px] text-white/30">{page.category}</p>}
+                                            </div>
+                                            {fbSelecting && <Loader2 className="w-3.5 h-3.5 animate-spin text-white/40" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                     {/* Instagram */}
                     <div className="flex items-center justify-between p-4 bg-[#0D0928] rounded-md border border-white/[0.04]">

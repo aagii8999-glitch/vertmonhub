@@ -9,30 +9,35 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get('state');
   const origin = request.nextUrl.origin;
 
+  // Read return destination from cookie (defaults to /setup)
+  const cookieStore = await cookies();
+  const returnTo = cookieStore.get('fb_oauth_return_to')?.value || '/setup';
+  // Clean up returnTo cookie
+  cookieStore.delete('fb_oauth_return_to');
+
   // Handle error from Facebook
   if (error) {
     const errorReason = searchParams.get('error_reason') || 'Unknown error';
-    return NextResponse.redirect(`${origin}/setup?fb_error=${encodeURIComponent(errorReason)}`);
+    return NextResponse.redirect(`${origin}${returnTo}?fb_error=${encodeURIComponent(errorReason)}`);
   }
 
   // SEC-4: Verify CSRF state token
-  const cookieStore = await cookies();
   const savedState = cookieStore.get('fb_oauth_state')?.value;
   if (!state || !savedState || state !== savedState) {
-    return NextResponse.redirect(`${origin}/setup?fb_error=csrf_validation_failed`);
+    return NextResponse.redirect(`${origin}${returnTo}?fb_error=csrf_validation_failed`);
   }
   // Clear the state cookie
   cookieStore.delete('fb_oauth_state');
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/setup?fb_error=no_code`);
+    return NextResponse.redirect(`${origin}${returnTo}?fb_error=no_code`);
   }
 
   const appId = process.env.FACEBOOK_APP_ID?.trim();
   const appSecret = process.env.FACEBOOK_APP_SECRET?.trim();
 
   if (!appId || !appSecret || appSecret === 'your_facebook_app_secret') {
-    return NextResponse.redirect(`${origin}/setup?fb_error=config_missing`);
+    return NextResponse.redirect(`${origin}${returnTo}?fb_error=config_missing`);
   }
 
   const redirectUri = `${origin}/api/auth/facebook/callback`;
@@ -50,7 +55,7 @@ export async function GET(request: NextRequest) {
 
     if (tokenData.error) {
       logger.error('Facebook token error:', { error: tokenData.error });
-      return NextResponse.redirect(`${origin}/setup?fb_error=token_error`);
+      return NextResponse.redirect(`${origin}${returnTo}?fb_error=token_error`);
     }
 
     const userAccessToken = tokenData.access_token;
@@ -62,7 +67,7 @@ export async function GET(request: NextRequest) {
 
     if (pagesData.error) {
       logger.error('Facebook pages error:', { error: pagesData.error });
-      return NextResponse.redirect(`${origin}/setup?fb_error=pages_error`);
+      return NextResponse.redirect(`${origin}${returnTo}?fb_error=pages_error`);
     }
 
     // Store pages data in a cookie
@@ -71,20 +76,19 @@ export async function GET(request: NextRequest) {
     const encodedPages = Buffer.from(pagesJson).toString('base64');
 
     // Set cookie with pages data
-    const cookieStore = await cookies();
     cookieStore.set('fb_pages', encodedPages, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 86400, // 24 hours (was 1 hour)
+      maxAge: 86400, // 24 hours
       path: '/',
     });
 
-    // Redirect back to setup with success
-    return NextResponse.redirect(`${origin}/setup?fb_success=true&page_count=${pages.length}`);
+    // Redirect back to the originating page with success
+    return NextResponse.redirect(`${origin}${returnTo}?fb_success=true&page_count=${pages.length}`);
 
   } catch (err) {
     logger.error('Facebook OAuth error:', { error: err });
-    return NextResponse.redirect(`${origin}/setup?fb_error=exception`);
+    return NextResponse.redirect(`${origin}${returnTo}?fb_error=exception`);
   }
 }

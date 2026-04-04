@@ -13,6 +13,9 @@ export async function GET(request: NextRequest) {
   const origin = request.nextUrl.origin;
   const redirectUri = `${origin}/api/auth/facebook/callback`;
 
+  // Determine where to return after OAuth completes
+  const returnTo = request.nextUrl.searchParams.get('returnTo') || '/setup';
+
   // Required permissions for Messenger chatbot
   const permissions = [
     'pages_show_list',
@@ -32,9 +35,16 @@ export async function GET(request: NextRequest) {
   fbAuthUrl.searchParams.set('response_type', 'code');
   fbAuthUrl.searchParams.set('state', state);
 
-  // Store state in cookie for callback verification
+  // Store state and returnTo in cookies for callback verification
   const response = NextResponse.redirect(fbAuthUrl.toString());
   response.cookies.set('fb_oauth_state', state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 600, // 10 minutes
+    path: '/',
+  });
+  response.cookies.set('fb_oauth_return_to', returnTo, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -44,4 +54,3 @@ export async function GET(request: NextRequest) {
 
   return response;
 }
-

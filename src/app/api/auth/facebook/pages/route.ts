@@ -69,8 +69,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Page not found' }, { status: 404 });
     }
 
-    // Clear the cookie after use
-    cookieStore.delete('fb_pages');
+    // Set short expiry instead of immediate delete — allows retry if downstream DB save fails
+    cookieStore.set('fb_pages', pagesCookie.value, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 300, // 5 minutes for retry window
+      path: '/',
+    });
 
     // Subscribe the page to the app's webhook so messages flow through
     try {

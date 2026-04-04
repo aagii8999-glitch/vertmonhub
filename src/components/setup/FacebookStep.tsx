@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   Facebook, CheckCircle, ArrowLeft, ArrowRight,
-  MessageSquare, ExternalLink, Package, RefreshCw
+  MessageSquare, ExternalLink, RefreshCw
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -39,7 +39,6 @@ export function FacebookStep({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
-  const [fbLoading, setFbLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const { t } = useLanguage();
 
@@ -78,26 +77,7 @@ export function FacebookStep({
     }
   };
 
-  const fetchPagesWithToken = async () => {
-    if (!manualToken) {
-      setError('Page Access Token оруулна уу');
-      return;
-    }
-    setFbLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`https://graph.facebook.com/v21.0/me/accounts?access_token=${manualToken}&fields=id,name,access_token,category`);
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
-      // Logic for updating list from token can be complex, for now let's keep it simple
-      // or just allow saving the token manually
-      setError('Энэ хэсгийг parent-аас удирдах эсвэл шууд хадгалах боломжтой');
-    } catch (err: unknown) {
-      setError((err instanceof Error ? err.message : String(err)) || 'Page татахад алдаа гарлаа');
-    } finally {
-      setFbLoading(false);
-    }
-  };
+
 
   return (
     <div className="space-y-6">
@@ -208,7 +188,7 @@ export function FacebookStep({
                   <li><a href="https://developers.facebook.com/apps" target="_blank" rel="noopener" className="text-blue-600 hover:underline inline-flex items-center gap-1 font-medium">Facebook Developers <ExternalLink className="w-3 h-3" /></a> руу орно</li>
                   <li>Апп үүсгээд Messenger product нэмнэ</li>
                   <li>Page Access Token авна</li>
-                  <li>Webhook URL: <code className="bg-white px-2 py-0.5 rounded text-xs border border-blue-200 select-all">https://smarthub-opal.vercel.app/api/webhook</code></li>
+                  <li>Webhook URL: <code className="bg-white px-2 py-0.5 rounded text-xs border border-blue-200 select-all">{typeof window !== 'undefined' ? window.location.origin : 'https://www.syncly.mn'}/api/webhook</code></li>
                 </ol>
               </div>
 

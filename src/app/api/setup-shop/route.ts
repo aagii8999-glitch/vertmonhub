@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
         .from('shops')
         .insert({
             name: shopName,
-            facebook_page_id: pageId
+            facebook_page_id: pageId,
+            user_id: userId
         })
         .select()
         .single();
